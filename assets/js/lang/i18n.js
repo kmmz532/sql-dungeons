@@ -31,7 +31,7 @@ export class I18n {
 	async init() {
 		try {
 			// 言語ファイルを読み込む
-			const response = await fetch(`/assets/lang/${this.locale}.json`);
+			const response = await fetch(`./assets/lang/${this.locale}.json`);
 			const translations = await response.json();
 			this.translations.set(this.locale, translations);
 
