@@ -1,0 +1,45 @@
+{
+    "items": [
+        {
+            "id": "java_coffee",
+            "name": "item.sqldungeons.java_coffee",
+            "desc": "item.sqldungeons.java_coffee.desc",
+            "price": 50,
+            "effectType": "energy",
+            "effectValue": 5
+        },
+        {
+            "id": "postgres_ramen",
+            "name": "item.sqldungeons.postgres_ramen",
+            "desc": "item.sqldungeons.postgres_ramen.desc",
+            "price": 130,
+            "effectType": "energy",
+            "effectValue": 15
+        },
+        {
+            "id": "oracle_steak",
+            "name": "item.sqldungeons.oracle_steak",
+            "desc": "item.sqldungeons.oracle_steak.desc",
+            "price": 250,
+            "effectType": "energy",
+            "effectValue": 30
+        },
+        {
+            "id": "ku_next_pack",
+            "name": "item.sqldungeons.ku_next",
+            "desc": "item.sqldungeons.ku_next.desc",
+            "price": 150,
+            "effectType": "kuNext",
+            "effectValue": 5
+        },
+        {
+            "id": "consumable_having",
+            "name": "item.sqldungeons.having",
+            "desc": "item.sqldungeons.having.desc",
+            "price": 250,
+            "effectType": "consumableItem",
+            "effectItem": "HAVING",
+            "effectValue": 1
+        }
+    ]
+}

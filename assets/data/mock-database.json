@@ -1,0 +1,35 @@
+{
+    "products": [
+        { "product_id": 1, "name": "薬草", "category": "回復", "price": 50 },
+        { "product_id": 2, "name": "鋼の剣", "category": "武器", "price": 1500 },
+        { "product_id": 3, "name": "鉄の盾", "category": "防具", "price": 1200 },
+        { "product_id": 4, "name": "魔法の鍵", "category": "重要", "price": 800 },
+        { "product_id": 5, "name": "クリスタルの杖", "category": "武器", "price": 3000 }
+    ],
+    "monsters": [
+        { "monster_id": 1, "name": "スライムA", "species": "スライム", "hp": 10 },
+        { "monster_id": 2, "name": "ゴブリンB", "species": "ゴブリン", "hp": 30 },
+        { "monster_id": 3, "name": "スライムC", "species": "スライム", "hp": 12 },
+        { "monster_id": 4, "name": "オークD", "species": "オーク", "hp": 80 },
+        { "monster_id": 5, "name": "ゴブリンE", "species": "ゴブリン", "hp": 35 },
+        { "monster_id": 6, "name": "ゴブリンF", "species": "ゴブリン", "hp": 28 }
+    ],
+    "employees": [
+        { "emp_id": 101, "emp_name": "アーサー", "dept_id": 1 },
+        { "emp_id": 102, "emp_name": "ベリル", "dept_id": 2 },
+        { "emp_id": 103, "emp_name": "セシル", "dept_id": 2 },
+        { "emp_id": 104, "emp_name": "ダイアナ", "dept_id": 3 }
+    ],
+    "departments": [
+        { "dept_id": 1, "dept_name": "営業部" },
+        { "dept_id": 2, "dept_name": "開発部" },
+        { "dept_id": 3, "dept_name": "経理部" }
+    ],
+    "sales": [
+        { "sale_id": 1, "emp_id": 101, "quantity": 5, "sale_date": "2025-01-10" },
+        { "sale_id": 2, "emp_id": 102, "quantity": 10, "sale_date": "2025-01-12" },
+        { "sale_id": 3, "emp_id": 103, "quantity": 8, "sale_date": "2025-02-05" },
+        { "sale_id": 4, "emp_id": 102, "quantity": 12, "sale_date": "2025-02-08" },
+        { "sale_id": 5, "emp_id": 101, "quantity": 3, "sale_date": "2025-03-01" }
+    ]
+}
