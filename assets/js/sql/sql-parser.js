@@ -1,6 +1,10 @@
+// SQLParser: クエリのバリデーションとエミュレーションを統合
 
 import { getFallbackClauseClasses } from './clause/exports.js';
 import Registry from '../register.js';
+import { SumFunction } from './aggregate/sum-function.js';
+import { CountFunction } from './aggregate/count-function.js';
+import { AvgFunction } from './aggregate/avg-function.js';
 
 // Helper: resolve clause class from runtime registry with constants fallback
 const getClauseClass = (key) => {
@@ -13,12 +17,7 @@ const getClauseClass = (key) => {
     const fb = getFallbackClauseClasses();
     return fb[key];
 };
-// SQLParser: クエリのバリデーションとエミュレーションを統合
 
-/**
- * SQLParser: SQL文の簡易パースと模擬実行エンジン
- * 今後のSandbox拡張も見据えた設計
- */
 /**
  * SQLParser: SQL文の簡易パースと模擬実行エンジン
  * 今後のSandbox拡張も見据えた設計
@@ -61,9 +60,9 @@ export class SQLParser {
 
             // Handle INSERT via registered clause class (non-mutating)
             if (parsed.insert) {
-                const insertCls = CLAUSE_CLASSES.INSERT;
-                if (insertCls && typeof insertCls.apply === 'function') {
-                    return insertCls.apply(parsed.insert, mockDatabase);
+                const InsertCls = getClauseClass('INSERT');
+                if (InsertCls && typeof InsertCls.apply === 'function') {
+                    return InsertCls.apply(parsed.insert, mockDatabase);
                 }
                 return [];
             }
@@ -141,11 +140,32 @@ export class SQLParser {
                 }
             }
 
-            // GROUP BY句
+            // GROUP BY句 (集約関数を受け取って集計する)
             if (parsed.groupBy) {
                 const GroupByCls = getClauseClass('GROUP BY');
-                if (GroupByCls && typeof GroupByCls.apply === 'function') {
-                    resultTable = GroupByCls.apply(resultTable, parsed);
+                if (GroupByCls) {
+                    // Build aggregate function instances expected by GroupByClause
+                    const aggInstances = (parsed.aggregateFns || []).map(af => {
+                        switch (af.fn) {
+                            case 'SUM': return new SumFunction(af.column);
+                            case 'COUNT': return new CountFunction(af.column === '*' ? undefined : af.column);
+                            case 'AVG': return new AvgFunction(af.column);
+                            default: return null;
+                        }
+                    }).filter(Boolean);
+                    if (typeof GroupByCls.groupAndAggregate === 'function') {
+                        resultTable = GroupByCls.groupAndAggregate(resultTable, parsed.groupBy, aggInstances);
+                    } else if (typeof GroupByCls.apply === 'function') {
+                        resultTable = GroupByCls.apply(resultTable, parsed);
+                    }
+                }
+            }
+
+            // HAVING句: グループ化後の絞り込み
+            if (parsed.having) {
+                const HavingCls = getClauseClass('HAVING');
+                if (HavingCls && typeof HavingCls.apply === 'function') {
+                    resultTable = HavingCls.apply(resultTable, parsed.having);
                 }
             }
 
@@ -214,7 +234,9 @@ export class SQLParser {
             where: whereMatch ? whereMatch[1].trim() : null,
             groupBy: groupByMatch ? groupByMatch[1].split(',').map(s => s.trim()) : null,
             orderBy,
-            joins: []
+            joins: [],
+            aggregateFns: [],
+            having: null
         };
 
         let jm;
@@ -222,6 +244,19 @@ export class SQLParser {
             // jm[1]=table, jm[2]=alias?, jm[3]=onExpr
             parsed.joins.push({ table: jm[1], alias: jm[2] || null, on: jm[3].trim(), type: 'inner' });
         }
+
+        // Extract aggregate functions from SELECT list (SUM/COUNT/AVG)
+        const aggRe = /(SUM|COUNT|AVG)\s*\(\s*(\*|[A-Za-z_][A-Za-z0-9_]*)\s*\)/ig;
+        for (const s of parsed.select) {
+            const m = aggRe.exec(s);
+            if (m) {
+                parsed.aggregateFns.push({ fn: m[1].toUpperCase(), column: m[2] });
+            }
+        }
+
+        // Extract HAVING clause if present
+        const havingMatch = query.match(/having\s+(.+?)(order by|$)/i);
+        if (havingMatch) parsed.having = havingMatch[1].trim();
 
         return parsed;
     }

@@ -1,5 +1,4 @@
 {
-    "game.title": "SQL地牢 - 初级 -",
     "app.title": "SQL地牢",
     "app.title.beginner": "SQL地牢 - 初级 -",
     "app.intro.text": "掌握SQL魔法，解开地牢的谜题！",
@@ -14,10 +13,7 @@
     "modal.hint.title": "提示",
     "modal.close": "×",
     "game.editor.placeholder": "在此输入SQL...",
-    "game.description.line1": "掌握SQL魔法，解开地牢的谜题！",
-    "game.description.line2": "执行查询会消耗能量，提示需要金币。",
-    "game.description.line3": "明智地管理资源，挑战最深层！",
-
+            
     "button.start": "新游戏",
     "button.load": "加载游戏",
     "button.retry": "再试一次",

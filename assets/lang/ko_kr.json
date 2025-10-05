@@ -1,5 +1,4 @@
 {
-    "game.title": "SQL 던전 - 초급 -",
     "app.title": "SQL 던전",
     "app.title.beginner": "SQL 던전 - 초급 -",
     "app.intro.text": "SQL 마법을 익히고 던전의 수수께끼를 풀어라!",
@@ -14,10 +13,7 @@
     "modal.hint.title": "힌트",
     "modal.close": "×",
     "game.editor.placeholder": "여기에 SQL을 입력...",
-    "game.description.line1": "SQL 마법을 익혀 던전의 수수께끼를 풀어라!",
-    "game.description.line2": "쿼리 실행에는 에너지가, 힌트에는 골드가 소모됩니다.",
-    "game.description.line3": "자원을 현명하게 관리하여 최심부를 노려라!",
-
+            
     "button.start": "새 게임",
     "button.load": "게임 불러오기",
     "button.retry": "다시 도전",

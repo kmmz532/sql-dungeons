@@ -1,5 +1,4 @@
 {
-    "game.title": "SQL Dungeon - Beginner -",
     "app.title": "SQL Dungeon",
     "app.title.beginner": "SQL Dungeon - Beginner -",
     "app.intro.text": "Master SQL spells and solve the dungeon's mysteries!",
@@ -14,10 +13,7 @@
     "modal.hint.title": "Hint",
     "modal.close": "×",
     "game.editor.placeholder": "Enter SQL here...",
-    "game.description.line1": "Master SQL spells and solve the dungeon's mysteries!",
-    "game.description.line2": "Executing queries consumes Energy, hints cost Gold.",
-    "game.description.line3": "Manage your resources wisely and reach the deepest level!",
-
+            
     "button.start": "New Game",
     "button.load": "Load Game",
     "button.retry": "Try Again",

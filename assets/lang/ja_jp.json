@@ -1,5 +1,4 @@
 {
-    "game.title": "SQLダンジョン - 初級 -",
     "app.title": "SQLダンジョン",
     "app.title.beginner": "SQLダンジョン - 初級 -",
     "app.intro.text": "SQLの呪文を習得し、ダンジョンの謎を解き明かせ！",
@@ -14,10 +13,7 @@
     "modal.hint.title": "ヒント",
     "modal.close": "×",
     "game.editor.placeholder": "ここにSQLを入力...",
-    "game.description.line1": "SQLの呪文を習得し、ダンジョンの謎を解き明かせ！",
-    "game.description.line2": "クエリ実行にはエネルギーを、ヒントにはゴールドを消費する。",
-    "game.description.line3": "賢くリソースを管理し、最深部を目指せ！",
-
+    
     "button.start": "新しくプレイ",
     "button.load": "コンティニュー",
     "button.retry": "もう一度挑戦する",

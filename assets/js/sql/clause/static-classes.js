@@ -5,7 +5,8 @@ export const CLAUSE_MANIFEST = {
     WHERE: './where-clause.js',
     'GROUP BY': './groupby-clause.js',
     'ORDER BY': './orderby-clause.js',
-    INSERT: './insert-clause.js'
+    INSERT: './insert-clause.js',
+    HAVING: './having-clause.js'
 };
 
 export default { CLAUSE_MANIFEST };
