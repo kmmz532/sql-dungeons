@@ -10,7 +10,7 @@ export class DOMManager {
     initializeElements() {
         const ids = [
             'start-screen', 'game-screen', 'end-screen', 'game-grid',
-            'start-button', 'load-button', 'retry-button', 'save-button',
+            'start-button', 'load-button', 'sandbox-button', 'retry-button', 'save-button',
             'next-floor-btn', 'floor-title', 'gold-status', 'energy-status',
             'inventory-list', 'quest-story', 'quest-schema', 'sql-editor',
             'execute-btn', 'hint-btn', 'ku-next-btn', 'result-area',

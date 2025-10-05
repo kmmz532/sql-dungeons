@@ -10,6 +10,7 @@ export function setupUIHandlers(game) {
     const dom = game.dom;
     dom.elements['start-button'].addEventListener('click', () => game.startGame());
     dom.elements['load-button'].addEventListener('click', () => game.loadGame());
+    dom.elements['sandbox-button'].addEventListener('click', () => game.startSandbox());
     dom.elements['retry-button'].addEventListener('click', () => game.startGame());
     dom.elements['save-button'].addEventListener('click', () => game.saveGame());
     dom.elements['execute-btn'].addEventListener('click', () => executeQuery(game));
