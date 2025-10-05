@@ -16,7 +16,8 @@ export class WhereClause extends AbstractClause {
      */
     static apply(table, whereStr) {
         // 例: price >= 1000, name = 'foo', e.price >= d.avg
-        const m = whereStr.match(/(\w+(?:\.\w+)?)\s*(=|>=|<=|>|<)\s*('?\w+'?)/);
+    // Allow RHS to be quoted strings (may contain hyphens) or unquoted token
+    const m = whereStr.match(/(\w+(?:\.\w+)?)\s*(=|>=|<=|>|<)\s*('.*?'|[^\s]+)/);
         if (!m) return table;
         const [_, col, op, valRaw] = m;
         let val = valRaw.replace(/'/g, '');

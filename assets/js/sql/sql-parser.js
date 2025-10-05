@@ -56,6 +56,8 @@ export class SQLParser {
         try {
             // SQL文をパース
             const parsed = this.parseSQL(query);
+            try { console.debug('[SQLParser] parsed:', parsed); } catch (e) {}
+            try { console.debug('[SQLParser] parsed.joins=', parsed.joins); } catch(e){}
             if (!parsed) return [];
 
             // Handle INSERT via registered clause class (non-mutating)
@@ -86,6 +88,8 @@ export class SQLParser {
 
             // 初期 accumulated rows
             let accumulated = baseRows.map(r => prefixRow(r, baseName));
+            try { console.debug('[SQLParser] after base rows, accumulated=', accumulated.length); } catch(e){}
+            try { console.debug('[SQLParser] accumulated sample keys=', Object.keys(accumulated[0] || {}).slice(0,20)); } catch(e){}
 
             // 各 JOIN を順に適用（簡易的な nested-loop INNER JOIN）
             if (parsed.joins && parsed.joins.length) {
@@ -127,24 +131,57 @@ export class SQLParser {
                         }
                     }
                     accumulated = newAccum;
+                    try { console.debug('[SQLParser] after join', j.table, 'accumulated=', accumulated.length); } catch(e){}
                     if (accumulated.length === 0) break;
                 }
             }
 
-            // WHERE句フィルタ（registry 経由で取得、constants をフォールバック）
+            // フェーズ順をランタイムの登録状況（レジストリ）またはフォールバック manifest から決定する
             let resultTable = accumulated;
-            if (parsed.where) {
-                const WhereCls = getClauseClass('WHERE');
-                if (WhereCls && typeof WhereCls.apply === 'function') {
-                    resultTable = WhereCls.apply(resultTable, parsed.where);
-                }
-            }
+            try { console.debug('[SQLParser] before clauses, rows=', resultTable.length); } catch(e){}
+            const registered = Registry.getAll ? Registry.getAll() : {};
+            // getAll returns an object of { KEY: ctor }
+            const runtimeKeys = Object.keys(registered || {});
 
-            // GROUP BY句 (集約関数を受け取って集計する)
-            if (parsed.groupBy) {
-                const GroupByCls = getClauseClass('GROUP BY');
-                if (GroupByCls) {
-                    // Build aggregate function instances expected by GroupByClause
+            // fallback manifest keys (from static export) if registry is empty
+            const fallbackManifest = getFallbackClauseClasses();
+            const fallbackKeys = Object.keys(fallbackManifest || {});
+
+            // Decide keys to consider, prefer runtimeKeys if present else fallbackKeys
+            let keys = runtimeKeys.length ? runtimeKeys : fallbackKeys;
+
+            // Ensure deterministic ordering: we'll execute WHERE before GROUP BY before HAVING before ORDER BY before SELECT
+            const orderPreference = ['WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'SELECT'];
+            // Keep only keys that exist in keys and sort by preference (unknown keys go before SELECT but after known ones)
+            keys = keys.filter(k => k && typeof k === 'string');
+            keys.sort((a, b) => {
+                const ia = orderPreference.indexOf(a.toUpperCase());
+                const ib = orderPreference.indexOf(b.toUpperCase());
+                if (ia === -1 && ib === -1) return a.localeCompare(b);
+                if (ia === -1) return 1;
+                if (ib === -1) return -1;
+                return ia - ib;
+            });
+
+            // Ensure SELECT is last
+            keys = keys.filter(k => k.toUpperCase() !== 'SELECT').concat(keys.filter(k => k.toUpperCase() === 'SELECT'));
+
+            for (const key of keys) {
+                const phase = key.toUpperCase();
+                const Cls = getClauseClass(phase);
+                if (!Cls) continue;
+
+                // map phase to parsed property
+                let prop = null;
+                if (phase === 'WHERE') prop = 'where';
+                else if (phase === 'GROUP BY') prop = 'groupBy';
+                else if (phase === 'HAVING') prop = 'having';
+                else if (phase === 'ORDER BY') prop = 'orderBy';
+                else if (phase === 'SELECT') prop = 'select';
+                // skip if not present in parsed
+                if (!prop || !(prop in parsed) || parsed[prop] == null) continue;
+
+                if (phase === 'GROUP BY') {
                     const aggInstances = (parsed.aggregateFns || []).map(af => {
                         switch (af.fn) {
                             case 'SUM': return new SumFunction(af.column);
@@ -153,35 +190,39 @@ export class SQLParser {
                             default: return null;
                         }
                     }).filter(Boolean);
-                    if (typeof GroupByCls.groupAndAggregate === 'function') {
-                        resultTable = GroupByCls.groupAndAggregate(resultTable, parsed.groupBy, aggInstances);
-                    } else if (typeof GroupByCls.apply === 'function') {
-                        resultTable = GroupByCls.apply(resultTable, parsed);
+                    if (typeof Cls.groupAndAggregate === 'function') {
+                        resultTable = Cls.groupAndAggregate(resultTable, parsed.groupBy, aggInstances);
+                        try { console.debug('[SQLParser] after GROUP BY, rows=', resultTable.length, 'sample=', resultTable.slice(0,3)); } catch(e){}
+                        continue;
                     }
                 }
-            }
 
-            // HAVING句: グループ化後の絞り込み
-            if (parsed.having) {
-                const HavingCls = getClauseClass('HAVING');
-                if (HavingCls && typeof HavingCls.apply === 'function') {
-                    resultTable = HavingCls.apply(resultTable, parsed.having);
+                if (phase === 'HAVING' || phase === 'WHERE') {
+                    if (typeof Cls.apply === 'function') {
+                        resultTable = Cls.apply(resultTable, parsed[prop]);
+                        try { console.debug('[SQLParser] after', phase, 'rows=', resultTable.length, 'sample=', resultTable.slice(0,3)); } catch(e){}
+                    }
+                    continue;
+                }
+
+                if (phase === 'ORDER BY') {
+                    if (typeof Cls.apply === 'function') {
+                        resultTable = Cls.apply(resultTable, parsed.orderBy);
+                        try { console.debug('[SQLParser] after ORDER BY, rows=', resultTable.length); } catch(e){}
+                    }
+                    continue;
+                }
+
+                if (phase === 'SELECT') {
+                    if (typeof Cls.apply === 'function') {
+                        const finalRes = Cls.apply(resultTable, parsed.select);
+                        try { console.debug('[SQLParser] SELECT result rows=', finalRes.length, 'sample=', finalRes.slice(0,3)); } catch(e){}
+                        return finalRes;
+                    }
+                    return [];
                 }
             }
 
-            // ORDER BY句
-            if (parsed.orderBy) {
-                const OrderByCls = getClauseClass('ORDER BY');
-                if (OrderByCls && typeof OrderByCls.apply === 'function') {
-                    resultTable = OrderByCls.apply(resultTable, parsed.orderBy);
-                }
-            }
-
-            // SELECT句
-            const SelectCls = getClauseClass('SELECT');
-            if (SelectCls && typeof SelectCls.apply === 'function') {
-                return SelectCls.apply(resultTable, parsed.select);
-            }
             return [];
         } catch (e) {
             return [];
@@ -206,7 +247,13 @@ export class SQLParser {
         // SELECT ... FROM ... [WHERE ...] [GROUP BY ...] [ORDER BY ...]
     const selectMatch = query.match(/select\s+(.+?)\s+from\s+/i);
     // FROM と alias (例: from employees as e)
-    const fromMatch = query.match(/from\s+(\w+)(?:\s+(?:as\s+)?(\w+))?/i);
+    // Use the first occurrence of 'from' to avoid accidentally matching nested or later FROMs
+    const fromPos = query.search(/\bfrom\b/i);
+    let fromMatch = null;
+    if (fromPos !== -1) {
+        const tail = query.slice(fromPos);
+        fromMatch = tail.match(/from\s+(\w+)(?:\s+(?:as\s+)?(\w+))?/i);
+    }
     const whereMatch = query.match(/where\s+(.+?)(group by|having|order by|$)/i);
     const groupByMatch = query.match(/group by\s+([\w\., ]+)/i);
     const orderByMatch = query.match(/order by\s+([\w\.\s,]+)(asc|desc)?/i);
@@ -230,7 +277,7 @@ export class SQLParser {
 
         const parsed = {
             select: selectMatch[1].split(',').map(s => s.trim()),
-            from: { table: fromMatch[1], alias: fromMatch[2] || null },
+            from: { table: fromMatch ? fromMatch[1] : null, alias: fromMatch ? (fromMatch[2] || null) : null },
             where: whereMatch ? whereMatch[1].trim() : null,
             groupBy: groupByMatch ? groupByMatch[1].split(',').map(s => s.trim()) : null,
             orderBy,
@@ -239,6 +286,8 @@ export class SQLParser {
             having: null
         };
 
+    try { console.debug('[SQLParser] parsed.from=', parsed.from); } catch(e){}
+
         let jm;
         while ((jm = joinSegmentRegex.exec(query)) !== null) {
             // jm[1]=table, jm[2]=alias?, jm[3]=onExpr
@@ -246,9 +295,10 @@ export class SQLParser {
         }
 
         // Extract aggregate functions from SELECT list (SUM/COUNT/AVG)
-        const aggRe = /(SUM|COUNT|AVG)\s*\(\s*(\*|[A-Za-z_][A-Za-z0-9_]*)\s*\)/ig;
+        // Support qualified column names like s.quantity
+        const aggReSingle = /(SUM|COUNT|AVG)\s*\(\s*(\*|(?:\w+(?:\.\w+)?))\s*\)/i;
         for (const s of parsed.select) {
-            const m = aggRe.exec(s);
+            const m = s.match(aggReSingle);
             if (m) {
                 parsed.aggregateFns.push({ fn: m[1].toUpperCase(), column: m[2] });
             }

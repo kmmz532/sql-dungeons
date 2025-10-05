@@ -2,7 +2,6 @@ import { AbstractClause } from './abstract-clause.js';
 
 /**
  * HAVING句クラス（グループ化後の条件フィルタ）
- * 今回は簡易的に "SUM(col) >= N" などの比較式をサポートする
  */
 export class HavingClause extends AbstractClause {
     constructor(i18n) {
@@ -16,8 +15,9 @@ export class HavingClause extends AbstractClause {
      */
     static apply(table, havingStr) {
         if (!havingStr || !table || table.length === 0) return table;
-        // サポートする形式: SUM(col) >= 10, COUNT(*) > 2, AVG(col) < 5 など
-        const m = havingStr.match(/(SUM|COUNT|AVG)\s*\(\s*(\*|[A-Za-z_][A-Za-z0-9_]*)\s*\)\s*(=|>=|<=|>|<)\s*('?\d+'?)/i);
+        // eg: SUM(col) >= 10, COUNT(*) > 2, AVG(col) < 5 など
+    // Support qualified column names inside aggregate, e.g. SUM(s.quantity)
+    const m = havingStr.match(/(SUM|COUNT|AVG)\s*\(\s*(\*|(?:\w+(?:\.\w+)?))\s*\)\s*(=|>=|<=|>|<)\s*('?\d+'?)/i);
         if (!m) return table;
         const fn = m[1].toUpperCase();
         const col = m[2];
@@ -26,7 +26,7 @@ export class HavingClause extends AbstractClause {
         rhs = Number(rhs);
 
         const resolveValue = (row) => {
-            // グループ化結果のキー名は集約関数表現そのままで格納される想定
+            // グループ化結果のキー名は集約関数表現そのままで格納される
             const key = `${fn}(${col})`;
             return row[key] !== undefined ? Number(row[key]) : undefined;
         };
