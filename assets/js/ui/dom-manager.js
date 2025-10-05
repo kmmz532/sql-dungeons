@@ -5,6 +5,14 @@ export class DOMManager {
         this.elements = {};
         this.initializeElements();
         this.setupEventListeners();
+        // Create a global tooltip element for inventory/tooltips
+        try {
+            this.tooltipEl = document.createElement('div');
+            this.tooltipEl.id = 'tooltip';
+            this.tooltipEl.className = 'tooltip';
+            this.tooltipEl.style.display = 'none';
+            document.body.appendChild(this.tooltipEl);
+        } catch (e) { this.tooltipEl = null; }
     }
 
     initializeElements() {
@@ -77,17 +85,28 @@ export class DOMManager {
         table.id = 'result-table';
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
-        Object.keys(data[0]).forEach(key => {
+        // Use stable keys from the first row and display simplified header names
+        const keys = Object.keys(data[0]);
+        const simplify = (k) => {
+            // If qualified like 'table.column', show only the column part
+            if (typeof k === 'string' && k.indexOf('.') !== -1) return k.split('.').pop();
+            return k;
+        };
+        keys.forEach(key => {
             const th = document.createElement('th');
-            th.textContent = key;
+            th.textContent = simplify(key);
+            th.dataset.key = key;
             headerRow.appendChild(th);
         });
         const tbody = table.createTBody();
         data.forEach(rowData => {
             const row = tbody.insertRow();
-            Object.values(rowData).forEach(value => {
+            // Render cells in the same key order as headers
+            keys.forEach(k => {
                 const cell = row.insertCell();
-                cell.textContent = value;
+                const v = rowData.hasOwnProperty(k) ? rowData[k] : rowData[k.replace(/^[^\.]+\./, '')];
+                // fallback: if key missing (because server returned unqualified keys), try without prefix
+                cell.textContent = (v === undefined || v === null) ? '' : v;
             });
         });
         this.elements['result-area'].appendChild(table);
@@ -117,6 +136,35 @@ export class DOMManager {
             if (count > 0) text += ` (x${count})`;
             itemEl.textContent = text;
             itemEl.dataset.item = item;
+            // tooltip: show usage/help when hovering over learned spells
+            try {
+                if (this.tooltipEl) {
+                    itemEl.addEventListener('mouseenter', (ev) => {
+                        const keyBase = String(item).toLowerCase().replace(/\s+/g, '_');
+                        const tryKey = `sql.keyword.${String(item).toLowerCase()}.desc`;
+                        let desc = this.i18n.t(tryKey);
+                        // if t returned the key itself, it means missing; fall back to item name
+                        if (desc === tryKey || !desc) desc = itemEl.textContent || item;
+                        this.tooltipEl.textContent = desc;
+                        this.tooltipEl.style.display = 'block';
+                        const x = ev.pageX + 12;
+                        const y = ev.pageY + 12;
+                        this.tooltipEl.style.left = x + 'px';
+                        this.tooltipEl.style.top = y + 'px';
+                    });
+                    itemEl.addEventListener('mousemove', (ev) => {
+                        if (!this.tooltipEl) return;
+                        const x = ev.pageX + 12;
+                        const y = ev.pageY + 12;
+                        this.tooltipEl.style.left = x + 'px';
+                        this.tooltipEl.style.top = y + 'px';
+                    });
+                    itemEl.addEventListener('mouseleave', () => {
+                        if (!this.tooltipEl) return;
+                        this.tooltipEl.style.display = 'none';
+                    });
+                }
+            } catch (e) { /* ignore tooltip binding errors */ }
             this.elements['inventory-list'].appendChild(itemEl);
         });
     }

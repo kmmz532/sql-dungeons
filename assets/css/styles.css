@@ -75,6 +75,23 @@ p { font-size: 1.1rem; line-height: 1.7; }
     max-width: 400px;
 }
 
+.sandbox-btn {
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 15px 30px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 2px 2px 2px #000;
+    width: 100%;
+    max-width: 400px;
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    box-shadow: 0 4px #1f7a44;
+}
+.sandbox-btn:hover { transform: translateY(-2px); box-shadow: 0 6px #1f7a44; }
+.sandbox-btn:active { transform: translateY(2px); box-shadow: 0 2px #1f7a44; }
+
 .start-btn { background: linear-gradient(45deg, var(--accent-color), #c0392b); box-shadow: 0 4px #800000; }
 .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px #800000; }
 .start-btn:active { transform: translateY(2px); box-shadow: 0 2px #800000; }
@@ -118,12 +135,15 @@ p { font-size: 1.1rem; line-height: 1.7; }
 
 .schema-term {
     color: var(--gold-color);
-    text-decoration: underline dotted rgba(255, 255, 255, 0.5);
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
 .schema-term:hover { background-color: rgba(255, 255, 255, 0.1); }
+
+/* Primary key: solid underline (IPA style), Candidate key: dotted underline */
+.schema-term.pk { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--gold-color); }
+.schema-term.ck { text-decoration: underline dotted; text-decoration-color: var(--gold-color); }
 
 /* --- インベントリ --- */
 #inventory-list {
@@ -162,15 +182,23 @@ p { font-size: 1.1rem; line-height: 1.7; }
 
 .editor-header { display: flex; justify-content: space-between; align-items: center; }
 .editor-tools { display: flex; gap: 10px; }
+
+/* Ensure editor header title (e.g. 呪文) expands so its underline spans the full area */
+.editor-header h2 { flex: 1; text-align: left; }
 .action-buttons { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
 .action-btn { color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
+
+/* Ensure buttons use the game's dot font to match UI style */
+button, .action-btn, .start-btn, .load-btn, .sandbox-btn, .retry-btn {
+    font-family: 'DotGothic16', sans-serif;
+}
 
 #execute-btn { background-color: var(--energy-color); box-shadow: 0 3px #217dbb; }
 #execute-btn:hover { background-color: #4aa3df; transform: translateY(-1px); box-shadow: 0 4px #217dbb; }
 #execute-btn:active { transform: translateY(1px); box-shadow: 0 2px #217dbb; }
 
 #save-button { background-color: var(--save-color); box-shadow: 0 3px #7e4a9e; font-size: 1rem; padding: 5px 15px;}
-#hint-btn { background-color: var(--gold-color); box-shadow: 0 3px #c29d0b; font-size: 1.2rem; width: 40px; height: 40px; padding: 0; line-height: 40px; text-align: center; }
+#hint-btn { background-color: var(--gold-color); box-shadow: 0 3px #c29d0b; font-size: 1.2rem; width: 40px; height: 40px; padding: 0; line-height: 40px; text-align: center; margin-top: -10px; }
 #ku-next-btn { background-color: var(--save-color); box-shadow: 0 3px #7e4a9e; font-size: 1rem; padding: 5px 10px; }
 #hint-btn.purchased { background-color: #f3d054; box-shadow: 0 3px #d1b43b; color: #333; }
 
@@ -212,9 +240,61 @@ p { font-size: 1.1rem; line-height: 1.7; }
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
-
 .modal-header h2 { margin-bottom: 0; }
+
+/* Remove duplicate underline: ensure h2 inside modal header doesn't add another border */
+.modal-header h2 { border-bottom: none; padding-bottom: 0; }
 .close-btn { font-size: 2rem; color: white; background: none; border: none; cursor: pointer; }
+
+/* --- Sandbox UI --- */
+.sandbox-badge {
+    background: linear-gradient(45deg, #ff9a00, #ff6b00);
+    color: #111;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    display: inline-block;
+    margin-left: 10px;
+    box-shadow: 0 2px rgba(0,0,0,0.3);
+}
+.sandbox-controls { display: inline-flex; gap: 8px; align-items: center; }
+.sandbox-select {
+    background: #222;
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+/* When sandbox is active, hide certain player-specific UI areas */
+.sandbox-controls ~ .game-grid #inventory-panel, .sandbox-controls ~ .game-grid #hint-panel, .sandbox-controls ~ .game-grid #mission-panel {
+    display: none !important;
+}
+
+/* Prefer hiding via body.sandbox-mode so it's robust regardless of DOM placement */
+body.sandbox-mode #inventory-panel,
+body.sandbox-mode #hint-panel,
+body.sandbox-mode #quest-story,
+body.sandbox-mode .panel.mission,
+body.sandbox-mode #save-button {
+    display: none !important;
+}
+
+/* Hide the entire mission panel and inventory panel in sandbox mode */
+body.sandbox-mode .quest-panel,
+body.sandbox-mode #inventory-panel {
+    display: none !important;
+}
+
+.sandbox-schema-wrapper { margin-bottom: 8px; text-align: left; }
+.sandbox-schema-wrapper label { color: var(--primary-text); font-size: 0.95rem; display: inline-flex; gap: 8px; align-items: center; }
+.sandbox-schema-wrapper select { background: #222; color: var(--primary-text); border: 1px solid var(--border-color); padding: 6px 8px; border-radius: 6px; }
+.sandbox-schema-wrapper select:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+.sandbox-select { min-width: 140px; }
+
+.sandbox-schema-wrapper { margin-bottom: 8px; text-align: left; }
+.sandbox-schema-wrapper label { color: var(--primary-text); font-size: 0.95rem; }
+
 
 #shop-item-list {
     display: flex;
@@ -241,6 +321,16 @@ p { font-size: 1.1rem; line-height: 1.7; }
 
 .modal-body p { margin-bottom: 15px; }
 .modal-actions { text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+
+/* Modal action buttons (e.g. purchase yes) should be visible on modal bg */
+.modal-actions .action-btn, .modal-content .action-btn {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 3px rgba(0,0,0,0.4);
+    padding: 8px 16px;
+    border-radius: 6px;
+}
+.modal-actions .action-btn:hover { transform: translateY(-1px); }
 
 /* --- その他 --- */
 #feedback-message {
@@ -279,3 +369,25 @@ p { font-size: 1.1rem; line-height: 1.7; }
 }
 
 #result-table th { background-color: var(--header-bg); }
+
+/* Result area padding and layout fixes */
+#result-area {
+    padding: 12px 16px;
+    box-sizing: border-box;
+    text-align: left;
+}
+.result-message { margin-bottom: 12px; font-size: 1.05rem; }
+
+/* Tooltip for inventory/help */
+.tooltip {
+    position: absolute;
+    z-index: 2000;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 6px;
+    max-width: 320px;
+    font-size: 0.9rem;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}

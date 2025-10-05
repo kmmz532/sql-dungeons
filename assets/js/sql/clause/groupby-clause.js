@@ -16,9 +16,18 @@ export class GroupByClause extends AbstractClause {
      * @returns {Array<Object>}
      */
     static groupAndAggregate(table, groupKeys, aggregateFns = []) {
+        const resolve = (row, key) => {
+            if (key in row) return row[key];
+            if (!key.includes('.')) {
+                const found = Object.keys(row).find(k => k.endsWith('.' + key));
+                return found ? row[found] : undefined;
+            }
+            return undefined;
+        };
+
         const groups = {};
         for (const row of table) {
-            const key = groupKeys.map(k => row[k]).join('||');
+            const key = groupKeys.map(k => resolve(row, k)).join('||');
             if (!groups[key]) groups[key] = [];
             groups[key].push(row);
         }

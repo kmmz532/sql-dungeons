@@ -64,11 +64,18 @@ export class I18n {
      */
 	t(key, ...args) {
 		// 現在のロケールで探す
-		let text = this.translations.get(this.locale)?.[key];
-        
+		const currentTranslations = this.translations.get(this.locale) || {};
+		let text = currentTranslations[key];
+
 		// 見つからない場合はフォールバックロケールで探す
 		if (!text && this.fallbackLocale !== this.locale) {
-			text = this.translations.get(this.fallbackLocale)?.[key];
+			const fallbackTranslations = this.translations.get(this.fallbackLocale) || {};
+			if (fallbackTranslations.hasOwnProperty(key)) {
+				console.warn(`Translation missing in ${this.locale}, using fallback ${this.fallbackLocale} for key: ${key}`);
+				text = fallbackTranslations[key];
+			} else {
+				text = undefined;
+			}
 		}
 
 		// 存在しない場合、キーをそのまま返す

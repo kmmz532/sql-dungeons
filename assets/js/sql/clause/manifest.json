@@ -1,0 +1,7 @@
+{
+  "SELECT": "./select-clause.js",
+  "WHERE": "./where-clause.js",
+  "GROUP BY": "./groupby-clause.js",
+  "ORDER BY": "./orderby-clause.js",
+  "INSERT": "./insert-clause.js"
+}

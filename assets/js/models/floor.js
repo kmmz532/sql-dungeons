@@ -26,10 +26,10 @@ export class Floor {
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
-            const key = `floor.${this.floor}.title`;
+            const key = `dungeon.floor${this.floor}.title`;
             let title = i18n.t(key);
             if (locale && locale !== prev) i18n.locale = prev;
-            if (title && !title.startsWith('floor.')) return title;
+            if (title && !title.startsWith('dungeon.')) return title;
         }
         return this.title;
     }
@@ -43,10 +43,10 @@ export class Floor {
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
-            const key = `floor.${this.floor}.story`;
+            const key = `dungeon.floor${this.floor}.story`;
             let story = i18n.t(key);
             if (locale && locale !== prev) i18n.locale = prev;
-            if (story && !story.startsWith('floor.')) return story;
+            if (story && !story.startsWith('dungeon.')) return story;
         }
         return this.story;
     }
@@ -60,11 +60,28 @@ export class Floor {
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
-            const key = `floor.${this.floor}.hint`;
+            const key = `dungeon.floor${this.floor}.hint`;
             let hint = i18n.t(key);
             if (locale && locale !== prev) i18n.locale = prev;
-            if (hint && !hint.startsWith('floor.')) return hint;
+            if (hint && !hint.startsWith('dungeon.')) return hint;
         }
         return this.hint;
+    }
+
+    /**
+     * フロアのスキーマ（表定義）を取得（i18n優先）。
+     */
+    getSchema(options = {}) {
+        const i18n = options.i18n || window.i18n;
+        const locale = options.locale || (i18n && i18n.locale);
+        if (i18n) {
+            const prev = i18n.locale;
+            if (locale && locale !== prev) i18n.locale = locale;
+            const key = `dungeon.floor${this.floor}.schema`;
+            let schema = i18n.t(key);
+            if (locale && locale !== prev) i18n.locale = prev;
+            if (schema && !schema.startsWith('dungeon.')) return schema;
+        }
+        return this.schema;
     }
 }

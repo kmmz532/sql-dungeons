@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Debug Panel</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    body { padding: 20px; }
+    .box { padding: 12px; margin-bottom: 12px; }
+    pre { white-space: pre-wrap; word-break: break-word; max-height: 300px; overflow: auto; }
+    .small { font-size: 0.9em; color: #666; }
+    .debug-actions { margin-bottom: 12px; }
+    /* Scoped debug styles to avoid interference from global game CSS */
+    .container { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; }
+    .container .header h1 { color: #fff; background: var(--header-bg); padding: 12px; border-radius: 6px; margin: 0; }
+    .container .btn, .container .action-btn {
+      background: linear-gradient(45deg, var(--accent-color), #c0392b) !important;
+      color: #fff !important;
+      border: none !important;
+      padding: 8px 12px !important;
+      border-radius: 6px !important;
+      cursor: pointer !important;
+      box-shadow: 0 3px rgba(0,0,0,0.4) !important;
+    }
+    .container .btn:hover, .container .action-btn:hover { transform: translateY(-2px); }
+    .container a { color: var(--gold-color); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Debug Panel</h1>
+    </div>
+    <div class="content">
+      <p class="small">Hidden debug page. Close this page to return to the game.</p>
+
+      <div class="box panel">
+        <h2>Local Storage</h2>
+        <pre id="ls">(loading...)</pre>
+      </div>
+
+      <div class="box panel">
+        <h2>Mock Database Keys</h2>
+        <pre id="db">(loading...)</pre>
+      </div>
+
+      <div class="box panel">
+        <h2>Query</h2>
+        <label class="small">Data source: 
+          <select id="mock-select">
+            <option value="embedded">Embedded Mock DB</option>
+            <option value="parent" disabled>Parent Mock DB (not available)</option>
+          </select>
+        </label>
+        <textarea id="sql-input" style="width:100%;height:120px;margin-top:8px;font-family:monospace;">SELECT emp_name, dept_name FROM employees as e INNER JOIN departments as d ON e.dept_id = d.dept_id</textarea>
+        <div style="margin-top:8px;"><button id="run-query" class="action-btn">Run Query</button> <span class="small">or edit SQL above</span></div>
+      </div>
+
+      <div class="box panel">
+        <h2>Test Output</h2>
+        <pre id="test-output">(no query run)</pre>
+      </div>
+
+      <div class="box panel">
+        <h2>Links</h2>
+        <a href="/index.html">Return to Game</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    try {
+      document.getElementById('ls').textContent = JSON.stringify(localStorage, null, 2);
+    } catch (e) {
+      document.getElementById('ls').textContent = 'Cannot access localStorage';
+    }
+    // try to read mockDatabase if available from opener or parent
+    function readMockDb() {
+      try {
+        if (window.opener && window.opener.game && window.opener.game.gameData) return window.opener.game.gameData.mockDatabase;
+        if (window.parent && window.parent.game && window.parent.game.gameData) return window.parent.game.gameData.mockDatabase;
+      } catch (e) {}
+      return null;
+    }
+    const md = readMockDb();
+    if (md) {
+      document.getElementById('db').textContent = JSON.stringify(Object.keys(md), null, 2);
+    } else {
+      document.getElementById('db').textContent = '(not available)';
+    }
+  </script>
+  <script type="module">
+    import { SQLParser } from './assets/js/sql/sql-parser.js';
+    import Register from './assets/js/register.js';
+
+    const out = document.getElementById('test-output');
+    const regOut = document.createElement('pre');
+    regOut.id = 'registry-output';
+    regOut.style.maxHeight = '120px';
+    regOut.style.overflow = 'auto';
+    // robust insertion: the reference node may not be a direct child of .content in some environments
+    const contentEl = document.querySelector('.content');
+    const ref = document.getElementById('test-output');
+    try {
+      if (contentEl && ref && ref.parentNode === contentEl) {
+        contentEl.insertBefore(regOut, ref);
+      } else if (contentEl) {
+        contentEl.appendChild(regOut);
+      } else if (ref && ref.parentNode) {
+        ref.parentNode.insertBefore(regOut, ref);
+      } else {
+        document.body.appendChild(regOut);
+      }
+    } catch (e) {
+      // fallback to appending to body if anything unexpected happens
+      try { document.body.appendChild(regOut); } catch (e2) { /* ignore */ }
+    }
+
+    function appendLine(...args) {
+      out.textContent += args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ') + '\n';
+    }
+
+    // local embedded mock DB for tests
+    const embeddedMockDb = {
+      employees: [
+        { emp_id: 1, emp_name: 'Alice', dept_id: 10 },
+        { emp_id: 2, emp_name: 'Bob', dept_id: 20 },
+        { emp_id: 3, emp_name: 'Carol', dept_id: 10 }
+      ],
+      departments: [
+        { dept_id: 10, dept_name: 'Sales' },
+        { dept_id: 20, dept_name: 'Engineering' }
+      ]
+    };
+
+    // Resolve manifest relative to this page
+    const manifestUrl = new URL('./assets/js/sql/clause/manifest.json', import.meta.url).href;
+
+    async function initRegistry() {
+      regOut.textContent = '(loading registry...)';
+      try {
+        await Register.init(manifestUrl);
+        const all = Register.getAll();
+        regOut.textContent = 'Registered clause keys:\n' + JSON.stringify(Object.keys(all), null, 2);
+        appendLine('Registry initialized.');
+      } catch (e) {
+        regOut.textContent = 'Registry init failed: ' + (e && e.message ? e.message : String(e));
+        appendLine('Registry init failed:', e);
+      }
+    }
+
+    // initialize registry then create parser
+    let parser;
+    (async () => {
+      await initRegistry();
+      parser = new SQLParser();
+      window.__embeddedMockDb = embeddedMockDb;
+
+      // run a smoke SELECT automatically
+      try {
+        const q = document.getElementById('sql-input').value.trim();
+        appendLine('(auto test) Running:', q);
+        const res = parser.emulate(q, 0, embeddedMockDb);
+        appendLine('Result:', res);
+      } catch (err) {
+        appendLine('Auto test failed:', err);
+      }
+    })();
+
+    const mockSelect = document.getElementById('mock-select');
+    const sqlInput = document.getElementById('sql-input');
+    const runQueryBtn = document.getElementById('run-query');
+
+    // if parent mock DB is available, enable option
+    const parentDb = (function(){ try { return window.opener?.game?.gameData?.mockDatabase || window.parent?.game?.gameData?.mockDatabase || null } catch(e){ return null } })();
+    if (parentDb) {
+      mockSelect.querySelector('option[value="parent"]').disabled = false;
+      mockSelect.querySelector('option[value="parent"]').textContent = 'Parent Mock DB';
+      mockSelect.value = 'parent';
+      document.getElementById('db').textContent = JSON.stringify(Object.keys(parentDb), null, 2);
+    } else {
+      mockSelect.value = 'embedded';
+      document.getElementById('db').textContent = '(embedded)';
+    }
+
+    function getSelectedDb() {
+      if (mockSelect.value === 'parent' && parentDb) return parentDb;
+      return embeddedMockDb;
+    }
+
+    runQueryBtn.addEventListener('click', () => {
+      const q = sqlInput.value.trim();
+      if (!q) { out.textContent = '(empty query)'; return; }
+      out.textContent = '(running...)\n';
+      try {
+        const res = parser.emulate(q, 0, getSelectedDb());
+        appendLine('QUERY:', q);
+        appendLine('RESULT:', res);
+      } catch (e) {
+        appendLine('Query failed:', e.message || e);
+      }
+    });
+  </script>
+</body>
+</html>

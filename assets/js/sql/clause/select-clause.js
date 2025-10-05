@@ -15,17 +15,26 @@ export class SelectClause extends AbstractClause {
      * @returns {Array<Object>}
      */
     static apply(table, selectCols) {
+        const resolve = (row, key) => {
+            if (key in row) return row[key];
+            if (!key.includes('.')) {
+                const found = Object.keys(row).find(k => k.endsWith('.' + key));
+                return found ? row[found] : undefined;
+            }
+            return undefined;
+        };
+
         return table.map(row => {
             const obj = {};
             for (const col of selectCols) {
                 if (col === '*') {
                     Object.assign(obj, row);
                 } else if (/ as /i.test(col)) {
-                    // エイリアス: col as alias
+                    // エイリアス付き: col as alias
                     const [orig, alias] = col.split(/ as /i).map(s => s.trim());
-                    obj[alias] = row[orig];
+                    obj[alias] = resolve(row, orig);
                 } else {
-                    obj[col] = row[col];
+                    obj[col] = resolve(row, col);
                 }
             }
             return obj;

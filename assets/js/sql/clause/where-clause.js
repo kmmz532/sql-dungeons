@@ -15,18 +15,37 @@ export class WhereClause extends AbstractClause {
      * @returns {Array<Object>}
      */
     static apply(table, whereStr) {
-        // 例: price >= 1000, name = 'foo'
-        const m = whereStr.match(/(\w+)\s*(=|>=|<=|>|<)\s*('?\w+'?)/);
+        // 例: price >= 1000, name = 'foo', e.price >= d.avg
+        const m = whereStr.match(/(\w+(?:\.\w+)?)\s*(=|>=|<=|>|<)\s*('?\w+'?)/);
         if (!m) return table;
         const [_, col, op, valRaw] = m;
         let val = valRaw.replace(/'/g, '');
+
+        const resolve = (row, key) => {
+            // 完全修飾名が直接存在すればそれを使う
+            if (key in row) return row[key];
+            // 修飾されていない場合は末尾マッチで探す (alias.col)
+            if (!key.includes('.')) {
+                const foundKey = Object.keys(row).find(k => k.endsWith('.' + key));
+                return foundKey ? row[foundKey] : undefined;
+            }
+            return undefined;
+        };
+
         return table.filter(row => {
+            const lhs = resolve(row, col);
+            // 右辺が修飾子つきの列名の場合 (e.price), その値を使う
+            let rhs = val;
+            if (/^\w+\.\w+$/.test(val)) {
+                rhs = resolve(row, val);
+            }
+
             switch (op) {
-                case '=': return row[col] == val;
-                case '>=': return row[col] >= val;
-                case '<=': return row[col] <= val;
-                case '>': return row[col] > val;
-                case '<': return row[col] < val;
+                case '=': return lhs == rhs;
+                case '>=': return lhs >= rhs;
+                case '<=': return lhs <= rhs;
+                case '>': return lhs > rhs;
+                case '<': return lhs < rhs;
                 default: return true;
             }
         });

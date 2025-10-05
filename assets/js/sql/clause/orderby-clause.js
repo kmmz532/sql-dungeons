@@ -17,10 +17,21 @@ export class OrderByClause extends AbstractClause {
     static apply(table, orderBy) {
         if (!orderBy || !orderBy.length) return table;
 
+        const resolve = (row, key) => {
+            if (key in row) return row[key];
+            if (!key.includes('.')) {
+                const found = Object.keys(row).find(k => k.endsWith('.' + key));
+                return found ? row[found] : undefined;
+            }
+            return undefined;
+        };
+
         return [...table].sort((a, b) => {
             for (const { column, direction } of orderBy) {
-                if (a[column] < b[column]) return direction === 'DESC' ? 1 : -1;
-                if (a[column] > b[column]) return direction === 'DESC' ? -1 : 1;
+                const av = resolve(a, column);
+                const bv = resolve(b, column);
+                if (av < bv) return direction === 'DESC' ? 1 : -1;
+                if (av > bv) return direction === 'DESC' ? -1 : 1;
             }
             return 0;
         });

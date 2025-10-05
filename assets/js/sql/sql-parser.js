@@ -1,8 +1,18 @@
 
-import { WhereClause } from './clause/where-clause.js';
-import { GroupByClause } from './clause/groupby-clause.js';
-import { SelectClause } from './clause/select-clause.js';
-import { OrderByClause } from './clause/orderby-clause.js';
+import { getFallbackClauseClasses } from './clause/exports.js';
+import Registry from '../register.js';
+
+// Helper: resolve clause class from runtime registry with constants fallback
+const getClauseClass = (key) => {
+    try {
+        const r = Registry.get(key);
+        if (r) return r;
+    } catch (e) {
+        // ignore
+    }
+    const fb = getFallbackClauseClasses();
+    return fb[key];
+};
 // SQLParser: クエリのバリデーションとエミュレーションを統合
 
 /**
@@ -49,27 +59,110 @@ export class SQLParser {
             const parsed = this.parseSQL(query);
             if (!parsed) return [];
 
-            // FROM句からテーブル取得
-            let table = mockDatabase[parsed.from];
-            if (!Array.isArray(table)) return [];
+            // Handle INSERT via registered clause class (non-mutating)
+            if (parsed.insert) {
+                const insertCls = CLAUSE_CLASSES.INSERT;
+                if (insertCls && typeof insertCls.apply === 'function') {
+                    return insertCls.apply(parsed.insert, mockDatabase);
+                }
+                return [];
+            }
 
-            // WHERE句フィルタ
+            // FROM / JOIN を扱う
+            let table = [];
+            // ヘルパー: 行のキーを alias.column の形式にプレフィックスする
+            const prefixRow = (row, prefix) => {
+                const o = {};
+                for (const k in row) {
+                    o[`${prefix}.${k}`] = row[k];
+                }
+                return o;
+            };
+
+            // ベーステーブル
+            const base = parsed.from; // { table, alias }
+            const baseName = base.alias || base.table;
+            const baseRows = mockDatabase[base.table];
+            if (!Array.isArray(baseRows)) return [];
+
+            // 初期 accumulated rows
+            let accumulated = baseRows.map(r => prefixRow(r, baseName));
+
+            // 各 JOIN を順に適用（簡易的な nested-loop INNER JOIN）
+            if (parsed.joins && parsed.joins.length) {
+                for (const j of parsed.joins) {
+                    const joinTable = mockDatabase[j.table];
+                    if (!Array.isArray(joinTable)) {
+                        accumulated = []; break;
+                    }
+                    const joinName = j.alias || j.table;
+                    const newAccum = [];
+
+                    // parse ON: 単純な等式 a.col = b.col のみサポート
+                    const onMatch = j.on.match(/(\w+(?:\.\w+)?)\s*=\s*(\w+(?:\.\w+)?)/);
+
+                    for (const leftRow of accumulated) {
+                        for (const rightRow of joinTable) {
+                            const prefRight = prefixRow(rightRow, joinName);
+                            const combined = Object.assign({}, leftRow, prefRight);
+
+                            let onOk = true;
+                            if (onMatch) {
+                                const leftKey = onMatch[1];
+                                const rightKey = onMatch[2];
+                                const getVal = (obj, key) => {
+                                    if (key in obj) return obj[key];
+                                    // unqualified:探してみる
+                                    if (!key.includes('.')) {
+                                        const found = Object.keys(obj).find(k => k.endsWith('.' + key));
+                                        return found ? obj[found] : undefined;
+                                    }
+                                    return undefined;
+                                };
+                                const lv = getVal(combined, leftKey);
+                                const rv = getVal(combined, rightKey);
+                                onOk = (lv === rv);
+                            }
+
+                            if (onOk) newAccum.push(combined);
+                        }
+                    }
+                    accumulated = newAccum;
+                    if (accumulated.length === 0) break;
+                }
+            }
+
+            // WHERE句フィルタ（registry 経由で取得、constants をフォールバック）
+            let resultTable = accumulated;
             if (parsed.where) {
-                table = WhereClause.apply(table, parsed.where);
+                const WhereCls = getClauseClass('WHERE');
+                if (WhereCls && typeof WhereCls.apply === 'function') {
+                    resultTable = WhereCls.apply(resultTable, parsed.where);
+                }
             }
 
             // GROUP BY句
             if (parsed.groupBy) {
-                table = GroupByClause.apply(table, parsed);
+                const GroupByCls = getClauseClass('GROUP BY');
+                if (GroupByCls && typeof GroupByCls.apply === 'function') {
+                    resultTable = GroupByCls.apply(resultTable, parsed);
+                }
             }
 
             // ORDER BY句
             if (parsed.orderBy) {
-                table = OrderByClause.apply(table, parsed.orderBy);
+                const OrderByCls = getClauseClass('ORDER BY');
+                if (OrderByCls && typeof OrderByCls.apply === 'function') {
+                    resultTable = OrderByCls.apply(resultTable, parsed.orderBy);
+                }
             }
 
             // SELECT句
-            return SelectClause.apply(table, parsed.select);
+            const SelectCls = getClauseClass('SELECT');
+            if (SelectCls && typeof SelectCls.apply === 'function') {
+                return SelectCls.apply(resultTable, parsed.select);
+            }
+            return [];
         } catch (e) {
             return [];
         }
@@ -80,12 +173,26 @@ export class SQLParser {
      * @returns {object|null}
      */
     parseSQL(query) {
-        // 超簡易パース: SELECT ... FROM ... [WHERE ...] [GROUP BY ...] [ORDER BY ...]
-        const selectMatch = query.match(/select\s+(.+?)\s+from\s+/i);
-        const fromMatch = query.match(/from\s+(\w+)/i);
-        const whereMatch = query.match(/where\s+(.+?)(group by|having|order by|$)/i);
-        const groupByMatch = query.match(/group by\s+([\w, ]+)/i);
-        const orderByMatch = query.match(/order by\s+([\w\s,]+)(asc|desc)?/i);
+        // 超簡易パース: INSERT または SELECT 系
+        // INSERT: INSERT INTO table (col, ...) VALUES (val, ...)
+        const insertMatch = query.match(/insert\s+into\s+(\w+)\s*\(([^)]+)\)\s*values\s*\(([^)]+)\)/i);
+        if (insertMatch) {
+            const table = insertMatch[1];
+            const cols = insertMatch[2].split(',').map(s => s.trim());
+            const vals = insertMatch[3].split(',').map(s => s.trim().replace(/^'|'$/g, ''));
+            return { insert: { table, columns: cols, values: vals } };
+        }
+
+        // SELECT ... FROM ... [WHERE ...] [GROUP BY ...] [ORDER BY ...]
+    const selectMatch = query.match(/select\s+(.+?)\s+from\s+/i);
+    // FROM と alias (例: from employees as e)
+    const fromMatch = query.match(/from\s+(\w+)(?:\s+(?:as\s+)?(\w+))?/i);
+    const whereMatch = query.match(/where\s+(.+?)(group by|having|order by|$)/i);
+    const groupByMatch = query.match(/group by\s+([\w\., ]+)/i);
+    const orderByMatch = query.match(/order by\s+([\w\.\s,]+)(asc|desc)?/i);
+
+    // JOIN セグメントを反復で取得
+    const joinSegmentRegex = /\b(?:inner|left|right)?\s*join\s+(\w+)(?:\s+(?:as\s+)?(\w+))?\s+on\s+(.+?)(?=\s+(?:inner|left|right)?\s*join\b|\s+where\b|\s+group by\b|\s+order by\b|$)/ig;
 
         let orderBy = null;
         if (orderByMatch) {
@@ -100,13 +207,23 @@ export class SQLParser {
         }
 
         if (!selectMatch || !fromMatch) return null;
-        return {
+
+        const parsed = {
             select: selectMatch[1].split(',').map(s => s.trim()),
-            from: fromMatch[1],
+            from: { table: fromMatch[1], alias: fromMatch[2] || null },
             where: whereMatch ? whereMatch[1].trim() : null,
             groupBy: groupByMatch ? groupByMatch[1].split(',').map(s => s.trim()) : null,
-            orderBy
+            orderBy,
+            joins: []
         };
+
+        let jm;
+        while ((jm = joinSegmentRegex.exec(query)) !== null) {
+            // jm[1]=table, jm[2]=alias?, jm[3]=onExpr
+            parsed.joins.push({ table: jm[1], alias: jm[2] || null, on: jm[3].trim(), type: 'inner' });
+        }
+
+        return parsed;
     }
 
     // WHERE/GROUP BY/SELECT句のapplyは各Clauseクラスのstaticメソッドを利用
