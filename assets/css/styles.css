@@ -1,3 +1,4 @@
+
 :root {
     --bg-color: #1a1a2e;
     --primary-text: #e0e0e0;
@@ -11,10 +12,16 @@
     --energy-color: #3498db;
     --save-color: #9b59b6;
     --shop-bg: #2c3e50;
+    --settings-size: 40px;
 }
 
-/* --- 基本スタイル --- */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* --- 基本スタイル / Base styles --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'DotGothic16', sans-serif;
     background-color: var(--bg-color);
@@ -32,7 +39,7 @@ body {
     background-color: var(--window-bg);
     border: 5px solid var(--border-color);
     border-radius: 10px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
     text-align: center;
     overflow: hidden;
     position: relative;
@@ -46,23 +53,97 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
+    position: relative;
 }
 
-h1 { font-size: clamp(1.2rem, 3.5vw, 2rem); color: var(--accent-color); text-shadow: 2px 2px 0 #000; }
-h2 { color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; }
-p { font-size: 1.1rem; line-height: 1.7; }
-.hidden { display: none !important; }
+/* 設定ボタン */
+#settings-button {
+    background: #6b6b6b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    width: var(--settings-size);
+    height: var(--settings-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--settings-size) * 0.75);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+#settings-button:hover {
+    background: #7d7d7d;
+}
 
-/* --- ステータスバー --- */
-#status-bar { display: flex; gap: 15px; font-size: clamp(1rem, 3vw, 1.2rem); }
-.status-item { background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; }
-#gold-status { color: var(--gold-color); }
-#energy-status { color: var(--energy-color); }
+@media (min-width: 640px) {
+    :root { --settings-size: 48px; }
+}
+@media (min-width: 900px) {
+    :root { --settings-size: 56px; }
+}
 
-/* --- スタート/エンド画面 --- */
-.content { padding: 20px; }
-.start-buttons { display: flex; flex-direction: column; gap: 15px; align-items: center;}
-.start-btn, .retry-btn, .load-btn {
+h1 {
+    font-size: clamp(1.2rem, 3.5vw, 2rem);
+    color: var(--accent-color);
+    text-shadow: 2px 2px 0 #000;
+}
+
+h2 {
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- ステータスバー / Status bar --- */
+#status-bar {
+    display: flex;
+    gap: 15px;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+}
+
+.status-item {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+#gold-status {
+    color: var(--gold-color);
+}
+
+#energy-status {
+    color: var(--energy-color);
+}
+
+/* --- スタート/エンド画面 / Start / End screens --- */
+.content {
+    padding: 20px;
+}
+
+.start-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.start-btn,
+.retry-btn,
+.load-btn {
     color: white;
     border: none;
     border-radius: 5px;
@@ -89,20 +170,54 @@ p { font-size: 1.1rem; line-height: 1.7; }
     background: linear-gradient(45deg, #2ecc71, #27ae60);
     box-shadow: 0 4px #1f7a44;
 }
-.sandbox-btn:hover { transform: translateY(-2px); box-shadow: 0 6px #1f7a44; }
-.sandbox-btn:active { transform: translateY(2px); box-shadow: 0 2px #1f7a44; }
 
-.start-btn { background: linear-gradient(45deg, var(--accent-color), #c0392b); box-shadow: 0 4px #800000; }
-.start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px #800000; }
-.start-btn:active { transform: translateY(2px); box-shadow: 0 2px #800000; }
+.sandbox-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px #1f7a44;
+}
 
-.load-btn { background: linear-gradient(45deg, var(--energy-color), #2980b9); box-shadow: 0 4px #1a5276; }
-.load-btn:hover { transform: translateY(-2px); box-shadow: 0 6px #1a5276; }
-.load-btn:active { transform: translateY(2px); box-shadow: 0 2px #1a5276; }
+.sandbox-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px #1f7a44;
+}
 
-.retry-btn { background: linear-gradient(45deg, var(--accent-color), #c0392b); box-shadow: 0 4px #800000; margin-top: 20px;}
+.start-btn {
+    background: linear-gradient(45deg, var(--accent-color), #c0392b);
+    box-shadow: 0 4px #800000;
+}
 
-/* --- ゲーム画面レイアウト --- */
+.start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px #800000;
+}
+
+.start-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px #800000;
+}
+
+.load-btn {
+    background: linear-gradient(45deg, var(--energy-color), #2980b9);
+    box-shadow: 0 4px #1a5276;
+}
+
+.load-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px #1a5276;
+}
+
+.load-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px #1a5276;
+}
+
+.retry-btn {
+    background: linear-gradient(45deg, var(--accent-color), #c0392b);
+    box-shadow: 0 4px #800000;
+    margin-top: 20px;
+}
+
+/* --- ゲーム画面レイアウト / Game layout --- */
 .game-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -112,13 +227,18 @@ p { font-size: 1.1rem; line-height: 1.7; }
 }
 
 @media (min-width: 800px) {
-    .game-grid { grid-template-columns: 300px 1fr; }
-    #inventory-panel { grid-row: 1 / 3; }
+    .game-grid {
+        grid-template-columns: 300px 1fr;
+    }
+
+    #inventory-panel {
+        grid-row: 1 / 3;
+    }
 }
 
-/* --- パネルスタイル --- */
+/* --- パネルスタイル / Panel styles --- */
 .panel {
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0, 0, 0, 0.2);
     border: 2px solid var(--border-color);
     border-radius: 5px;
     padding: 15px;
@@ -139,13 +259,23 @@ p { font-size: 1.1rem; line-height: 1.7; }
     transition: background-color 0.2s;
 }
 
-.schema-term:hover { background-color: rgba(255, 255, 255, 0.1); }
+.schema-term:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
-/* Primary key: solid underline (IPA style), Candidate key: dotted underline */
-.schema-term.pk { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--gold-color); }
-.schema-term.ck { text-decoration: underline dotted; text-decoration-color: var(--gold-color); }
+/* 主キーは実線下線 / 候補キーは点線下線 (見た目ルール) */
+.schema-term.pk {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--gold-color);
+}
 
-/* --- インベントリ --- */
+.schema-term.ck {
+    text-decoration: underline dotted;
+    text-decoration-color: var(--gold-color);
+}
+
+/* --- インベントリ / Inventory --- */
 #inventory-list {
     display: flex;
     flex-wrap: wrap;
@@ -163,10 +293,18 @@ p { font-size: 1.1rem; line-height: 1.7; }
     transition: all 0.2s;
 }
 
-.inventory-item:hover { background-color: #6a6a90; transform: scale(1.05); }
-.borrowed-item { background-color: #555; border-style: dashed; color: #ccc; }
+.inventory-item:hover {
+    background-color: #6a6a90;
+    transform: scale(1.05);
+}
 
-/* --- エディタ & アクション --- */
+.borrowed-item {
+    background-color: #555;
+    border-style: dashed;
+    color: #ccc;
+}
+
+/* --- エディタ / Editor & Actions --- */
 #sql-editor {
     width: 100%;
     height: 150px;
@@ -180,42 +318,159 @@ p { font-size: 1.1rem; line-height: 1.7; }
     font-family: 'DotGothic16', monospace;
 }
 
-.editor-header { display: flex; justify-content: space-between; align-items: center; }
-.editor-tools { display: flex; gap: 10px; }
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-/* Ensure editor header title (e.g. 呪文) expands so its underline spans the full area */
-.editor-header h2 { flex: 1; text-align: left; }
-.action-buttons { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
-.action-btn { color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
+.editor-tools {
+    display: flex;
+    gap: 10px;
+}
 
-/* Ensure buttons use the game's dot font to match UI style */
-button, .action-btn, .start-btn, .load-btn, .sandbox-btn, .retry-btn {
+/* エディタの見出し (例: 呪文) が広がって下線が横幅いっぱいになるように */
+.editor-header h2 {
+    flex: 1;
+    text-align: left;
+}
+
+.action-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* ボタンにゲームのドットフォントを適用する */
+button,
+.action-btn,
+.start-btn,
+.load-btn,
+.sandbox-btn,
+.retry-btn {
     font-family: 'DotGothic16', sans-serif;
 }
 
-#execute-btn { background-color: var(--energy-color); box-shadow: 0 3px #217dbb; }
-#execute-btn:hover { background-color: #4aa3df; transform: translateY(-1px); box-shadow: 0 4px #217dbb; }
-#execute-btn:active { transform: translateY(1px); box-shadow: 0 2px #217dbb; }
+#execute-btn {
+    background-color: var(--energy-color);
+    box-shadow: 0 3px #217dbb;
+}
 
-#save-button { background-color: var(--save-color); box-shadow: 0 3px #7e4a9e; font-size: 1rem; padding: 5px 15px;}
-#hint-btn { background-color: var(--gold-color); box-shadow: 0 3px #c29d0b; font-size: 1.2rem; width: 40px; height: 40px; padding: 0; line-height: 40px; text-align: center; margin-top: -10px; }
-#ku-next-btn { background-color: var(--save-color); box-shadow: 0 3px #7e4a9e; font-size: 1rem; padding: 5px 10px; }
-#hint-btn.purchased { background-color: #f3d054; box-shadow: 0 3px #d1b43b; color: #333; }
+#execute-btn:hover {
+    background-color: #4aa3df;
+    transform: translateY(-1px);
+    box-shadow: 0 4px #217dbb;
+}
 
-/* --- フロアアクション --- */
-.floor-actions { display: flex; gap: 15px; margin-top: 15px; }
-.floor-action-btn { flex-grow: 1; font-size: 1.2rem; }
-#next-floor-btn { background-color: var(--success-color); box-shadow: 0 3px #3a9a5c; }
-#shop-btn { background-color: var(--gold-color); box-shadow: 0 3px #c29d0b; }
+#execute-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px #217dbb;
+}
 
-/* --- モーダル (共通) --- */
+#save-button {
+    background-color: var(--save-color);
+    box-shadow: 0 3px #7e4a9e;
+    font-size: 1rem;
+    padding: 5px 15px;
+}
+/* 戻るボタンのアイコン */
+#back-to-title-button .icon-back {
+    color: #ffffff;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* 戻るボタン本体のスタイル: コントラストを高める */
+#back-to-title-button {
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+#back-to-title-button:hover {
+    background: rgba(0,0,0,0.85);
+}
+
+/* 画面リーダー用の隠しテキスト */
+.visually-hidden {
+    position: absolute !important;
+    height: 1px; width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+}
+
+#hint-btn {
+    background-color: var(--gold-color);
+    box-shadow: 0 3px #c29d0b;
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    line-height: 40px;
+    text-align: center;
+    margin-top: -10px;
+}
+
+#ku-next-btn {
+    background-color: var(--save-color);
+    box-shadow: 0 3px #7e4a9e;
+    font-size: 1rem;
+    padding: 5px 10px;
+}
+
+#hint-btn.purchased {
+    background-color: #f3d054;
+    box-shadow: 0 3px #d1b43b;
+    color: #333;
+}
+
+/* --- フロアアクション / Floor actions --- */
+.floor-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.floor-action-btn {
+    flex-grow: 1;
+    font-size: 1.2rem;
+}
+
+#next-floor-btn {
+    background-color: var(--success-color);
+    box-shadow: 0 3px #3a9a5c;
+}
+
+#shop-btn {
+    background-color: var(--gold-color);
+    box-shadow: 0 3px #c29d0b;
+}
+
+/* --- モーダル (共通) / Modal (shared) --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.7);
     z-index: 1000;
     display: flex;
     justify-content: center;
@@ -240,11 +495,24 @@ button, .action-btn, .start-btn, .load-btn, .sandbox-btn, .retry-btn {
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
-.modal-header h2 { margin-bottom: 0; }
 
-/* Remove duplicate underline: ensure h2 inside modal header doesn't add another border */
-.modal-header h2 { border-bottom: none; padding-bottom: 0; }
-.close-btn { font-size: 2rem; color: white; background: none; border: none; cursor: pointer; }
+.modal-header h2 {
+    margin-bottom: 0;
+}
+
+/* 重複する下線を削除: モーダル内のh2が別のボーダーを追加しないように */
+.modal-header h2 {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.close-btn {
+    font-size: 2rem;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
 
 /* --- Sandbox UI --- */
 .sandbox-badge {
@@ -255,9 +523,15 @@ button, .action-btn, .start-btn, .load-btn, .sandbox-btn, .retry-btn {
     font-weight: bold;
     display: inline-block;
     margin-left: 10px;
-    box-shadow: 0 2px rgba(0,0,0,0.3);
+    box-shadow: 0 2px rgba(0, 0, 0, 0.3);
 }
-.sandbox-controls { display: inline-flex; gap: 8px; align-items: center; }
+
+.sandbox-controls {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .sandbox-select {
     background: #222;
     color: var(--primary-text);
@@ -266,12 +540,14 @@ button, .action-btn, .start-btn, .load-btn, .sandbox-btn, .retry-btn {
     border-radius: 6px;
 }
 
-/* When sandbox is active, hide certain player-specific UI areas */
-.sandbox-controls ~ .game-grid #inventory-panel, .sandbox-controls ~ .game-grid #hint-panel, .sandbox-controls ~ .game-grid #mission-panel {
+/* サンドボックスが有効なときに特定のプレイヤーUIを非表示にする */
+.sandbox-controls ~ .game-grid #inventory-panel,
+.sandbox-controls ~ .game-grid #hint-panel,
+.sandbox-controls ~ .game-grid #mission-panel {
     display: none !important;
 }
 
-/* Prefer hiding via body.sandbox-mode so it's robust regardless of DOM placement */
+/* DOM配置に依存せず body.sandbox-mode で非表示にする方が堅牢 */
 body.sandbox-mode #inventory-panel,
 body.sandbox-mode #hint-panel,
 body.sandbox-mode #quest-story,
@@ -280,21 +556,50 @@ body.sandbox-mode #save-button {
     display: none !important;
 }
 
-/* Hide the entire mission panel and inventory panel in sandbox mode */
+/* ミッションパネルとインベントリを丸ごと非表示に */
 body.sandbox-mode .quest-panel,
 body.sandbox-mode #inventory-panel {
     display: none !important;
 }
 
-.sandbox-schema-wrapper { margin-bottom: 8px; text-align: left; }
-.sandbox-schema-wrapper label { color: var(--primary-text); font-size: 0.95rem; display: inline-flex; gap: 8px; align-items: center; }
-.sandbox-schema-wrapper select { background: #222; color: var(--primary-text); border: 1px solid var(--border-color); padding: 6px 8px; border-radius: 6px; }
-.sandbox-schema-wrapper select:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
-.sandbox-select { min-width: 140px; }
+.sandbox-schema-wrapper {
+    margin-bottom: 8px;
+    text-align: left;
+}
 
-.sandbox-schema-wrapper { margin-bottom: 8px; text-align: left; }
-.sandbox-schema-wrapper label { color: var(--primary-text); font-size: 0.95rem; }
+.sandbox-schema-wrapper label {
+    color: var(--primary-text);
+    font-size: 0.95rem;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
 
+.sandbox-schema-wrapper select {
+    background: #222;
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.sandbox-schema-wrapper select:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.sandbox-select {
+    min-width: 140px;
+}
+
+.sandbox-schema-wrapper {
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.sandbox-schema-wrapper label {
+    color: var(--primary-text);
+    font-size: 0.95rem;
+}
 
 #shop-item-list {
     display: flex;
@@ -309,36 +614,67 @@ body.sandbox-mode #inventory-panel {
     grid-template-columns: 1fr auto;
     gap: 10px;
     align-items: center;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     padding: 10px;
     border-radius: 5px;
 }
 
-.shop-item p { margin: 0; font-size: 1rem; }
-.shop-item .item-desc { font-size: 0.9rem; color: #ccc; }
-.buy-btn { background-color: var(--success-color); box-shadow: 0 3px #3a9a5c; padding: 8px 15px; font-size: 1rem;}
-.buy-btn:disabled { background-color: #555; box-shadow: 0 3px #333; cursor: not-allowed; }
+.shop-item p {
+    margin: 0;
+    font-size: 1rem;
+}
 
-.modal-body p { margin-bottom: 15px; }
-.modal-actions { text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+.shop-item .item-desc {
+    font-size: 0.9rem;
+    color: #ccc;
+}
 
-/* Modal action buttons (e.g. purchase yes) should be visible on modal bg */
-.modal-actions .action-btn, .modal-content .action-btn {
+.buy-btn {
+    background-color: var(--success-color);
+    box-shadow: 0 3px #3a9a5c;
+    padding: 8px 15px;
+    font-size: 1rem;
+}
+
+.buy-btn:disabled {
+    background-color: #555;
+    box-shadow: 0 3px #333;
+    cursor: not-allowed;
+}
+
+.modal-body p {
+    margin-bottom: 15px;
+}
+
+.modal-actions {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* モーダルのアクションボタン (例: 購入確認) はモーダル背景で見えるように */
+.modal-actions .action-btn,
+.modal-content .action-btn {
     background-color: var(--accent-color);
     color: white;
-    box-shadow: 0 3px rgba(0,0,0,0.4);
+    box-shadow: 0 3px rgba(0, 0, 0, 0.4);
     padding: 8px 16px;
     border-radius: 6px;
 }
-.modal-actions .action-btn:hover { transform: translateY(-1px); }
 
-/* --- その他 --- */
+.modal-actions .action-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* --- その他 / Misc --- */
 #feedback-message {
     position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0,0,0,0.8);
+    background-color: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 10px 20px;
     border-radius: 5px;
@@ -348,10 +684,25 @@ body.sandbox-mode #inventory-panel {
     pointer-events: none;
 }
 
-#feedback-message.show { top: 20px; opacity: 1; }
-.result-message { margin-bottom: 10px; font-size: 1.1rem;}
-.result-success { background-color: rgba(80, 200, 120, 0.1); border: 1px solid var(--success-color); }
-.result-error { background-color: rgba(255, 71, 87, 0.1); border: 1px solid var(--error-color); }
+#feedback-message.show {
+    top: 20px;
+    opacity: 1;
+}
+
+.result-message {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.result-success {
+    background-color: rgba(80, 200, 120, 0.1);
+    border: 1px solid var(--success-color);
+}
+
+.result-error {
+    background-color: rgba(255, 71, 87, 0.1);
+    border: 1px solid var(--error-color);
+}
 
 #result-table {
     width: 100%;
@@ -368,26 +719,35 @@ body.sandbox-mode #inventory-panel {
     overflow-wrap: break-word;
 }
 
-#result-table th { background-color: var(--header-bg); }
+#result-table th {
+    background-color: var(--header-bg);
+}
 
-/* Result area padding and layout fixes */
+/* 結果エリアの余白とレイアウト調整 */
 #result-area {
     padding: 12px 16px;
     box-sizing: border-box;
     text-align: left;
 }
-.result-message { margin-bottom: 12px; font-size: 1.05rem; }
 
-/* Tooltip for inventory/help */
+.result-message {
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+}
+
+/* インベントリ/ヘルプ用のツールチップ */
 .tooltip {
     position: absolute;
     z-index: 2000;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0, 0, 0, 0.85);
     color: white;
     padding: 8px 10px;
     border-radius: 6px;
     max-width: 320px;
     font-size: 0.9rem;
     pointer-events: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
+
+/* Ensure header keeps space for larger settings button */
+.header h1 { margin-right: calc(var(--settings-size) + 12px); }

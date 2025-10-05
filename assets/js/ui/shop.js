@@ -8,7 +8,7 @@ export function openShop(game) {
     game.gameData.shopItems.items.map(itemData => new ShopItem(itemData, i18n)).forEach(item => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'shop-item';
-        // アイテム名・説明をi18nで取得
+        // アイテム名/説明をi18nで取得
         const name = item.getName();
         const desc = item.getDesc ? item.getDesc() : '';
         itemDiv.innerHTML = `

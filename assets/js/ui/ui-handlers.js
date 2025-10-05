@@ -1,12 +1,14 @@
-// UIイベントのバインド・UI更新
+// UIイベントのバインド/UI更新
+
+const EMULATE_AUTO_ACCEPT = false; // SQLエミュが行を返したら自動的に正解とみなす設定 (デフォルト: 無効)
+
 import { SQLParser } from '../sql/sql-parser.js';
 
 const sqlParser = new SQLParser();
+
 import { EXECUTE_COST } from '../constants.js';
 import { SQL_KEYWORDS } from '../sql/clause/sql-keywords.js';
-// When true, if puzzle validation fails but emulate() returns rows, treat as correct
-// Disabled by default because it can accept looser queries (e.g. price >= 200)
-const EMULATE_AUTO_ACCEPT = false;
+
 import { handleHint, showHintModal, showPurchaseHintModal, purchaseHint } from './hint.js';
 import { openShop, handleItemPurchase } from './shop.js';
 
@@ -14,7 +16,34 @@ export function setupUIHandlers(game) {
     const dom = game.dom;
     dom.elements['start-button'].addEventListener('click', () => game.startGame());
     dom.elements['load-button'].addEventListener('click', () => game.loadGame());
-    dom.elements['sandbox-button'].addEventListener('click', () => game.startSandbox());
+    dom.elements['sandbox-button'].addEventListener('click', () => {
+        game.startSandbox();
+        try { history.pushState({ mode: 'sandbox' }, '', '?mode=sandbox'); } catch(e) {}
+    });
+    // Back to title button (confirm if unsaved)
+    if (dom.elements['back-to-title-button']) {
+        dom.elements['back-to-title-button'].addEventListener('click', () => {
+            try {
+                const proceed = () => {
+                    // remove any sandbox artifacts that might have been left behind
+                    try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
+                    try { const sw = document.querySelectorAll('.sandbox-schema-wrapper'); if (sw) sw.forEach(s=>s.remove()); } catch(e){}
+                    try { document.body.classList.remove('sandbox-mode'); } catch(e){}
+                    game.dom.showScreen('start');
+                    try { history.pushState({ mode: 'start' }, '', window.location.pathname); } catch(e) {}
+                };
+                if (game && typeof game.isDirty === 'function' && game.isDirty()) {
+                    // Show browser confirm for now
+                    const msg = game.i18n ? game.i18n.t('confirm.unsaved_changes') : 'セーブしていません。タイトルに戻りますか？';
+                    if (confirm(msg)) {
+                        proceed();
+                    }
+                } else {
+                    proceed();
+                }
+            } catch (e) { console.error('Back to title failed', e); }
+        });
+    }
     dom.elements['retry-button'].addEventListener('click', () => game.startGame());
     dom.elements['save-button'].addEventListener('click', () => game.saveGame());
     dom.elements['execute-btn'].addEventListener('click', () => executeQuery(game));
@@ -30,7 +59,6 @@ export function setupUIHandlers(game) {
     dom.elements['quest-schema'].addEventListener('click', e => {
         if (e.target.classList.contains('schema-term')) {
             const term = e.target.dataset.term;
-            // find parent line to decide if this is a column
             const line = e.target.closest('.schema-line');
             const lineType = line ? line.dataset.lineType : null;
             if (lineType === 'columns') {
@@ -56,13 +84,13 @@ export function setupUIHandlers(game) {
 
 function executeQuery(game) {
     const dom = game.dom;
-    const isSandbox = !game.player; // sandbox mode when no player exists
+    const isSandbox = !game.player;
     const query = dom.elements['sql-editor'].value.trim();
     if (!query) {
         dom.showResult(game.i18n.t('message.empty_query'), 'error');
         return;
     }
-    // Deduct energy only when a player exists (not in sandbox)
+
     if (!isSandbox) {
             if (!game.player.spendEnergy(EXECUTE_COST)) {
             dom.showResult(game.i18n.t('message.no_energy'), 'error');
@@ -72,17 +100,13 @@ function executeQuery(game) {
 
 
     const floorData = game.gameData?.dungeonData?.floors?.[game.currentFloor] || {};
-
-
-        // Sandbox: allow arbitrary SELECT queries (parse + emulate) without changing game state
         if (isSandbox) {
-            // Special hidden debug trigger: allow "SELECT DEBUG PANEL" to open debug.html
+            // デバッグの隠しコマンド 'SELECT DEBUG PANEL' で debug.html にリダイレクト
             if (/^SELECT\s+DEBUG\s+PANEL$/i.test(query)) {
                 try {
                     window.location.href = 'debug.html';
                     return;
                 } catch (e) {
-                    // fallback: show a message if redirect failed
                     dom.showResult('Redirect to debug panel failed.', 'error');
                     return;
                 }
@@ -104,40 +128,40 @@ function executeQuery(game) {
             return;
         }
 
-    // Ensure user has required spells/items for this query (only for non-sandbox)
+    // クエリに必要な呪文を所持しているかチェック
     if (!validateQuery(game, query, false)) return;
 
-    // Normal gameplay path: puzzle validation against the floor's expected solution
+    // フロアの模範解答と照合
     const isCorrect = sqlParser.validate(query, floorData);
 
-    // Update UI only for normal game
     game.updateUI();
 
-        if (isCorrect) {
-            handleCorrectAnswer(game, floorData, query);
-            return;
-        }
+    if (isCorrect) {
+        handleCorrectAnswer(game, floorData, query);
+        return;
+    }
 
-        // Fallback: if validation failed, try emulation to see if the query actually returns data
-        try {
-            const emuResults = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase);
-            if (Array.isArray(emuResults) && emuResults.length > 0) {
-                if (EMULATE_AUTO_ACCEPT) {
-                    // Accept as correct based on emulation
-                    dom.showResult(game.i18n.t('message.emulation_auto_accept'), 'success');
-                    dom.displayTable(emuResults);
-                    handleCorrectAnswer(game, floorData, query);
-                    return;
-                } else {
-                    // Emulation produced results. Show them but do not grant rewards.
-                    dom.showResult(game.i18n.t('message.emulation_results'), 'error');
-                    dom.displayTable(emuResults);
-                    return;
-                }
+    // SQLエミュを実行して結果が返るか確認 (正解とはみなさない)
+    // TODO: この結果が一致するかどうかをチェックして正解判定するのはどうだろうか
+    try {
+        const emuResults = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase);
+        if (Array.isArray(emuResults) && emuResults.length > 0) {
+            if (EMULATE_AUTO_ACCEPT) {
+                // Accept as correct based on emulation
+                dom.showResult(game.i18n.t('message.emulation_auto_accept'), 'success');
+                dom.displayTable(emuResults);
+                handleCorrectAnswer(game, floorData, query);
+                return;
+            } else {
+                // Emulation produced results. Show them but do not grant rewards.
+                dom.showResult(game.i18n.t('message.emulation_results'), 'error');
+                dom.displayTable(emuResults);
+                return;
             }
-        } catch (e) {
-            // ignore emulation errors and fall through to incorrect
         }
+    } catch (e) {
+
+    }
 
     dom.showResult(game.i18n.t('message.incorrect_try'), 'error');
 }
@@ -156,22 +180,21 @@ function validateQuery(game, query, isSandbox = false) {
     const wordSet = new Set(words);
     const queryUpper = query.toUpperCase();
     for (const clause of SQL_KEYWORDS) {
-        // clause.keyword may be multi-word like 'ORDER BY'
+        // ORDER BY, GROUP BY のような複数語の句もあるので分割してチェック
         const clauseWords = (clause.keyword || '').toUpperCase().split(/\s+/).filter(Boolean);
         let used = false;
         if (clauseWords.length === 0) continue;
         if (clauseWords.length === 1) {
             used = wordSet.has(clauseWords[0]);
         } else {
-            // match the full sequence (e.g. 'ORDER BY' or 'GROUP BY') to avoid false positives on shared words like 'BY'
+            // BY のような部分語で誤検出しないように正規表現でチェックする
             const re = new RegExp('\\b' + clauseWords.join('\\s+') + '\\b');
             used = re.test(queryUpper);
         }
         if (used) {
-            // Require ownership of all parts of the clause (e.g., both 'GROUP' and 'BY')
+            // by のような一般語で誤検出しないように、SQLキーワードリストにあるものだけをチェック
             const ownsAll = clauseWords.every(w => usableItems.has(w));
             if (!ownsAll) {
-                // Use i18n message with the human-friendly clause name
                 dom.showResult(game.i18n.t('message.unknown_spell').replace('%s', clause.getKeyword({i18n: game.i18n})), 'error');
                 return false;
             }
@@ -196,10 +219,10 @@ function handleCorrectAnswer(game, floorData, query) {
             game.currentFloor++;
             game.loadFloor(game.currentFloor);
         };
-    } else {
+        } else {
         dom.elements['next-floor-btn'].classList.add('hidden');
         dom.elements['next-floor-btn'].onclick = null;
-        setTimeout(() => game.showEndScreen('クリア！', '全てのフロアを攻略しました！'), 1200);
+        setTimeout(() => game.showEndScreen(game.i18n.t('message.clear'), game.i18n.t('message.clear_all')), 1200);
     }
     if (floorData.opensShop) {
         dom.elements['shop-btn'].classList.remove('hidden');

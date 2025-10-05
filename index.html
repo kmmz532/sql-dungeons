@@ -14,7 +14,10 @@
         <div class="container" role="application" aria-label="SQLダンジョンゲーム">
             <div id="feedback-message"></div>
             <div id="start-screen">
-                <div class="header"><h1 data-i18n="app.title.beginner">SQLダンジョン - 初級 -</h1></div>
+                <div class="header">
+                    <h1 data-i18n="app.title.beginner">SQLダンジョン - 初級 -</h1>
+                    <button id="settings-button" class="action-btn" aria-label="設定">⚙</button>
+                </div>
                 <div class="content" role="main">
                     <p data-i18n="app.intro.text">SQLの呪文を習得し、ダンジョンの謎を解き明かせ！<br>
                     クエリ実行にはエネルギーを、ヒントにはゴールドを消費する。<br>
@@ -34,6 +37,10 @@
                         <span id="energy-status" class="status-item" aria-label="エネルギー"></span>
                     </div>
                     <button id="save-button" class="action-btn" data-i18n="button.save">セーブ</button>
+                    <button id="back-to-title-button" class="action-btn" aria-label="タイトルに戻る">
+                        <span class="icon-back">↶</span>
+                        <span class="visually-hidden" data-i18n="button.back_to_title">タイトルに戻る</span>
+                    </button>
                 </header>
                 <div class="content game-grid" id="game-grid" role="main">
                     <div id="inventory-panel" class="panel" role="region" aria-labelledby="inventory-title">
@@ -95,6 +102,43 @@
                     <div class="modal-body">
                         <p id="hint-modal-text"></p>
                         <div id="hint-modal-actions" class="modal-actions"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 設定モーダル -->
+            <div id="settings-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+                <div class="modal-content" role="document">
+                    <div class="modal-header">
+                        <h2 id="settings-title" data-i18n="settings.title">設定</h2>
+                        <button class="close-btn" data-modal-id="settings-modal" data-i18n="modal.close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                            <label>
+                                <span data-i18n="settings.language_label">言語:</span>
+                                <select id="settings-language">
+                                    <option value="ja">日本語</option>
+                                    <option value="en">English</option>
+                                    <option value="zh">中文</option>
+                                    <option value="ko">한국어</option>
+                                </select>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="settings-enable-esc" checked /> <span data-i18n="settings.enable_esc">ESCでダイアログを閉じる</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="settings-enable-save-shortcut" checked /> <span data-i18n="settings.enable_save_shortcut">Ctrl+Sで保存する</span>
+                            </label>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <button id="export-json" class="action-btn" data-i18n="settings.export_json">JSONエクスポート</button>
+                                <input type="file" id="import-json-file" accept="application/json" style="display:none;" />
+                                <button id="import-json" class="action-btn" data-i18n="settings.import_json">JSONインポート</button>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:12px;">
+                                <button id="settings-save" class="action-btn" data-i18n="settings.save">保存</button>
+                                <button id="settings-cancel" class="action-btn" data-i18n="settings.cancel">キャンセル</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

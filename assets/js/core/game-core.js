@@ -1,7 +1,6 @@
 
 // Game進行・状態管理・セーブ/ロードなどの本体
 
-
 import { Player } from '../models/player.js';
 import { loadGameData } from '../data/data-loader.js';
 import { Floor } from '../models/floor.js';
@@ -9,12 +8,10 @@ import { SAVE_KEY } from '../constants.js';
 import { setupUIHandlers } from '../ui/ui-handlers.js';
 import Register from '../register.js';
 
-// Helper to render schema text into HTML with schema-term spans and PK/CK classes
+// スキーマテキストをHTMLに変換する。schema-termクラスとPK/CKクラスを付与
 function renderSchemaHTML(schemaText) {
     if (!schemaText) return '';
-    // Split into lines and first pass: collect column lines and parse comma-separated lists
     const lines = schemaText.split('\n');
-    // We'll collect parsed lines as objects to allow a second pass heuristic (e.g., mark first _id as PK)
     const parsed = lines.map(rawLine => {
         const line = rawLine.replace(/\r$/, '');
         const trimmed = line.trim();
@@ -24,20 +21,16 @@ function renderSchemaHTML(schemaText) {
         return { raw: line, trimmed, lineType };
     });
 
-    // Helper to detect PK/CK tokens in a text fragment
     const hasPkToken = (txt) => /\b(PK|PRIMARY\s*KEY|PRIMARYKEY|主キー)\b|\(PK\)/i.test(txt);
     const hasCkToken = (txt) => /\b(CK|CANDIDATE\s*KEY|候補キー)\b|\(CK\)/i.test(txt);
 
-    // Extract all column identifiers from column lines. Support formats:
     // - product_id (PK)
     // - product_id, name, price
     // - product_id (PK), name, price
     parsed.forEach(p => {
         if (p.lineType !== 'columns') return;
-        // Remove leading dash and whitespace
+
         const afterDash = p.trimmed.replace(/^[-\s]+/, '');
-        // Some lines may contain multiple columns separated by commas. We'll split on commas but be
-        // careful to preserve annotations that may follow a column (e.g., "product_id (PK)").
         const parts = afterDash.split(',').map(s => s.trim()).filter(Boolean);
         const cols = parts.map(part => {
             const m = part.match(/^([A-Za-z_][A-Za-z0-9_]*)(.*)$/);
@@ -48,15 +41,14 @@ function renderSchemaHTML(schemaText) {
                 name,
                 rest,
                 isPk: hasPkToken(rest),
-                isCk: false // we'll compute after checking isPk
+                isCk: false
             };
         }).filter(Boolean);
-        // mark CK only if not PK
+
         cols.forEach(c => { c.isCk = !c.isPk && hasCkToken(c.rest); });
         p.columns = cols;
     });
 
-    // Heuristic: if no explicit PK was found in the entire schema, mark the first `_id`-suffixed column as PK
     const anyExplicitPk = parsed.some(p => (p.columns || []).some(c => c.isPk));
     if (!anyExplicitPk) {
         for (const p of parsed) {
@@ -66,26 +58,21 @@ function renderSchemaHTML(schemaText) {
         }
     }
 
-    // Now render HTML from parsed lines
     const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const out = parsed.map(p => {
         const esc = escapeHtml(p.raw);
         if (p.lineType === 'columns' && Array.isArray(p.columns) && p.columns.length > 0) {
-            // We'll replace each column occurrence in the escaped raw line with a span
             let rendered = esc;
-            // To avoid accidental double-replacements, process longer names first
             const cols = p.columns.slice().sort((a,b) => b.name.length - a.name.length);
             cols.forEach(col => {
                 const classes = ['schema-term'];
                 if (col.isPk) classes.push('pk');
                 if (col.isCk) classes.push('ck');
                 const span = `<span class="${classes.join(' ')}" data-term="${col.name}">${col.name}</span>`;
-                // Replace the first occurrence of the column name using a word-boundary regex
                 rendered = rendered.replace(new RegExp('\\b' + col.name + '\\b'), span);
             });
             return `<div class="schema-line" data-line-type="${p.lineType}">${rendered}</div>`;
         }
-        // default: wrap identifiers as before for table names or other lines
         const replaced = esc.replace(/([A-Za-z_][A-Za-z0-9_]*)/g, (m) => {
             return `<span class="schema-term" data-term="${m}">${m}</span>`;
         });
@@ -102,13 +89,11 @@ export class GameCore {
         this.player = null;
         this.currentFloor = 0;
         this.gameData = null;
+        this._isDirty = false;
     }
 
     async initialize() {
-        // Load clause modules manifest so SQL clause classes are registered before use
-    // manifest.json lives in ../sql/clause relative to this core file
-    const manifestUrl = new URL('../sql/clause/manifest.json', import.meta.url).href;
-        // small banner to show status
+        const manifestUrl = new URL('../sql/clause/manifest.json', import.meta.url).href;
         const showBanner = (msg, isError) => {
             try {
                 let b = document.getElementById('clause-banner');
@@ -134,21 +119,23 @@ export class GameCore {
                         r.style.marginLeft = '8px';
                         r.onclick = async () => {
                             showBanner('Retrying manifest...', false);
-                            try { await Register.init(manifestUrl); showBanner('Manifest loaded', false); } catch (err) { showBanner('Manifest failed', true); }
+                            try { await Register.init(manifestUrl); showBanner('Loaded clause manifest', false); } catch (err) { showBanner('Failed to load clause manifest', true); }
                         };
                         b.appendChild(r);
                     }
                 }
-            } catch (e) { /* ignore banner errors */ }
-        };
+            } catch (e) { 
+                console.error('Failed to show banner', e);
+            }
+        }
 
         try {
             await Register.init(manifestUrl);
-            showBanner('Manifest loaded', false);
+            showBanner('Loaded clause manifest', false);
             setTimeout(() => { try { const b = document.getElementById('clause-banner'); if (b) b.style.display = 'none'; } catch(e){} }, 2500);
         } catch (e) {
             console.warn('Clause registry init failed', e);
-            showBanner('Manifest failed', true);
+            showBanner('Failed to load clause manifest', true);
         }
         this.gameData = await loadGameData();
         setupUIHandlers(this);
@@ -159,6 +146,7 @@ export class GameCore {
         this.isSandbox = false;
         this.player = new Player();
         this.currentFloor = 0;
+        this._isDirty = false;
         // remove sandbox controls if present
         try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
         try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sw.remove(); } catch(e){}
@@ -180,32 +168,34 @@ export class GameCore {
         // Ensure there's no player model to avoid spending energy/gold in sandbox
         this.player = null;
         this.isSandbox = true;
-    this.dom.showScreen('game');
-    try { document.body.classList.add('sandbox-mode'); } catch(e){}
-        // Clear editor and results so user can start fresh
+        this.dom.showScreen('game');
+        try { 
+            document.body.classList.add('sandbox-mode');
+        } catch(e) {
+            console.error('Failed to enter sandbox mode', e);
+        }
+
         if (this.dom.elements['sql-editor']) this.dom.elements['sql-editor'].value = '';
         if (this.dom.elements['result-area']) {
             this.dom.elements['result-area'].innerHTML = '';
             this.dom.elements['result-area'].className = '';
         }
-    // Hide floor-specific actions and other player-only UI in sandbox
-    if (this.dom.elements['floor-actions-container']) this.dom.elements['floor-actions-container'].classList.add('hidden');
-    if (this.dom.elements['shop-btn']) this.dom.elements['shop-btn'].classList.add('hidden');
-    if (this.dom.elements['next-floor-btn']) this.dom.elements['next-floor-btn'].classList.add('hidden');
-    // Hide save, inventory (learned spells), hint and mission panels for sandbox
-    if (this.dom.elements['save-button']) this.dom.elements['save-button'].classList.add('hidden');
-    try { const ip = document.getElementById('inventory-panel'); if (ip) ip.classList.add('hidden'); } catch(e){}
-    if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.add('hidden');
-    try { const qp = document.querySelector('.quest-panel'); if (qp) qp.classList.add('hidden'); } catch(e){}
+        if (this.dom.elements['floor-actions-container']) this.dom.elements['floor-actions-container'].classList.add('hidden');
+        if (this.dom.elements['shop-btn']) this.dom.elements['shop-btn'].classList.add('hidden');
+        if (this.dom.elements['next-floor-btn']) this.dom.elements['next-floor-btn'].classList.add('hidden');
+        if (this.dom.elements['save-button']) this.dom.elements['save-button'].classList.add('hidden');
+        try { const ip = document.getElementById('inventory-panel'); if (ip) ip.classList.add('hidden'); } catch(e) {}
+        if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.add('hidden');
+        try { const qp = document.querySelector('.quest-panel'); if (qp) qp.classList.add('hidden'); } catch(e) {}
 
         // Render a preview of the first floor's schema/story so users can experiment in sandbox
         this.currentFloor = 0;
+        this._isDirty = false;
         const floorRaw = this.gameData?.dungeonData?.floors?.[this.currentFloor];
-            if (floorRaw) {
+        if (floorRaw) {
             const floorData = new Floor(floorRaw, this.i18n);
-                if (this.dom.elements['floor-title']) this.dom.elements['floor-title'].textContent = `Sandbox - ${floorData.getTitle({ i18n: this.i18n })}`;
-                // quest-story is hidden in sandbox by design
-                // Render schema via selector (handled below when controls are created)
+            if (this.dom.elements['floor-title']) 
+                this.dom.elements['floor-title'].textContent = `Sandbox - ${floorData.getTitle({ i18n: this.i18n })}`;
             if (this.dom.elements['quest-schema']) {
                 // prepare initial schema display (will be overwritten by selector change handler)
                 const schemaText = floorData.getSchema ? floorData.getSchema({ i18n: this.i18n }) : floorData.schema || '';
@@ -214,11 +204,10 @@ export class GameCore {
         } else {
             if (this.dom.elements['floor-title']) this.dom.elements['floor-title'].textContent = 'Sandbox';
         }
-        // Insert sandbox badge + floor selector into header for clear UI affordance
+
         try {
             const headerEl = document.querySelector('.header');
             if (headerEl) {
-                // remove existing sandbox controls if any
                 const existing = headerEl.querySelector('.sandbox-controls');
                 if (existing) existing.remove();
 
@@ -229,7 +218,6 @@ export class GameCore {
                 badge.textContent = 'SANDBOX';
                 controls.appendChild(badge);
 
-                // floor selector
                 const select = document.createElement('select');
                 select.className = 'sandbox-select';
                 (this.gameData?.dungeonData?.floors || []).forEach((f, idx) => {
@@ -291,9 +279,9 @@ export class GameCore {
         this.dom.elements['floor-actions-container'].classList.add('hidden');
         this.dom.elements['next-floor-btn'].classList.add('hidden');
         this.dom.elements['shop-btn'].classList.add('hidden');
-    this.dom.elements['floor-title'].textContent = `フロア ${floorData.floor} - ${floorData.getTitle({ i18n: this.i18n })}`;
-    this.dom.elements['quest-story'].innerHTML = floorData.getStory({ i18n: this.i18n });
-        // Show schema (table definitions) if available
+        this.dom.elements['floor-title'].textContent = this.i18n.t('message.floor_label', floorData.floor) + ` - ${floorData.getTitle({ i18n: this.i18n })}`;
+        this.dom.elements['quest-story'].innerHTML = floorData.getStory({ i18n: this.i18n });
+
         if (this.dom.elements['quest-schema']) {
             const schemaText = (typeof floorData.getSchema === 'function') ? floorData.getSchema({ i18n: this.i18n }) : floorData.schema || '';
             this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
@@ -327,8 +315,18 @@ export class GameCore {
             currentFloor: this.currentFloor
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-    this.dom.showFeedback(this.i18n.t('message.save_success'));
+        this.dom.showFeedback(this.i18n.t('message.save_success'));
+        this.markSaved();
     }
+
+    // Mark that the game has unsaved changes
+    markDirty() { this._isDirty = true; }
+
+    // Mark that the game is saved
+    markSaved() { this._isDirty = false; }
+
+    // Accessor
+    isDirty() { return !!this._isDirty; }
 
     loadGame() {
         const savedDataString = localStorage.getItem(SAVE_KEY);

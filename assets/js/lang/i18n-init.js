@@ -13,7 +13,34 @@ function detectLocale() {
     return 'ja_jp';
 }
 
-const i18n = new I18n(detectLocale());
+/**
+ * 保存された設定からロケールコードを取得する
+ * @returns {string|null} - 保存された設定からロケールコードを取得する。存在しない場合はnullを返す。
+ */
+function localeFromSavedSettings() {
+    try {
+        const s = localStorage.getItem('sql_dungeons_settings');
+        if (!s) return null;
+        const parsed = JSON.parse(s);
+        let lang = parsed && parsed.language;
+        if (!lang) return null;
+        if (typeof lang === 'string') {
+
+            const l = lang.replace('-', '_').toLowerCase();
+            if (l === 'ja' || l.startsWith('ja_') || l === 'ja_jp') return 'ja_jp';
+            if (l === 'en' || l.startsWith('en_') || l === 'en_us') return 'en_us';
+            if (l === 'zh' || l.startsWith('zh_') || l === 'zh_cn') return 'zh_cn';
+            if (l === 'ko' || l.startsWith('ko_') || l === 'ko_kr') return 'ko_kr';
+        }
+        return null;
+    } catch (e) {
+        console.warn('Failed to read saved locale from settings', e);
+        return null;
+    }
+}
+
+const initialLocale = localeFromSavedSettings() || detectLocale();
+const i18n = new I18n(initialLocale);
 window.i18n = i18n;
 i18n.init().then(() => {
     applyI18n(i18n);
