@@ -28,11 +28,18 @@ export class SQLParser {
      * @param {object} mockDatabase
      */
     validate(query, floorData, mockDatabase) {
-        // answerキーがあれば模範解答SQLの実行結果と照合
         if (floorData.answer) {
             const userResult = this._normalizeResult(this.emulate(query, floorData.floor, mockDatabase));
             const answerResult = this._normalizeResult(this.emulate(floorData.answer, floorData.floor, mockDatabase));
-            return this._resultsEqual(userResult, answerResult);
+
+            if (Array.isArray(answerResult) && answerResult.length === 0) {
+                return Array.isArray(userResult) && userResult.length === 0;
+            }
+
+            if (Array.isArray(userResult) && userResult.length > 0 && this._resultsEqual(userResult, answerResult)) {
+                return true;
+            }
+            return false;
         }
         // 既存の特殊バリデーション
         if (floorData.specialValidation) {
