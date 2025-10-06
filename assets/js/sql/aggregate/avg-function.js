@@ -7,10 +7,18 @@ export class AvgFunction extends AggregateFunction {
         const keyPart = col ? (String(col).includes('.') ? String(col).split('.').pop() : String(col)) : undefined;
         let total = 0;
         let count = 0;
+
+        const alnum = s => String(s || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
         for (const r of rows) {
             if (!keyPart) continue;
-            const foundKey = Object.keys(r).find(k => k.toLowerCase().endsWith('.' + keyPart.toLowerCase()) || k.toLowerCase() === keyPart.toLowerCase());
-            const val = foundKey ? r[foundKey] : (r[col] !== undefined ? r[col] : undefined);
+            let foundKey = Object.keys(r).find(k => k.toLowerCase().endsWith('.' + keyPart.toLowerCase()) || k.toLowerCase() === keyPart.toLowerCase());
+            let val = foundKey ? r[foundKey] : (r[col] !== undefined ? r[col] : undefined);
+            if (val === undefined) {
+                const target = alnum(keyPart);
+                const fk = Object.keys(r).find(k => alnum(k) === target);
+                if (fk) { foundKey = fk; val = r[fk]; }
+            }
+
             if (val === null || val === undefined) continue;
             const n = parseFloat(val);
             if (!Number.isNaN(n)) {
