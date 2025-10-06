@@ -2,7 +2,6 @@ import { AggregateFunction } from './aggregate-function.js';
 
 export class SumFunction extends AggregateFunction {
     apply(rows) {
-        // Support qualified column names (e.g., table.col) and case-insensitive lookup
         const col = this.column;
         const keyPart = col ? (String(col).includes('.') ? String(col).split('.').pop() : String(col)) : undefined;
         return rows.reduce((sum, r) => {
