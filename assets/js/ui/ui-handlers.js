@@ -225,6 +225,13 @@ function validateQuery(game, query, isSandbox = false) {
 
 function handleCorrectAnswer(game, floorData, query) {
     const dom = game.dom;
+    // Defensive: ensure query is parseable before awarding/emulating
+    const parsed = sqlParser.parseSQL(query);
+    if (!parsed) {
+        dom.showResult(game.i18n ? game.i18n.t('message.invalid_query') : 'Invalid query', 'error');
+        return;
+    }
+
     try { if (game && typeof game.markDirty === 'function') game.markDirty(); } catch(e){}
     if (floorData.reward) {
         game.player.addGold(floorData.reward.gold || 0);

@@ -102,9 +102,10 @@ export class SQLParser {
         try {
             // SQL文をパース
             const parsed = this.parseSQL(query);
+            // If parsing fails, bail out immediately to avoid reading properties of null
+            if (!parsed) return [];
             try { console.debug('[SQLParser] parsed:', parsed); } catch (e) {}
             try { console.debug('[SQLParser] parsed.joins=', parsed.joins); } catch(e){console.error(e);}
-            if (!parsed) return [];
 
             // Handle INSERT via registered clause class (non-mutating)
             if (parsed.insert) {
