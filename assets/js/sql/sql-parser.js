@@ -187,9 +187,12 @@ export class SQLParser {
             // フェーズ順をランタイムの登録状況（レジストリ）またはフォールバック manifest から決定する
             let resultTable = accumulated;
             try { console.debug('[SQLParser] before clauses, rows=', resultTable.length); } catch(e){console.error(e);}
+            try { console.debug('[SQLParser] parsed.select=', parsed.select); } catch(e){}
+            try { console.debug('[SQLParser] parsed.aggregateFns=', parsed.aggregateFns); } catch(e){}
             const registered = Registry.getAll ? Registry.getAll('clause') : {};
             // getAll returns an object of { KEY: ctor }
             const runtimeKeys = Object.keys(registered || {});
+            try { console.debug('[SQLParser] runtimeKeys=', runtimeKeys); } catch(e){}
 
             // fallback manifest keys (from static export) if registry is empty
             const fallbackManifest = (typeof getFallbackClauseClasses === 'function') ? getFallbackClauseClasses() : {};
@@ -332,6 +335,18 @@ export class SQLParser {
             aggregateFns: [],
             having: null
         };
+
+        // Normalize aggregate function tokens in select list to uppercase function name
+        try {
+            const aggReSingle = /(SUM|COUNT|AVG)\s*\(\s*(\*|(?:\w+(?:\.\w+)?))\s*\)/i;
+            parsed.select = parsed.select.map(s => {
+                const m = s.match(aggReSingle);
+                if (m) {
+                    return s.replace(aggReSingle, `${m[1].toUpperCase()}(${m[2]})`);
+                }
+                return s;
+            });
+        } catch (e) {}
 
     try { console.debug('[SQLParser] parsed.from=', parsed.from); } catch(e){console.error(e);}
 

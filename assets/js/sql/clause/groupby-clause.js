@@ -17,9 +17,13 @@ export class GroupByClause extends AbstractClause {
      */
     static groupAndAggregate(table, groupKeys, aggregateFns = []) {
         const resolve = (row, key) => {
+            if (!key) return undefined;
             if (key in row) return row[key];
+            const lowerKey = key.toLowerCase();
+            const exact = Object.keys(row).find(k => k.toLowerCase() === lowerKey);
+            if (exact) return row[exact];
             if (!key.includes('.')) {
-                const found = Object.keys(row).find(k => k.endsWith('.' + key));
+                const found = Object.keys(row).find(k => k.toLowerCase().endsWith('.' + lowerKey));
                 return found ? row[found] : undefined;
             }
             return undefined;
