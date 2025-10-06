@@ -7,6 +7,7 @@ import { SQLParser } from '../sql/sql-parser.js';
 const sqlParser = new SQLParser();
 
 import { EXECUTE_COST } from '../constants.js';
+import Register from '../register.js';
 
 import { handleHint } from './hint.js';
 import { openShop, handleItemPurchase } from './shop.js';
@@ -19,7 +20,7 @@ export function setupUIHandlers(game) {
         game.startSandbox();
         try { history.pushState({ mode: 'sandbox' }, '', '?mode=sandbox'); } catch(e) {console.error(e);}
     });
-    // Back to title button (confirm if unsaved)
+    
     if (dom.elements['back-to-title-button']) {
         dom.elements['back-to-title-button'].addEventListener('click', () => {
             try {
