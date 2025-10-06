@@ -80,8 +80,12 @@
     "item.sqldungeons.oracle_steak.desc": "Recovers 30 Energy.",
     "item.sqldungeons.ku_next": "Clause Next (x%d)",
     "item.sqldungeons.ku_next.desc": "A scroll that tells you the next SQL clause.",
+    "item.sqldungeons.ku_next_pack": "Clause Next Pack",
+    "item.sqldungeons.ku_next_pack.desc": "Contains multiple Clause Next scrolls (x5).",
     "item.sqldungeons.having": "Single-use 'HAVING'",
     "item.sqldungeons.having.desc": "One-time use spell for post-aggregation filtering.",
+    "item.sqldungeons.consumable_having": "Consumable HAVING",
+    "item.sqldungeons.consumable_having.desc": "A consumable that grants one-time HAVING usage.",
 
     "sql.keyword.select": "SELECT",
     "sql.keyword.from": "FROM",

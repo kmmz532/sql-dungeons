@@ -79,8 +79,12 @@
     "item.sqldungeons.oracle_steak.desc": "에너지가 30 회복.",
     "item.sqldungeons.ku_next": "다음 구문 (%d개)",
     "item.sqldungeons.ku_next.desc": "다음 SQL 구문을 알려주는 두루마리.",
+    "item.sqldungeons.ku_next_pack": "다음 구문 팩",
+    "item.sqldungeons.ku_next_pack.desc": "여러 개의 다음 구문 두루마리가 들어있는 팩(x5).",
     "item.sqldungeons.having": "일회용 'HAVING'",
     "item.sqldungeons.having.desc": "집계 후 필터링 마법을 1회만 사용 가능.",
+    "item.sqldungeons.consumable_having": "소모형 HAVING",
+    "item.sqldungeons.consumable_having.desc": "한 번 사용할 수 있는 HAVING을 부여하는 소모품.",
 
 
     "sql.keyword.select": "SELECT",

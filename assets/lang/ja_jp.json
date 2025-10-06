@@ -80,8 +80,12 @@
     "item.sqldungeons.oracle_steak.desc": "エネルギーが30回復。",
     "item.sqldungeons.ku_next": "句ネクスト (%d個)",
     "item.sqldungeons.ku_next.desc": "次に続くSQL句を教えてくれる巻物。",
+    "item.sqldungeons.ku_next_pack": "句ネクスト・パック",
+    "item.sqldungeons.ku_next_pack.desc": "句ネクストの巻物が複数入ったパック（x5）。",
     "item.sqldungeons.having": "使い切り「HAVING」",
     "item.sqldungeons.having.desc": "集計後絞込の呪文を1回だけ使える。",
+    "item.sqldungeons.consumable_having": "消費型 HAVING",
+    "item.sqldungeons.consumable_having.desc": "1回だけ使えるHAVING呪文を付与する消耗品。",
 
     "sql.keyword.select": "SELECT",
     "sql.keyword.from": "FROM",

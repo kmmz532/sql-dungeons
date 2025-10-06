@@ -79,8 +79,12 @@
     "item.sqldungeons.oracle_steak.desc": "恢复30点能量。",
     "item.sqldungeons.ku_next": "下一句卷轴（%d个）",
     "item.sqldungeons.ku_next.desc": "告诉你下一个SQL子句的卷轴。",
+    "item.sqldungeons.ku_next_pack": "下一句卷轴包",
+    "item.sqldungeons.ku_next_pack.desc": "包含多个下一句卷轴的包（x5）。",
     "item.sqldungeons.having": "一次性“HAVING”",
     "item.sqldungeons.having.desc": "一次性聚合后筛选魔法。",
+    "item.sqldungeons.consumable_having": "消耗型 HAVING",
+    "item.sqldungeons.consumable_having.desc": "授予一次性 HAVING 使用的消耗品。",
 
     "sql.keyword.select": "SELECT",
     "sql.keyword.from": "FROM",
