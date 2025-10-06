@@ -22,11 +22,6 @@ export class GameCore {
     async initialize() {
         const clauseManifestUrl = new URL('../sql/clause/manifest.json', import.meta.url).href;
         const aggregateManifestUrl = new URL('../sql/aggregate/manifest.json', import.meta.url).href;
-        try {
-            await Register.init(aggregateManifestUrl, 'aggregate');
-        } catch (e) {
-            console.warn('Aggregate registry init failed', e);
-        }
         const showBanner = (msg, isError) => {
             try {
                 let b = document.getElementById('clause-banner');
@@ -52,7 +47,7 @@ export class GameCore {
                         r.style.marginLeft = '8px';
                         r.onclick = async () => {
                             showBanner('Retrying manifest...', false);
-                            try { await Register.init(clauseManifestUrl); showBanner('Loaded clause manifest', false); } catch (err) { showBanner('Failed to load clause manifest', true); }
+                            try { await Register.init(clauseManifestUrl, 'clause'); showBanner('Loaded clause manifest', false); } catch (err) { showBanner('Failed to load clause manifest', true); }
                         };
                         b.appendChild(r);
                     }
@@ -63,13 +58,23 @@ export class GameCore {
         }
 
         try {
-            await Register.init(clauseManifestUrl);
+            await Register.init(aggregateManifestUrl, 'aggregate');
+            showBanner('Loaded aggregate manifest', false);
+            setTimeout(() => { try { const b = document.getElementById('clause-banner'); if (b) b.style.display = 'none'; } catch(e){} }, 2500);
+        } catch (e) {
+            console.warn('Aggregate registry init failed', e);
+            showBanner('Failed to load aggregate manifest', true);
+        }
+
+        try {
+            await Register.init(clauseManifestUrl, 'clause');
             showBanner('Loaded clause manifest', false);
             setTimeout(() => { try { const b = document.getElementById('clause-banner'); if (b) b.style.display = 'none'; } catch(e){} }, 2500);
         } catch (e) {
             console.warn('Clause registry init failed', e);
             showBanner('Failed to load clause manifest', true);
         }
+        
         this.gameData = await loadGameData();
         setupUIHandlers(this);
         this.checkForSaveData();
@@ -80,11 +85,11 @@ export class GameCore {
         this.player = new Player();
         this.currentFloor = 0;
         this._isDirty = false;
-        // remove sandbox controls if present
+        // サンドボックスモードのUIを削除
         try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
         try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sw.remove(); } catch(e){}
         try { document.body.classList.remove('sandbox-mode'); } catch(e){}
-        // ensure player-only UI is visible again
+        // 通常モードのUIを表示
         try { if (this.dom.elements['save-button']) this.dom.elements['save-button'].classList.remove('hidden'); } catch(e){}
         try { const ip = document.getElementById('inventory-panel'); if (ip) ip.classList.remove('hidden'); } catch(e){}
         try { if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.remove('hidden'); } catch(e){}
@@ -98,7 +103,6 @@ export class GameCore {
      * Sandbox does not create a Player; it clears editor/result so user can experiment.
      */
     startSandbox() {
-        // Ensure there's no player model to avoid spending energy/gold in sandbox
         this.player = null;
         this.isSandbox = true;
         this.dom.showScreen('game');
@@ -121,7 +125,6 @@ export class GameCore {
         if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.add('hidden');
         try { const qp = document.querySelector('.quest-panel'); if (qp) qp.classList.add('hidden'); } catch(e) {}
 
-        // Render a preview of the first floor's schema/story so users can experiment in sandbox
         this.currentFloor = 0;
         this._isDirty = false;
         const floorRaw = this.gameData?.dungeonData?.floors?.[this.currentFloor];
@@ -173,8 +176,8 @@ export class GameCore {
                     }
                 });
                 controls.appendChild(select);
-                // place controls near the quest-schema area for clearer sandbox UX
                 headerEl.appendChild(controls);
+
                 // also move a clone of the selector above quest-schema for direct schema selection
                 try {
                     const schemaContainer = this.dom.elements['quest-schema'];
@@ -186,7 +189,7 @@ export class GameCore {
                         label.appendChild(select.cloneNode(true));
                         localWrapper.appendChild(label);
                         schemaContainer.parentNode.insertBefore(localWrapper, schemaContainer);
-                        // wire change on this local select to trigger the header select change
+                        
                         const localSelect = localWrapper.querySelector('select');
                         localSelect.addEventListener('change', (ev) => {
                             const idx = parseInt(ev.target.value, 10);
@@ -196,11 +199,10 @@ export class GameCore {
                         });
                     }
                 } catch (e) {
-                    // ignore placement errors
+
                 }
             }
         } catch (e) {
-            // non-fatal
             console.error('Failed to render sandbox controls', e);
         }
     }

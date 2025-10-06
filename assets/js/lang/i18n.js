@@ -37,7 +37,7 @@ export class I18n {
 
 			// フォールバックロケールも読み込む
 			if (this.fallbackLocale !== this.locale) {
-				const fallbackResponse = await fetch(`/assets/lang/${this.fallbackLocale}.json`);
+				const fallbackResponse = await fetch(`./assets/lang/${this.fallbackLocale}.json`);
 				const fallbackTranslations = await fallbackResponse.json();
 				this.translations.set(this.fallbackLocale, fallbackTranslations);
 			}
