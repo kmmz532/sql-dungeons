@@ -140,8 +140,8 @@
     async function initRegistry() {
       regOut.textContent = '(loading registry...)';
       try {
-        await Register.init(manifestUrl);
-        const all = Register.getAll();
+  await Register.init(manifestUrl, 'clause');
+  const all = Register.getAll('clause');
         regOut.textContent = 'Registered clause keys:\n' + JSON.stringify(Object.keys(all), null, 2);
         appendLine('Registry initialized.');
       } catch (e) {

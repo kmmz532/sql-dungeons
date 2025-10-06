@@ -185,12 +185,12 @@ export class SQLParser {
             // フェーズ順をランタイムの登録状況（レジストリ）またはフォールバック manifest から決定する
             let resultTable = accumulated;
             try { console.debug('[SQLParser] before clauses, rows=', resultTable.length); } catch(e){console.error(e);}
-            const registered = Registry.getAll ? Registry.getAll() : {};
+            const registered = Registry.getAll ? Registry.getAll('clause') : {};
             // getAll returns an object of { KEY: ctor }
             const runtimeKeys = Object.keys(registered || {});
 
             // fallback manifest keys (from static export) if registry is empty
-            const fallbackManifest = getFallbackClauseClasses();
+            const fallbackManifest = (typeof getFallbackClauseClasses === 'function') ? getFallbackClauseClasses() : {};
             const fallbackKeys = Object.keys(fallbackManifest || {});
 
             // Decide keys to consider, prefer runtimeKeys if present else fallbackKeys
@@ -269,6 +269,7 @@ export class SQLParser {
 
             return [];
         } catch (e) {
+            console.error('SQLParser emulate error:', e);
             return [];
         }
     }

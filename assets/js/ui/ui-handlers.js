@@ -14,6 +14,9 @@ import { openShop, handleItemPurchase } from './shop.js';
 
 export function setupUIHandlers(game) {
     const dom = game.dom;
+    // Prevent binding handlers multiple times for same DOM manager
+    if (dom.__uiHandlersBound) return;
+    dom.__uiHandlersBound = true;
     dom.elements['start-button'].addEventListener('click', () => game.startGame());
     dom.elements['load-button'].addEventListener('click', () => game.loadGame());
     dom.elements['sandbox-button'].addEventListener('click', () => {
@@ -186,7 +189,16 @@ function validateQuery(game, query, isSandbox = false) {
     const queryUpper = query.toUpperCase();
 
     const registered = Register.getAll ? Object.values(Register.getAll('clause')) : [];
-    const clauseList = (registered && registered.length) ? registered : [];
+    const clauseList = (registered && registered.length) ? registered.map(c => {
+        try {
+            // If it's a constructor/class, instantiate; otherwise assume it's already an instance
+            if (typeof c === 'function') return new c(game.i18n);
+            return c;
+        } catch (e) {
+            // fallback: if instantiation fails, return as-is
+            return c;
+        }
+    }) : [];
     
     for (const clause of clauseList) {
         // ORDER BY, GROUP BY のような複数語の句もあるので分割してチェック
