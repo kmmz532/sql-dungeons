@@ -148,7 +148,13 @@ function executeQuery(game) {
                     return;
                 }
             }
-            const results = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase);
+            const results = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase) || [];
+            if (!Array.isArray(results) || results.length === 0) {
+                const err = diagnoseEmptyResult(sqlParser.parseSQL(query), results, game.gameData.mockDatabase, game.i18n);
+                dom.showResult(err, 'error');
+                dom.displayTable([]);
+                return;
+            }
             dom.showResult(game.i18n.t('message.sandbox_result'), 'success');
             dom.displayTable(results);
             return;
@@ -171,13 +177,11 @@ function executeQuery(game) {
         const emuResults = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase);
         if (Array.isArray(emuResults) && emuResults.length > 0) {
             if (EMULATE_AUTO_ACCEPT) {
-                // Accept as correct based on emulation
                 dom.showResult(game.i18n.t('message.emulation_auto_accept'), 'success');
                 dom.displayTable(emuResults);
                 handleCorrectAnswer(game, floorData, query);
                 return;
             } else {
-                // Emulation produced results. Show them but do not grant rewards.
                 dom.showResult(game.i18n.t('message.emulation_results'), 'error');
                 dom.displayTable(emuResults);
                 return;
@@ -187,12 +191,77 @@ function executeQuery(game) {
 
     }
 
-    dom.showResult(game.i18n.t('message.incorrect_try'), 'error');
+    try {
+        const parsed = sqlParser.parseSQL(query);
+        const diag = diagnoseEmptyResult(parsed, [], game.gameData.mockDatabase, game.i18n);
+        dom.showResult(diag, 'error');
+    } catch (e) {
+        dom.showResult(game.i18n.t('message.incorrect_try'), 'error');
+    }
+}
+
+
+/**
+ * 結果が空になった理由を診断し、ローカライズされたメッセージ（文字列）を返す
+ * @param {*} parsed 
+ * @param {*} results 
+ * @param {*} mockDatabase 
+ * @param {*} i18n
+ * @returns {string}
+ */
+function diagnoseEmptyResult(parsed, results, mockDatabase, i18n) {
+    const t = (k, ...args) => (i18n && typeof i18n.t === 'function') ? i18n.t(k, ...args) : null;
+    if (!parsed) return t('message.invalid_query') || '無効なクエリです。';
+
+    try {
+        if (parsed.from && parsed.from.table) {
+            const tableKey = String(parsed.from.table).toLowerCase();
+            if (!(tableKey in mockDatabase)) {
+                return `このテーブルは存在しません: ${parsed.from.table}`;
+            }
+        }
+    } catch (e) {}
+
+    if (Array.isArray(parsed.multiple) && parsed.multiple.length > 0) {
+        for (const p of parsed.multiple) {
+            try {
+                const part = sqlParser.parseSQL(p.raw);
+                if (!part) return t('message.invalid_query') || '無効なクエリです。';
+                const tk = String(part.from.table).toLowerCase();
+                if (!(tk in mockDatabase)) return `このテーブルは存在しません: ${part.from.table}`;
+            } catch (e) { return t('message.invalid_query') || '無効なクエリです。'; }
+        }
+    }
+
+    const sampleTable = parsed.from && parsed.from.table ? (mockDatabase[String(parsed.from.table).toLowerCase()] || []) : [];
+    const sample = (Array.isArray(sampleTable) && sampleTable.length) ? sampleTable[0] : null;
+    if (sample && parsed.select && parsed.select.length > 0 && !(parsed.select.length === 1 && parsed.select[0] === '*')) {
+        for (const col of parsed.select) {
+            const clean = col.replace(/\s+as\s+.*/i, '').trim();
+            if (clean === '*' || /\(|\)/.test(clean)) continue;
+            const key = clean.includes('.') ? clean.split('.').pop() : clean;
+            if (!(key in sample)) {
+                return `この属性は存在しません: ${key}`;
+            }
+        }
+    }
+
+    try {
+        if (parsed.where && sample) {
+            const m = parsed.where.match(/(\w+(?:\.\w+)?)\s*(?:=|!=|<>|>|<|>=|<=)\s*/);
+            if (m) {
+                const col = m[1];
+                const key = col.includes('.') ? col.split('.').pop() : col;
+                if (!(key in sample)) return `WHERE 句のカラムが見つかりません: ${key}`;
+            }
+        }
+    } catch (e) {}
+
+    return t('message.incorrect_try') || '条件に合う行が見つかりませんでした。';
 }
 
 function validateQuery(game, query, isSandbox = false) {
     const dom = game.dom;
-    // In sandbox mode, skip item-ownership checks
     if (isSandbox) return true;
 
     const usableItems = new Set([
@@ -207,11 +276,9 @@ function validateQuery(game, query, isSandbox = false) {
     const registered = Register.getAll ? Object.values(Register.getAll('clause')) : [];
     const clauseList = (registered && registered.length) ? registered.map(c => {
         try {
-            // If it's a constructor/class, instantiate; otherwise assume it's already an instance
             if (typeof c === 'function') return new c(game.i18n);
             return c;
         } catch (e) {
-            // fallback: if instantiation fails, return as-is
             return c;
         }
     }) : [];
@@ -242,10 +309,8 @@ function validateQuery(game, query, isSandbox = false) {
 
 function handleCorrectAnswer(game, floorData, query) {
     const dom = game.dom;
-    // Defensive: ensure query is parseable before awarding/emulating
     const parsed = sqlParser.parseSQL(query);
     if (!parsed) {
-        // try to suggest a correction for common typos
         const suggestions = {
             'innser': 'inner',
             'inser': 'inner',
@@ -315,14 +380,14 @@ function useKuNext(game) {
 
 function determineNextClause(game, query, lastWord) {
     if (query === '') return 'SELECT';
-    // If the query contains SELECT but not FROM yet, suggest FROM
+
     try {
         const hasSelect = /\bSELECT\b/i.test(query);
         const hasFrom = /\bFROM\b/i.test(query);
         if (hasSelect && !hasFrom) return 'FROM';
     } catch (e) {}
     if (['SELECT', ','].includes(lastWord) || /\w+\(.*\)/.test(lastWord)) return 'FROM';
-    // Determine allowed clauses for the current floor from dungeon data
+
     let allowed = null;
     try {
         const floorIndex = game.currentFloor || 0;
@@ -332,12 +397,9 @@ function determineNextClause(game, query, lastWord) {
         allowed = null;
     }
 
-    // If the last token appears to be a table name, suggest clauses that are allowed on this floor
     if (Object.keys(game.gameData.mockDatabase).includes(lastWord.toLowerCase())) {
-        // Default suggestions in absence of floor-specific constraints
         const defaultSet = ['WHERE', 'JOIN', 'GROUP BY'];
         const candidates = allowed ? defaultSet.filter(w => {
-            // 'GROUP BY' in borrowed may be represented as ['GROUP','BY'] or as 'GROUP' + 'BY'
             if (w === 'GROUP BY') return allowed.includes('GROUP') || allowed.includes('GROUP BY') || (allowed.includes('GROUP') && allowed.includes('BY'));
             return allowed.includes(w) || allowed.includes(w.split(' ')[0]);
         }) : defaultSet;
@@ -345,7 +407,6 @@ function determineNextClause(game, query, lastWord) {
     }
 
     if (lastWord === 'WHERE' || lastWord === 'ON') {
-        // After WHERE or ON, suggest GROUP BY only if allowed on this floor
         const allowGroup = allowed ? (allowed.includes('GROUP') || allowed.includes('GROUP BY') || (allowed.includes('GROUP') && allowed.includes('BY'))) : true;
         return allowGroup ? 'GROUP BY / JOIN' : (allowed && allowed.includes('JOIN') ? 'JOIN' : '不明');
     }
