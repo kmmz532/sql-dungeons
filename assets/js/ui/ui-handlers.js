@@ -11,6 +11,7 @@ import Register from '../register.js';
 
 import { handleHint } from './hint.js';
 import { openShop, handleItemPurchase } from './shop.js';
+import { ShopItem } from '../models/item.js';
 
 export function setupUIHandlers(game) {
     const dom = game.dom;
@@ -81,7 +82,8 @@ export function setupUIHandlers(game) {
         if (e.target.classList.contains('buy-btn')) {
             const itemData = game.gameData.shopItems.items.find(i => i.id === e.target.dataset.itemId);
             if (itemData && game.player.spendGold(itemData.price)) {
-                const item = new (itemData.constructor || Object.getPrototypeOf(itemData).constructor)(itemData, game.i18n);
+                // Ensure we create a ShopItem instance so getName/getDesc and effects are available
+                const item = new ShopItem(itemData, game.i18n);
                 handleItemPurchase(game, item);
                 game.updateUI();
                 openShop(game);
