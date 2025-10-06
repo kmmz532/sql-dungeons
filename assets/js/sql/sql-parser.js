@@ -54,19 +54,34 @@ export class SQLParser {
     }
 
     /**
-     * 結果配列をソート・型正規化して比較しやすくする
+     * 結果配列をソート・型正規化し、カラム名のエイリアス（例: e.emp_name）を除去して比較しやすくする
+     * JOIN句のカラム名揺れを吸収し、柔軟な自動採点を実現
      */
     _normalizeResult(result) {
         if (!Array.isArray(result)) return [];
-        // 各行のキー順・値型を正規化
         return result.map(row => {
-            const sorted = {};
-            Object.keys(row).sort().forEach(k => {
+            const normalized = {};
+            Object.keys(row).forEach(k => {
+                // エイリアス付きカラム名（e.emp_name）はemp_nameに統一
+                const baseKey = k.includes('.') ? k.split('.').pop() : k;
                 let v = row[k];
-                // 数値文字列は数値化
+                if (v === undefined) v = null;
                 if (typeof v === 'string' && v.match(/^\d+(\.\d+)?$/)) v = Number(v);
-                sorted[k] = v;
+                // 既に同名カラムがあれば値が一致するか確認（JOINで両方出る場合）
+                if (baseKey in normalized) {
+                    // どちらかがnullなら非nullを優先、両方非nullなら値が一致するもののみ
+                    if (normalized[baseKey] === null) normalized[baseKey] = v;
+                    else if (normalized[baseKey] !== v) {
+                        // 値が異なる場合は配列化（ただし通常は発生しない）
+                        normalized[baseKey] = [normalized[baseKey], v];
+                    }
+                } else {
+                    normalized[baseKey] = v;
+                }
             });
+            // カラム順をソート
+            const sorted = {};
+            Object.keys(normalized).sort().forEach(k => { sorted[k] = normalized[k]; });
             return sorted;
         }).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
     }

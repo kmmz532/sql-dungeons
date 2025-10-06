@@ -140,9 +140,7 @@ function executeQuery(game) {
         handleCorrectAnswer(game, floorData, query);
         return;
     }
-
-    // SQLエミュを実行して結果が返るか確認 (正解とはみなさない)
-    // TODO: この結果が一致するかどうかをチェックして正解判定するのはどうだろうか
+    
     try {
         const emuResults = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase);
         if (Array.isArray(emuResults) && emuResults.length > 0) {
