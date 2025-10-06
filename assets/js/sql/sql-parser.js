@@ -6,14 +6,12 @@ import { SumFunction } from './aggregate/sum-function.js';
 import { CountFunction } from './aggregate/count-function.js';
 import { AvgFunction } from './aggregate/avg-function.js';
 
-// Helper: resolve clause class from runtime registry with constants fallback
+// レジストリからクラスを取得、なければフォールバック
 const getClauseClass = (key) => {
     try {
         const r = Registry.get(key);
         if (r) return r;
-    } catch (e) {
-        // ignore
-    }
+    } catch (e) { /* ignore */ }
     const fb = getFallbackClauseClasses();
     return fb[key];
 };
@@ -25,8 +23,18 @@ const getClauseClass = (key) => {
 export class SQLParser {
     /**
      * クエリが課題の条件を満たすか判定
+     * @param {string} query
+     * @param {object} floorData
+     * @param {object} mockDatabase
      */
-    validate(query, floorData) {
+    validate(query, floorData, mockDatabase) {
+        // answerキーがあれば模範解答SQLの実行結果と照合
+        if (floorData.answer) {
+            const userResult = this._normalizeResult(this.emulate(query, floorData.floor, mockDatabase));
+            const answerResult = this._normalizeResult(this.emulate(floorData.answer, floorData.floor, mockDatabase));
+            return this._resultsEqual(userResult, answerResult);
+        }
+        // 既存の特殊バリデーション
         if (floorData.specialValidation) {
             switch (floorData.floor) {
                 case 3:
@@ -43,6 +51,31 @@ export class SQLParser {
             );
         }
         return false;
+    }
+
+    /**
+     * 結果配列をソート・型正規化して比較しやすくする
+     */
+    _normalizeResult(result) {
+        if (!Array.isArray(result)) return [];
+        // 各行のキー順・値型を正規化
+        return result.map(row => {
+            const sorted = {};
+            Object.keys(row).sort().forEach(k => {
+                let v = row[k];
+                // 数値文字列は数値化
+                if (typeof v === 'string' && v.match(/^\d+(\.\d+)?$/)) v = Number(v);
+                sorted[k] = v;
+            });
+            return sorted;
+        }).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    }
+
+    /**
+     * 結果配列の完全一致判定
+     */
+    _resultsEqual(a, b) {
+        return JSON.stringify(a) === JSON.stringify(b);
     }
 
     /**
