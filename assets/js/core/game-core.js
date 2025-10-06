@@ -85,9 +85,10 @@ export class GameCore {
         this.player = new Player();
         this.currentFloor = 0;
         this._isDirty = false;
+
         // サンドボックスモードのUIを削除
         try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
-        try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sw.remove(); } catch(e){}
+        try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sc.remove(); } catch(e){}
         try { document.body.classList.remove('sandbox-mode'); } catch(e){}
         // 通常モードのUIを表示
         try { if (this.dom.elements['save-button']) this.dom.elements['save-button'].classList.remove('hidden'); } catch(e){}
@@ -95,17 +96,15 @@ export class GameCore {
         try { if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.remove('hidden'); } catch(e){}
         try { const qp = document.querySelector('.quest-panel'); if (qp) qp.classList.remove('hidden'); } catch(e){}
         this.dom.showScreen('game');
+        setupUIHandlers(this);
         this.loadFloor(this.currentFloor);
     }
 
-    /**
-     * Enter sandbox mode: show the game UI but allow free queries without affecting player state.
-     * Sandbox does not create a Player; it clears editor/result so user can experiment.
-     */
     startSandbox() {
         this.player = null;
         this.isSandbox = true;
         this.dom.showScreen('game');
+        setupUIHandlers(this);
         try { 
             document.body.classList.add('sandbox-mode');
         } catch(e) {
@@ -270,10 +269,11 @@ export class GameCore {
             this.player = Player.fromJSON(loadedData);
             this.currentFloor = loadedData.currentFloor;
             this.dom.showScreen('game');
+            setupUIHandlers(this); // 画面切り替え時に再バインド
             this.loadFloor(this.currentFloor);
             this.dom.showFeedback(this.i18n.t('message.load_success'));
             try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
-            try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sw.remove(); } catch(e){}
+            try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sc.remove(); } catch(e){}
             try { document.body.classList.remove('sandbox-mode'); } catch(e){}
         }
     }
