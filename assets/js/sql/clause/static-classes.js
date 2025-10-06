@@ -1,5 +1,4 @@
-// Static manifest of clause modules (used as an application-local fallback for dynamic loading)
-// Keys match clause names and values are module paths relative to this file.
+// manifest.jsonが読み込めない場合のフォールバック用
 export const CLAUSE_MANIFEST = {
     SELECT: './select-clause.js',
     WHERE: './where-clause.js',

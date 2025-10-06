@@ -1,0 +1,5 @@
+{
+  "SUM": "./sum-function.js",
+  "COUNT": "./count-function.js",
+  "AVG": "./avg-function.js"
+}

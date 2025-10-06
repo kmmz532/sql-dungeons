@@ -2,9 +2,14 @@
 
 import { getFallbackClauseClasses } from './clause/exports.js';
 import Registry from '../register.js';
-import { SumFunction } from './aggregate/sum-function.js';
-import { CountFunction } from './aggregate/count-function.js';
-import { AvgFunction } from './aggregate/avg-function.js';
+
+// 集約関数レジストリはRegister経由で参照のみ（登録はgame-coreで実施）
+import { get as getRegistry } from '../register.js';
+const aggregateFunctionRegistry = {};
+['SUM','COUNT','AVG'].forEach(fnName => {
+    const AggCls = getRegistry(fnName, 'aggregate');
+    if (AggCls) aggregateFunctionRegistry[fnName] = AggCls;
+});
 
 // レジストリからクラスを取得、なければフォールバック
 const getClauseClass = (key) => {
@@ -69,17 +74,14 @@ export class SQLParser {
         return result.map(row => {
             const normalized = {};
             Object.keys(row).forEach(k => {
-                // エイリアス付きカラム名（e.emp_name）はemp_nameに統一
-                const baseKey = k.includes('.') ? k.split('.').pop() : k;
+                // エイリアス付きカラム名（e.emp_name）はemp_nameに統一し、さらに小文字化
+                const baseKey = (k.includes('.') ? k.split('.').pop() : k).toLowerCase();
                 let v = row[k];
                 if (v === undefined) v = null;
                 if (typeof v === 'string' && v.match(/^\d+(\.\d+)?$/)) v = Number(v);
-                // 既に同名カラムがあれば値が一致するか確認（JOINで両方出る場合）
                 if (baseKey in normalized) {
-                    // どちらかがnullなら非nullを優先、両方非nullなら値が一致するもののみ
                     if (normalized[baseKey] === null) normalized[baseKey] = v;
                     else if (normalized[baseKey] !== v) {
-                        // 値が異なる場合は配列化（ただし通常は発生しない）
                         normalized[baseKey] = [normalized[baseKey], v];
                     }
                 } else {
@@ -238,12 +240,10 @@ export class SQLParser {
 
                 if (phase === 'GROUP BY') {
                     const aggInstances = (parsed.aggregateFns || []).map(af => {
-                        switch (af.fn) {
-                            case 'SUM': return new SumFunction(af.column);
-                            case 'COUNT': return new CountFunction(af.column === '*' ? undefined : af.column);
-                            case 'AVG': return new AvgFunction(af.column);
-                            default: return null;
-                        }
+                        const AggCls = aggregateFunctionRegistry[af.fn];
+                        if (!AggCls) return null;
+                        // COUNT(*)はundefined渡し、それ以外はカラム名
+                        return new AggCls(af.column === '*' ? undefined : af.column);
                     }).filter(Boolean);
                     if (typeof Cls.groupAndAggregate === 'function') {
                         resultTable = Cls.groupAndAggregate(resultTable, parsed.groupBy, aggInstances);

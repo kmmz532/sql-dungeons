@@ -1,5 +1,5 @@
 
-// Game進行・状態管理・セーブ/ロードなどの本体
+// Game進行、状態管理、セーブ/ロードなどの本体
 
 import { Player } from '../models/player.js';
 import { loadGameData } from '../data/data-loader.js';
@@ -24,8 +24,6 @@ function renderSchemaHTML(schemaText) {
     const hasPkToken = (txt) => /\b(PK|PRIMARY\s*KEY|PRIMARYKEY|主キー)\b|\(PK\)/i.test(txt);
     const hasCkToken = (txt) => /\b(CK|CANDIDATE\s*KEY|候補キー)\b|\(CK\)/i.test(txt);
 
-    // - product_id (PK)
-    // - product_id, name, price
     // - product_id (PK), name, price
     parsed.forEach(p => {
         if (p.lineType !== 'columns') return;
@@ -93,7 +91,13 @@ export class GameCore {
     }
 
     async initialize() {
-        const manifestUrl = new URL('../sql/clause/manifest.json', import.meta.url).href;
+        const clauseManifestUrl = new URL('../sql/clause/manifest.json', import.meta.url).href;
+        const aggregateManifestUrl = new URL('../sql/aggregate/manifest.json', import.meta.url).href;
+        try {
+            await Register.init(aggregateManifestUrl, 'aggregate');
+        } catch (e) {
+            console.warn('Aggregate registry init failed', e);
+        }
         const showBanner = (msg, isError) => {
             try {
                 let b = document.getElementById('clause-banner');
@@ -119,7 +123,7 @@ export class GameCore {
                         r.style.marginLeft = '8px';
                         r.onclick = async () => {
                             showBanner('Retrying manifest...', false);
-                            try { await Register.init(manifestUrl); showBanner('Loaded clause manifest', false); } catch (err) { showBanner('Failed to load clause manifest', true); }
+                            try { await Register.init(clauseManifestUrl); showBanner('Loaded clause manifest', false); } catch (err) { showBanner('Failed to load clause manifest', true); }
                         };
                         b.appendChild(r);
                     }
@@ -130,7 +134,7 @@ export class GameCore {
         }
 
         try {
-            await Register.init(manifestUrl);
+            await Register.init(clauseManifestUrl);
             showBanner('Loaded clause manifest', false);
             setTimeout(() => { try { const b = document.getElementById('clause-banner'); if (b) b.style.display = 'none'; } catch(e){} }, 2500);
         } catch (e) {
