@@ -57,8 +57,8 @@ export class Item {
  * ショップアイテムクラス
  */
 export class ShopItem extends Item {
-    constructor({ id, name, desc, price, effectType, effectValue, effectItem }) {
-        super({ id, name, desc });
+    constructor({ id, name, desc, price, effectType, effectValue, effectItem }, i18n) {
+        super({ id, name, desc }, i18n);
         this.price = price;
         this.effectType = effectType;
         this.effectValue = effectValue;
