@@ -23,7 +23,6 @@
       cursor: pointer !important;
       box-shadow: 0 3px rgba(0,0,0,0.4) !important;
     }
-    .container .btn:hover, .container .action-btn:hover { transform: translateY(-2px); }
     .container a { color: var(--gold-color); }
   </style>
 </head>
@@ -141,6 +140,16 @@
         { dept_id: 10, dept_name: 'Sales' },
         { dept_id: 20, dept_name: 'Engineering' }
       ]
+      ,
+      // small monsters dataset for debug tests
+      monsters: [
+        { monster_id: 1, name: 'Green Slime', species: 'Slime', hp: 5 },
+        { monster_id: 2, name: 'Blue Slime', species: 'Slime', hp: 6 },
+        { monster_id: 3, name: 'Orc Grunt', species: 'Orc', hp: 12 },
+        { monster_id: 4, name: 'Orc Archer', species: 'Orc', hp: 8 },
+        { monster_id: 5, name: 'Goblin', species: 'Goblin', hp: 4 },
+        { monster_id: 6, name: 'Green Slime Jr', species: 'Slime', hp: 3 }
+      ]
     };
 
     // Resolve manifest relative to this page
@@ -216,8 +225,11 @@
       const q = 'select species, count(*) from monsters group by species';
       out.textContent = '(running monsters test)\n';
       try {
-        const res = parser.emulate(q, 0, getSelectedDb());
+        // Prefer parent mock DB if available (game data), otherwise use the selected DB
+        const db = parentDb || getSelectedDb();
+        const res = parser.emulate(q, 0, db);
         appendLine('QUERY:', q);
+        appendLine('USING DB:', parentDb ? 'parent' : mockSelect.value);
         appendLine('RESULT:', res);
       } catch (e) {
         appendLine('Test failed:', e.message || e);

@@ -172,7 +172,6 @@ p {
 }
 
 .sandbox-btn:hover {
-    transform: translateY(-2px);
     box-shadow: 0 6px #1f7a44;
 }
 
@@ -187,12 +186,10 @@ p {
 }
 
 .start-btn:hover {
-    transform: translateY(-2px);
     box-shadow: 0 6px #800000;
 }
 
 .start-btn:active {
-    transform: translateY(2px);
     box-shadow: 0 2px #800000;
 }
 
@@ -202,7 +199,6 @@ p {
 }
 
 .load-btn:hover {
-    transform: translateY(-2px);
     box-shadow: 0 6px #1a5276;
 }
 
