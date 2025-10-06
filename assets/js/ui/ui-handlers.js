@@ -56,6 +56,12 @@ export function setupUIHandlers(game) {
             dom.elements['sql-editor'].focus();
         }
     });
+    // Mark game as dirty when user edits the SQL editor
+    if (dom.elements['sql-editor']) {
+        dom.elements['sql-editor'].addEventListener('input', () => {
+            try { if (game && typeof game.markDirty === 'function') game.markDirty(); } catch(e){}
+        });
+    }
     dom.elements['quest-schema'].addEventListener('click', e => {
         if (e.target.classList.contains('schema-term')) {
             const term = e.target.dataset.term;
@@ -77,6 +83,7 @@ export function setupUIHandlers(game) {
                 handleItemPurchase(game, item);
                 game.updateUI();
                 openShop(game);
+                try { if (game && typeof game.markDirty === 'function') game.markDirty(); } catch(e){}
             }
         }
     });
@@ -178,7 +185,7 @@ function validateQuery(game, query, isSandbox = false) {
     const wordSet = new Set(words);
     const queryUpper = query.toUpperCase();
 
-    const registered = Register.getAll ? Object.values(Register.getAll()) : [];
+    const registered = Register.getAll ? Object.values(Register.getAll('clause')) : [];
     const clauseList = (registered && registered.length) ? registered : [];
     
     for (const clause of clauseList) {
@@ -207,6 +214,7 @@ function validateQuery(game, query, isSandbox = false) {
 
 function handleCorrectAnswer(game, floorData, query) {
     const dom = game.dom;
+    try { if (game && typeof game.markDirty === 'function') game.markDirty(); } catch(e){}
     if (floorData.reward) {
         game.player.addGold(floorData.reward.gold || 0);
         game.player.addEnergy(floorData.reward.energy || 0);
