@@ -7,7 +7,7 @@
     "button.hint": "？",
     "game.inventory.title": "已学魔法",
     "game.mission.title": "任务",
-    "game.schema.title": "表定义",
+    "game.schema.title": "概念架构",
     "game.editor.title": "施法",
     "game.result.title": "执行结果",
     "modal.hint.title": "提示",
@@ -26,7 +26,7 @@
 
     "panel.inventory": "已学魔法",
     "panel.mission": "任务",
-    "panel.schema": "表定义",
+    "panel.schema": "概念架构",
     "panel.spell": "施放魔法",
     "panel.result": "执行结果",
 
@@ -100,6 +100,14 @@
     "sql.keyword.count": "COUNT",
     "sql.keyword.in": "IN",
 
+    "schema.pk": "主键",
+    "schema.ck": "候选键",
+    "schema.fk": "外键 (引用: %s)",
+    "schema.type.integer": "整数",
+    "schema.type.date": "日期",
+    "schema.type.text": "文本",
+    "schema.not_null": "非空",
+
     "sql.next.select": "SELECT",
     "sql.next.from": "FROM",
     "sql.next.where": "WHERE / JOIN / GROUP BY",
@@ -111,27 +119,27 @@
     "dungeon.floor1.title": "新手SELECT",
     "dungeon.floor1.story": "这里是地牢入口。首先，从products表中找出价格大于等于1000金币的所有物品，显示它们的名称和价格。",
     "dungeon.floor1.hint": "使用`WHERE`子句根据特定条件筛选行。",
-    "dungeon.floor1.schema": "products (product_id, name, price)\n- product_id: 主键\n- name: 文本\n- price: 整数",
+    
 
     "dungeon.floor2.title": "GROUP BY挑战",
     "dungeon.floor2.story": "怪物巢穴！请统计monsters表中每个种族的怪物数量。",
     "dungeon.floor2.hint": "使用`GROUP BY`对子集进行聚合。",
-    "dungeon.floor2.schema": "monsters (monster_id, species, hp)\n- monster_id: 主键\n- species: 文本\n- hp: 整数",
+    
 
     "dungeon.floor3.title": "INNER JOIN魔法",
     "dungeon.floor3.story": "欢迎来到公会大厅。连接employees和departments表，列出员工姓名和部门名称。",
     "dungeon.floor3.hint": "使用`INNER JOIN ... ON ...`根据公共列连接两个表。",
-    "dungeon.floor3.schema": "employees (emp_id, emp_name, dept_id)\n- emp_id: 主键\n- emp_name: 文本\n- dept_id: 整数\n\ndepartments (dept_id, dept_name)\n- dept_id: 主键\n- dept_name: 文本",
+    
 
     "dungeon.floor4.title": "子查询迷宫",
     "dungeon.floor4.story": "从销售历史表中找出“开发部”员工的销售总数量。",
     "dungeon.floor4.hint": "可以在`WHERE`子句中使用嵌套`SELECT`（子查询）逐步筛选。",
-    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, sale_date)\n- sale_id: 主键 (整数)\n- emp_id: 整数\n- quantity: 整数\n- sale_date: 日期 (例如: '2025-02-01')",
+    
 
     "dungeon.floor5.title": "Boss战！销售魔像",
     "dungeon.floor5.story": "Boss战！找出2025年2月以来各部门的销售总数量，只显示总销售10件及以上的部门。",
     "dungeon.floor5.hint": "连接三张表，使用WHERE按日期筛选，GROUP BY按部门分组，HAVING筛选分组！",
-    "dungeon.floor5.schema": "sales (sale_id, emp_id, quantity, date)\nemployees (emp_id, emp_name, dept_id)\ndepartments (dept_id, dept_name)",
+    
 
     "sql.keyword.select.desc": "用于从表中选择列的基本SQL子句。",
     "sql.keyword.from.desc": "指定要检索数据的表。",

@@ -7,7 +7,7 @@
     "button.hint": "？",
     "game.inventory.title": "習得呪文",
     "game.mission.title": "ミッション",
-    "game.schema.title": "テーブル定義",
+    "game.schema.title": "概念スキーマ",
     "game.editor.title": "呪文",
     "game.result.title": "実行結果",
     "modal.hint.title": "ヒント",
@@ -26,7 +26,7 @@
 
     "panel.inventory": "習得呪文",
     "panel.mission": "ミッション",
-    "panel.schema": "テーブル定義",
+    "panel.schema": "概念スキーマ",
     "panel.spell": "呪文",
     "panel.result": "実行結果",
 
@@ -101,6 +101,14 @@
     "sql.keyword.count": "COUNT",
     "sql.keyword.in": "IN",
 
+    "schema.pk": "主キー",
+    "schema.ck": "候補キー",
+    "schema.fk": "外部キー (参照: %s)",
+    "schema.type.integer": "整数",
+    "schema.type.date": "日付",
+    "schema.type.text": "テキスト",
+    "schema.not_null": "NOT NULL",
+
     "sql.next.select": "SELECT",
     "sql.next.from": "FROM",
     "sql.next.where": "WHERE / JOIN / GROUP BY",
@@ -112,27 +120,27 @@
     "dungeon.floor1.title": "駆け出しのSELECT文",
     "dungeon.floor1.story": "ダンジョンの入口だ。まずは商品(products)テーブルから、価格(price)が1000ゴールド以上のアイテムの名前(name)と価格(price)をすべて探し出せ。",
     "dungeon.floor1.hint": "特定の条件に合う行を絞り込むには `WHERE` 句を使う。",
-    "dungeon.floor1.schema": "products (product_id, name, price)\n- product_id: 主キー\n- name: テキスト\n- price: 整数",
+    
 
     "dungeon.floor2.title": "集計とGROUP BYの試練",
     "dungeon.floor2.story": "モンスターの巣窟だ。モンスター(monsters)テーブルにて、種族(species)ごとのモンスターの数を数えよ。",
     "dungeon.floor2.hint": "グループごとに集計するには `GROUP BY` 句を使う。",
-    "dungeon.floor2.schema": "monsters (monster_id, species, hp)\n- monster_id: 主キー\n- species: テキスト\n- hp: 整数",
+    
 
     "dungeon.floor3.title": "INNER JOINの結合呪文",
     "dungeon.floor3.story": "ギルドの広間だ。社員(employees)と部署(departments)を結合し、各社員の名前(emp_name)と部署名(dept_name)の一覧を作成せよ。",
     "dungeon.floor3.hint": "2つのテーブルを共通の列で結びつけるには `INNER JOIN ... ON ...` を使う。",
-    "dungeon.floor3.schema": "employees (emp_id, emp_name, dept_id)\n- emp_id: 主キー\n- emp_name: テキスト\n- dept_id: 整数\n\ndepartments (dept_id, dept_name)\n- dept_id: 主キー\n- dept_name: テキスト",
+    
 
     "dungeon.floor4.title": "サブクエリの迷宮",
     "dungeon.floor4.story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
     "dungeon.floor4.hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
-    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, sale_date)\n- sale_id: 主キー (整数)\n- emp_id: 整数\n- quantity: 整数\n- sale_date: 日付 (例: '2025-02-01')\n\nemployees (emp_id, emp_name, dept_id)\n- emp_id: 主キー\n- emp_name: テキスト\n- dept_id: 整数\n\ndepartments (dept_id, dept_name)\n- dept_id: 主キー\n- dept_name: テキスト",
+    
 
     "dungeon.floor5.title": "ボス戦！ ゴーレム・オブ・セールス",
     "dungeon.floor5.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",
     "dungeon.floor5.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
-    "dungeon.floor5.schema": "sales (sale_id, emp_id, quantity, date)\nemployees (emp_id, emp_name, dept_id)\ndepartments (dept_id, dept_name)",
+    
     
     "sql.keyword.select.desc": "テーブルから列を選択するSQLの基本句。",
     "sql.keyword.from.desc": "データを取得するテーブルを指定する。",

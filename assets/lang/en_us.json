@@ -7,7 +7,7 @@
     "button.hint": "？",
     "game.inventory.title": "Learned Spells",
     "game.mission.title": "Mission",
-    "game.schema.title": "Table Definition",
+    "game.schema.title": "Conceptual Schema",
     "game.editor.title": "Cast Spell",
     "game.result.title": "Execution Result",
     "modal.hint.title": "Hint",
@@ -26,7 +26,7 @@
 
     "panel.inventory": "Learned Spells",
     "panel.mission": "Mission",
-    "panel.schema": "Table Definition",
+    "panel.schema": "Conceptual Schema",
     "panel.spell": "Cast Spell",
     "panel.result": "Execution Result",
 
@@ -101,6 +101,14 @@
     "sql.keyword.count": "COUNT",
     "sql.keyword.in": "IN",
 
+    "schema.pk": "Primary Key",
+    "schema.ck": "Candidate Key",
+    "schema.fk": "Foreign Key (refs: %s)",
+    "schema.type.integer": "Integer",
+    "schema.type.date": "Date",
+    "schema.type.text": "Text",
+    "schema.not_null": "NOT NULL",
+
     "sql.next.select": "SELECT",
     "sql.next.from": "FROM",
     "sql.next.where": "WHERE / JOIN / GROUP BY",
@@ -112,27 +120,27 @@
     "dungeon.floor1.title": "Beginner's SELECT",
     "dungeon.floor1.story": "This is the dungeon entrance. First, find all items from the products table with a price of 1000 gold or more, showing their name and price.",
     "dungeon.floor1.hint": "Use the `WHERE` clause to filter rows based on specific conditions.",
-    "dungeon.floor1.schema": "products (product_id, name, price)\n- product_id: primary key\n- name: text\n- price: integer",
+    
 
     "dungeon.floor2.title": "GROUP BY Challenge",
     "dungeon.floor2.story": "A monster's den! Count the number of monsters in the monsters table by their species.",
     "dungeon.floor2.hint": "Use `GROUP BY` to aggregate data by groups.",
-    "dungeon.floor2.schema": "monsters (monster_id, species, hp)\n- monster_id: primary key\n- species: text\n- hp: integer",
+    
 
     "dungeon.floor3.title": "INNER JOIN Spell",
     "dungeon.floor3.story": "Welcome to the Guild Hall. Join the employees and departments tables to create a list of employee names and their department names.",
     "dungeon.floor3.hint": "Use `INNER JOIN ... ON ...` to combine two tables based on a common column.",
-    "dungeon.floor3.schema": "employees (emp_id, emp_name, dept_id)\n- emp_id: primary key\n- emp_name: text\n- dept_id: integer\n\ndepartments (dept_id, dept_name)\n- dept_id: primary key\n- dept_name: text",
+    
 
     "dungeon.floor4.title": "Subquery Maze",
     "dungeon.floor4.story": "Find the total quantity of sales made by employees in the 'Development' department from the sales history table.",
     "dungeon.floor4.hint": "You can use nested `SELECT` statements (subqueries) in the `WHERE` clause to filter step by step.",
-    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, sale_date)\n- sale_id: primary key (integer)\n- emp_id: integer\n- quantity: integer\n- sale_date: date (e.g. '2025-02-01')",
+    
 
     "dungeon.floor5.title": "Boss Battle! Sales Golem",
     "dungeon.floor5.story": "Boss battle! Find the total quantity of sales by department since February 2025, but only show departments with 10 or more total sales.",
     "dungeon.floor5.hint": "Join three tables, filter by date using WHERE, group by department using GROUP BY, and filter groups using HAVING!",
-    "dungeon.floor5.schema": "sales (sale_id, emp_id, quantity, date)\nemployees (emp_id, emp_name, dept_id)\ndepartments (dept_id, dept_name)",
+    
 
     "sql.keyword.select.desc": "Basic SQL clause to select columns from a table.",
     "sql.keyword.from.desc": "Specifies the table to retrieve data from.",

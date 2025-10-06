@@ -138,7 +138,7 @@ export class GameCore {
                 this.dom.elements['floor-title'].textContent = `Sandbox - ${floorData.getTitle({ i18n: this.i18n })}`;
             if (this.dom.elements['quest-schema']) {
                 // prepare initial schema display (will be overwritten by selector change handler)
-                const schemaText = floorData.getSchema ? floorData.getSchema({ i18n: this.i18n }) : floorData.schema || '';
+                const schemaText = floorData.getSchema ? floorData.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase }) : floorData.schema || '';
                 this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
             }
         } else {
@@ -178,7 +178,7 @@ export class GameCore {
                     if (this.dom.elements['floor-title']) this.dom.elements['floor-title'].textContent = `Sandbox - ${fd.getTitle({ i18n: this.i18n })}`;
                     // update quest-schema display to selected floor
                     if (this.dom.elements['quest-schema']) {
-                        const schemaText = fd.getSchema ? fd.getSchema({ i18n: this.i18n }) : fd.schema || '';
+                        const schemaText = fd.getSchema ? fd.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase }) : fd.schema || '';
                         this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
                     }
                 });
@@ -226,7 +226,7 @@ export class GameCore {
         this.dom.elements['quest-story'].innerHTML = floorData.getStory({ i18n: this.i18n });
 
         if (this.dom.elements['quest-schema']) {
-            const schemaText = (typeof floorData.getSchema === 'function') ? floorData.getSchema({ i18n: this.i18n }) : floorData.schema || '';
+            const schemaText = (typeof floorData.getSchema === 'function') ? floorData.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase }) : floorData.schema || '';
             this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
         }
         this.dom.elements['sql-editor'].value = '';

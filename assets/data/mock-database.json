@@ -32,4 +32,49 @@
         { "sale_id": 4, "emp_id": 102, "quantity": 12, "sale_date": "2025-02-08" },
         { "sale_id": 5, "emp_id": 101, "quantity": 3, "sale_date": "2025-03-01" }
     ]
+    ,
+    "__schema": {
+        "products": {
+            "columns": {
+                "product_id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "category": { "type": "text" },
+                "price": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["product_id"]]
+        },
+        "monsters": {
+            "columns": {
+                "monster_id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text" },
+                "species": { "type": "text" },
+                "hp": { "type": "integer" }
+            },
+            "candidateKeys": [["monster_id"]]
+        },
+        "employees": {
+            "columns": {
+                "emp_id": { "type": "integer", "pk": true, "notNull": true },
+                "emp_name": { "type": "text", "notNull": true },
+                "dept_id": { "type": "integer", "notNull": true, "fk": { "table": "departments", "column": "dept_id" } }
+            },
+            "candidateKeys": [["emp_id"]]
+        },
+        "departments": {
+            "columns": {
+                "dept_id": { "type": "integer", "pk": true, "notNull": true },
+                "dept_name": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["dept_id"], ["dept_name"]]
+        },
+        "sales": {
+            "columns": {
+                "sale_id": { "type": "integer", "pk": true, "notNull": true },
+                "emp_id": { "type": "integer", "notNull": true, "fk": { "table": "employees", "column": "emp_id" } },
+                "quantity": { "type": "integer", "notNull": true },
+                "sale_date": { "type": "date", "notNull": true }
+            },
+            "candidateKeys": [["sale_id"]]
+        }
+    }
 }
