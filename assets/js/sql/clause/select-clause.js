@@ -14,7 +14,7 @@ export class SelectClause extends AbstractClause {
      * @param {Array<string>} selectCols
      * @returns {Array<Object>}
      */
-    static apply(table, selectCols) {
+    static apply(table, selectCols, distinct = false) {
         const resolve = (row, key) => {
             if (!key) return undefined;
             // direct match (case-sensitive)
@@ -33,7 +33,7 @@ export class SelectClause extends AbstractClause {
             return qual ? row[qual] : undefined;
         };
 
-        return table.map(row => {
+        const result = table.map(row => {
             const obj = {};
             for (const col of selectCols) {
                 if (col === '*') {
@@ -48,5 +48,20 @@ export class SelectClause extends AbstractClause {
             }
             return obj;
         });
+
+        if (!distinct) return result;
+
+        // Deduplicate rows based on serialized values of projected columns
+        const seen = new Set();
+        const unique = [];
+        for (const r of result) {
+            // Use JSON.stringify for primitive/POJO projection; keys order is deterministic due to construction
+            const key = JSON.stringify(r);
+            if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(r);
+            }
+        }
+        return unique;
     }
 }

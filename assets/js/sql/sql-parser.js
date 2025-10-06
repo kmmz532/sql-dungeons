@@ -265,7 +265,7 @@ export class SQLParser {
 
                 if (phase === 'SELECT') {
                     if (typeof Cls.apply === 'function') {
-                        const finalRes = Cls.apply(resultTable, parsed.select);
+                        const finalRes = Cls.apply(resultTable, parsed.select, !!parsed.distinct);
                         try { console.debug('[SQLParser] SELECT result rows=', finalRes.length, 'sample=', finalRes.slice(0,3)); } catch(e){console.error(e);}
                         return finalRes;
                     }
@@ -296,7 +296,8 @@ export class SQLParser {
         }
 
         // SELECT ... FROM ... [WHERE ...] [GROUP BY ...] [ORDER BY ...]
-    const selectMatch = query.match(/select\s+(.+?)\s+from\s+/i);
+    // capture optional DISTINCT after SELECT
+    const selectMatch = query.match(/select\s+(distinct\s+)?(.+?)\s+from\s+/i);
     // FROM と alias (例: from employees as e)
     // Use the first occurrence of 'from' to avoid accidentally matching nested or later FROMs
     const fromPos = query.search(/\bfrom\b/i);
@@ -326,8 +327,10 @@ export class SQLParser {
 
         if (!selectMatch || !fromMatch) return null;
 
+        const rawSelect = selectMatch[2];
         const parsed = {
-            select: selectMatch[1].split(',').map(s => s.trim()),
+            select: rawSelect.split(',').map(s => s.trim()),
+            distinct: !!(selectMatch[1] && /distinct/i.test(selectMatch[1])),
             from: { table: fromMatch ? fromMatch[1] : null, alias: fromMatch ? (fromMatch[2] || null) : null },
             where: whereMatch ? whereMatch[1].trim() : null,
             groupBy: groupByMatch ? groupByMatch[1].split(',').map(s => s.trim()) : null,
