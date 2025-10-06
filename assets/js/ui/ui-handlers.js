@@ -7,7 +7,6 @@ import { SQLParser } from '../sql/sql-parser.js';
 const sqlParser = new SQLParser();
 
 import { EXECUTE_COST } from '../constants.js';
-import { SQL_KEYWORDS } from '../sql/clause/sql-keywords.js';
 
 import { handleHint, showHintModal, showPurchaseHintModal, purchaseHint } from './hint.js';
 import { openShop, handleItemPurchase } from './shop.js';

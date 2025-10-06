@@ -1,24 +1,13 @@
 // SQLParser: クエリのバリデーションとエミュレーションを統合
-
-import { getFallbackClauseClasses } from './clause/exports.js';
 import Registry from '../register.js';
 
-// 集約関数レジストリはRegister経由で参照のみ（登録はgame-coreで実施）
-import { get as getRegistry } from '../register.js';
-const aggregateFunctionRegistry = {};
-['SUM','COUNT','AVG'].forEach(fnName => {
-    const AggCls = getRegistry(fnName, 'aggregate');
-    if (AggCls) aggregateFunctionRegistry[fnName] = AggCls;
-});
-
-// レジストリからクラスを取得、なければフォールバック
-const getClauseClass = (key) => {
+const getRegistryClass = (key, type) => {
     try {
-        const r = Registry.get(key);
-        if (r) return r;
-    } catch (e) { /* ignore */ }
-    const fb = getFallbackClauseClasses();
-    return fb[key];
+        return Registry.get(key, type);
+    } catch (e) {
+        console.error(`[SQLParser] Failed to get registry class for ${key}:`, e);
+        return undefined;
+    }
 };
 
 /**
@@ -119,7 +108,7 @@ export class SQLParser {
 
             // Handle INSERT via registered clause class (non-mutating)
             if (parsed.insert) {
-                const InsertCls = getClauseClass('INSERT');
+                const InsertCls = getRegistryClass('INSERT', 'clause');
                 if (InsertCls && typeof InsertCls.apply === 'function') {
                     return InsertCls.apply(parsed.insert, mockDatabase);
                 }
@@ -225,7 +214,7 @@ export class SQLParser {
 
             for (const key of keys) {
                 const phase = key.toUpperCase();
-                const Cls = getClauseClass(phase);
+                const Cls = getRegistryClass(phase, 'clause');
                 if (!Cls) continue;
 
                 // map phase to parsed property
@@ -240,7 +229,7 @@ export class SQLParser {
 
                 if (phase === 'GROUP BY') {
                     const aggInstances = (parsed.aggregateFns || []).map(af => {
-                        const AggCls = aggregateFunctionRegistry[af.fn];
+                        const AggCls = getRegistryClass(af.fn, 'aggregate');
                         if (!AggCls) return null;
                         // COUNT(*)はundefined渡し、それ以外はカラム名
                         return new AggCls(af.column === '*' ? undefined : af.column);
