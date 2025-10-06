@@ -259,16 +259,17 @@ p {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* 主キーは実線下線 / 候補キーは点線下線 (見た目ルール) */
+/* 主キーは実線下線 / 候補キーは点線下線 */
+.schema-term {
+    display: inline-block;
+}
+
 .schema-term.pk {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-decoration-color: var(--gold-color);
+    border-bottom: 2px solid var(--gold-color);
 }
 
 .schema-term.ck {
-    text-decoration: underline dotted;
-    text-decoration-color: var(--gold-color);
+    border-bottom: 2px dotted var(--gold-color);
 }
 
 /* --- インベントリ / Inventory --- */
