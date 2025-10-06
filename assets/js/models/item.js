@@ -17,20 +17,20 @@ export class Item {
      * @param {string} [options.locale] - 言語コード（省略時はi18nの現在ロケール）
      * @returns {string}
      */
-    getName(options = {}) {
+    getName(options = {}, ...formatArgs) {
         const i18n = options.i18n || this.i18n;
         const locale = options.locale || (i18n && i18n.locale);
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
             if (typeof this.name === 'string' && this.name.startsWith('item.sqldungeons.')) {
-                const resolved = i18n.t(this.name);
+                const resolved = i18n.t(this.name, ...formatArgs);
                 if (locale && locale !== prev) i18n.locale = prev;
                 if (resolved && !resolved.startsWith('item.sqldungeons.')) return resolved;
             }
 
             const key = `item.sqldungeons.${this.id}`;
-            let name = i18n.t(key);
+            let name = i18n.t(key, ...formatArgs);
             if (locale && locale !== prev) i18n.locale = prev;
             if (name && !name.startsWith('item.sqldungeons.')) return name;
         }
@@ -44,20 +44,20 @@ export class Item {
      * @param {string} [options.locale] - 言語コード（省略時はi18nの現在ロケール）
      * @returns {string}
      */
-    getDesc(options = {}) {
+    getDesc(options = {}, ...formatArgs) {
         const i18n = options.i18n || window.i18n;
         const locale = options.locale || (i18n && i18n.locale);
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
             if (typeof this.desc === 'string' && this.desc.startsWith('item.sqldungeons.')) {
-                const resolved = i18n.t(this.desc);
+                const resolved = i18n.t(this.desc, ...formatArgs);
                 if (locale && locale !== prev) i18n.locale = prev;
                 if (resolved && !resolved.startsWith('item.sqldungeons.')) return resolved;
             }
 
             const key = `item.sqldungeons.${this.id}.desc`;
-            let desc = i18n.t(key);
+            let desc = i18n.t(key, ...formatArgs);
             if (locale && locale !== prev) i18n.locale = prev;
             if (desc && !desc.startsWith('item.sqldungeons.')) return desc;
         }

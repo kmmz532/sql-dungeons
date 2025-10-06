@@ -9,8 +9,8 @@ export function openShop(game) {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'shop-item';
 
-        const name = item.getName();
-        const desc = item.getDesc ? item.getDesc() : '';
+        const name = (typeof item.effectValue === 'number') ? item.getName({ i18n, locale: i18n.locale }, item.effectValue) : item.getName({ i18n, locale: i18n.locale });
+        const desc = item.getDesc ? item.getDesc({ i18n, locale: i18n.locale }) : '';
         itemDiv.innerHTML = `
             <div>
                 <p>${name}</p>

@@ -147,28 +147,53 @@
     
     "dungeon.floor8.title": "INNER JOINの結合呪文",
     "dungeon.floor8.story": "ギルドの広間だ。社員(employees)と部署(departments)を結合し、各社員の名前(emp_name)と部署名(dept_name)の一覧を作成せよ。",
-    "dungeon.floor8.hint": "2つのテーブルを共通の列で結びつけるには `INNER JOIN ... ON ...` を使う。",
+    "dungeon.floor8.hint": "Use `INNER JOIN ... ON ...` to connect two tables by a common column.",
     
-    "dungeon.floor9.title": "サブクエリの迷宮",
-    "dungeon.floor9.story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
-    "dungeon.floor9.hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
+    "dungeon.floor9.title": "Find affordable fruits",
+    "dungeon.floor9.story": "From the fruits table, display name and price for rows where price < 150.",
+    "dungeon.floor9.hint": "Use a WHERE clause to filter rows by price.",
+    
+    "dungeon.floor10.title": "Retrieve a message",
+    "dungeon.floor10.story": "From table001, fetch the message for the row where id = 2.",
+    "dungeon.floor10.hint": "To target a specific row, use the primary key in a WHERE clause like `WHERE id = 2`.",
 
-    "dungeon.floor10.title": "ボス戦！ ゴーレム・オブ・セールス",
-    "dungeon.floor10.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",
-    "dungeon.floor10.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
+    "dungeon.floor11.title": "Filter by product category",
+    "dungeon.floor11.story": "From products, display name and price where category = '武器'.",
+    "dungeon.floor11.hint": "Use WHERE category = '武器' to select only products of a specific category.",
+    
+    "dungeon.floor12.title": "Filter monsters by HP",
+    "dungeon.floor12.story": "From monsters, display name and hp for rows where hp > 20.",
+    "dungeon.floor12.hint": "Use numeric comparisons like > and < to filter by HP.",
+    
+    "dungeon.floor13.title": "Join and filter by department",
+    "dungeon.floor13.story": "Inner join employees and departments, then show emp_name and dept_name where departments.dept_name = '開発部'.",
+    "dungeon.floor13.hint": "Combine JOIN and WHERE to filter after joining.",
+    
+    "dungeon.floor14.title": "Group and filter by count",
+    "dungeon.floor14.story": "Group fruits by color and show groups having COUNT(*) > 1.",
+    "dungeon.floor14.hint": "Use GROUP BY with HAVING to filter aggregated results.",
 
-    "sql.keyword.select.desc": "Basic SQL clause to select columns from a table.",
-    "sql.keyword.from.desc": "Specifies the table to retrieve data from.",
-    "sql.keyword.where.desc": "Filters rows based on conditions.",
-    "sql.keyword.group.desc": "Begins grouping of rows.",
-    "sql.keyword.by.desc": "Specifies the key for grouping or sorting.",
-    "sql.keyword.inner.desc": "Performs an inner join.",
-    "sql.keyword.join.desc": "Joins tables together.",
-    "sql.keyword.on.desc": "Specifies the join condition.",
-    "sql.keyword.as.desc": "Assigns an alias to a column or table.",
-    "sql.keyword.sum.desc": "Aggregate function to calculate the sum.",
-    "sql.keyword.count.desc": "Aggregate function to count rows.",
-    "sql.keyword.avg.desc": "Aggregate function to calculate the average.",
-    "sql.keyword.having.desc": "Specifies conditions after grouping.",
-    "sql.keyword.in.desc": "Checks if a value is in a set."
+    "dungeon.floor15.title": "Find affordable fruits",
+    "dungeon.floor15.story": "From the fruits table, display name and price for rows where price < 150.",
+    "dungeon.floor15.hint": "Use a WHERE clause to filter rows by price.",
+
+    "dungeon.floor16.title": "Find employees with big sales",
+    "dungeon.floor16.story": "Select emp_name from employees where emp_id IN (SELECT emp_id FROM sales WHERE quantity > 5).",
+    "dungeon.floor16.hint": "Use IN with a subquery to relate rows between tables.",
+    
+    "dungeon.floor17.title": "Department sales totals",
+    "dungeon.floor17.story": "Join sales, employees, and departments and show SUM(quantity) grouped by dept_name.",
+    "dungeon.floor17.hint": "Use JOIN combined with GROUP BY to aggregate per department.",
+    
+    "dungeon.floor18.title": "Date-filtered aggregation",
+    "dungeon.floor18.story": "For sales before 2025-02-01, show SUM(quantity) per dept_name.",
+    "dungeon.floor18.hint": "Be mindful of date formats when comparing dates as strings.",
+    
+    "dungeon.floor19.title": "Filter after aggregation with HAVING",
+    "dungeon.floor19.story": "Aggregate sales since 2025-02-01 by department and show only those with SUM(quantity) > 5.",
+    "dungeon.floor19.hint": "HAVING applies conditions to grouped results.",
+    
+    "dungeon.floor20.title": "Final Trial: Department sales filter",
+    "dungeon.floor20.story": "Join three tables, filter by date (>= '2025-02-01'), group by dept_name and show departments with SUM(quantity) >= 10.",
+    "dungeon.floor20.hint": "Join 3 tables, filter by date with WHERE, aggregate with GROUP BY, and finalize with HAVING!"
 }

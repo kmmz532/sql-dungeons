@@ -148,14 +148,54 @@
     "dungeon.floor8.story": "ギルドの広間だ。社員(employees)と部署(departments)を結合し、各社員の名前(emp_name)と部署名(dept_name)の一覧を作成せよ。",
     "dungeon.floor8.hint": "2つのテーブルを共通の列で結びつけるには `INNER JOIN ... ON ...` を使う。",
     
-    "dungeon.floor9.title": "サブクエリの迷宮",
-    "dungeon.floor9.story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
-    "dungeon.floor9.hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
-
-    "dungeon.floor10.title": "ボス戦！ ゴーレム・オブ・セールス",
-    "dungeon.floor10.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",
-    "dungeon.floor10.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
+    "dungeon.floor9.title": "有料な果物を見つけて",
+    "dungeon.floor9.story": "fruitsテーブルから price < 150 の行の name, price を表示する。",
+    "dungeon.floor9.hint": "priceが150以下の行を絞るには `WHERE` 句を使う。",
     
+    "dungeon.floor10.title": "メッセージを取得して",
+    "dungeon.floor10.story": "table001 テーブルから id = 2 の行の message を取り出す。",
+    "dungeon.floor10.hint": "特定の行を指定するには `WHERE id = 2` のようにプライマリキーを使うと良い。",
+
+    "dungeon.floor11.title": "商品のカテゴリで絞り込む",
+    "dungeon.floor11.story": "productsテーブルから category = '武器' の商品の name, price を表示する。",
+    "dungeon.floor11.hint": "特定カテゴリの商品のみを取り出すには `WHERE category = '武器'` のように書く。",
+
+    "dungeon.floor12.title": "モンスターのHP絞り込み",
+    "dungeon.floor12.story": "monstersテーブルから hp > 20 の行の name, hp を表示する。",
+    "dungeon.floor12.hint": "数値比較は `>` や `<` を使って行う。",
+
+    "dungeon.floor13.title": "部署でフィルタしたJOIN",
+    "dungeon.floor13.story": "employees と departments を INNER JOIN し、departments.dept_name = '開発部' の従業員の emp_name と dept_name を表示する。",
+    "dungeon.floor13.hint": "JOIN と WHERE を組み合わせて、結合後に条件で絞ることができる。",
+
+    "dungeon.floor14.title": "色ごとの集計と絞込み",
+    "dungeon.floor14.story": "fruits テーブルを color で GROUP BY し、COUNT(*) > 1 のグループだけ表示する。",
+    "dungeon.floor14.hint": "GROUP BY と HAVING を組み合わせて集計後の条件で絞り込む。",
+
+    "dungeon.floor15.title": "サブクエリの迷宮",
+    "dungeon.floor15.story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
+    "dungeon.floor15.hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
+
+    "dungeon.floor16.title": "売上が多い従業員を抽出",
+    "dungeon.floor16.story": "employees テーブルから、sales で quantity > 5 を販売した emp_id に当てはまる emp_name を表示する。",
+    "dungeon.floor16.hint": "IN とサブクエリを使って関連する行を取り出す。",
+
+    "dungeon.floor17.title": "部署ごとの売上合計",
+    "dungeon.floor17.story": "sales と employees, departments を JOIN して、dept_name ごとに SUM(quantity) を表示する。",
+    "dungeon.floor17.hint": "JOIN と GROUP BY を組み合わせて、部署ごとの集計を行う。",
+
+    "dungeon.floor18.title": "日付で絞った集計",
+    "dungeon.floor18.story": "指定日より前の売上(sale_date < '2025-02-01')について、dept_name ごとの SUM(quantity) を表示する。",
+    "dungeon.floor18.hint": "日付比較は文字列で比較する実装例もあるので、形式に注意する。",
+
+    "dungeon.floor19.title": "集計後にHAVINGでさらに絞る",
+    "dungeon.floor19.story": "2025-02-01以降の売上を部署ごとに集計し、SUM(quantity) > 5 の部署だけを表示する。",
+    "dungeon.floor19.hint": "HAVING は GROUP BY の結果に対して条件を適用するために使う。",
+
+    "dungeon.floor20.title": "最終試練：部署の売上フィルタ",
+    "dungeon.floor20.story": "3つのテーブルをJOINし、2025-02-01以降の売上を部署ごとに集計して、SUM(quantity) >= 10 の部署を表示する。",
+    "dungeon.floor20.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
+
     "sql.keyword.select.desc": "テーブルから列を選択するSQLの基本句。",
     "sql.keyword.from.desc": "データを取得するテーブルを指定する。",
     "sql.keyword.where.desc": "条件を指定して行を絞り込む。",

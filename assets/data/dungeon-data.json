@@ -82,7 +82,8 @@
             "solutionPatterns": ["SELECT\\s+message\\s+FROM\\s+table001\\s+WHERE\\s*id\\s*=\\s*2"],
             "answer": "SELECT message FROM table001 WHERE id = 2",
             "borrowed": ["WHERE"],
-            "reward": { "gold": 80, "energy": 3, "items": [] }
+            "reward": { "gold": 80, "energy": 3, "items": [] },
+            "opensShop": true
         },
         {
             "floor": 11,
@@ -123,7 +124,8 @@
             "answer": "SELECT SUM(quantity) FROM sales WHERE emp_id IN (SELECT emp_id FROM employees WHERE dept_id = (SELECT dept_id FROM departments WHERE dept_name = '開発部'))",
             "borrowed": ["SUM", "IN"],
             "reward": { "gold": 300, "energy": 5, "items": ["SUM", "IN"] },
-            "hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。"
+            "hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
+            "opensShop": true
         },
         {
             "floor": 16,
