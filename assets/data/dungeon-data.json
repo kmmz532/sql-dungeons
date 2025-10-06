@@ -57,7 +57,7 @@
             "reward": {
                 "gold": 20,
                 "energy": 2,
-                "items": ["COUNT", "GROUP", "BY"]
+                "items": []
             }
         },
         {
