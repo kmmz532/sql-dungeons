@@ -314,7 +314,9 @@ export class SQLParser {
     let fromMatch = null;
     if (fromPos !== -1) {
         const tail = query.slice(fromPos);
-        fromMatch = tail.match(/from\s+(\w+)(?:\s+(?:as\s+)?(\w+))?/i);
+        // Do not treat SQL keywords that follow the table name (like INNER/LEFT/RIGHT/JOIN/WHERE/GROUP/ORDER)
+        // as the table alias. Use negative lookahead to avoid capturing them as alias.
+        fromMatch = tail.match(/from\s+(\w+)(?:\s+(?:as\s+)?(?!inner\b|left\b|right\b|join\b|where\b|group\b|order\b)(\w+))?/i);
     }
     const whereMatch = query.match(/where\s+(.+?)(group by|having|order by|$)/i);
     const groupByMatch = query.match(/group by\s+([\w\., ]+)/i);
