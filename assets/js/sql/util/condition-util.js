@@ -1,4 +1,4 @@
-// Utilities for resolving row values and parsing simple condition expressions
+// 行オブジェクトから値を解決し、単純な条件式を解析するユーティリティ
 export const resolveRowValue = (row, key) => {
     if (!key) return undefined;
     if (key in row) return row[key];
@@ -15,7 +15,7 @@ export const likePatternToRegex = (pat) => {
     return new RegExp('^' + reg + '$', 'i');
 };
 
-// Parse a very simple comparison like "a.col >= 'foo'" into { col, op, val }
+// 'a.col >= '\''foo'\'' のような非常に単純な比較式を { col, op, val } に解析する
 export const parseSimpleComparison = (str) => {
     if (!str || typeof str !== 'string') return null;
     const m = str.match(/(\w+(?:\.\w+)?)\s*(?:(!=|<>|=|>=|<=|>|<))\s*('.*?'|".*?"|[^\s]+)/);
@@ -24,25 +24,25 @@ export const parseSimpleComparison = (str) => {
     if ((val.startsWith("'") && val.endsWith("'")) || (val.startsWith('"') && val.endsWith('"'))) {
         val = val.slice(1, -1);
     }
-    // if numeric, convert
+    // 数値なら変換する
     if (/^-?\d+(?:\.\d+)?$/.test(val)) {
         val = Number(val);
     }
     return { col: m[1], op: m[2], val };
 };
 
-// Evaluate a simple condition string against a single row.
-// Supports: LIKE, IN (literal list), =/!=/<>/>=/<=/>/< comparisons.
+// 単一の行に対して簡易な条件式を評価する
+// サポート: LIKE, IN（リテラルリスト）, 比較演算子 (=, !=, <>, >=, <=, >, <)
 export const evaluateCondition = (row, condStr, opts = { permissive: true }) => {
     if (!condStr || typeof condStr !== 'string') return opts.permissive;
     const s = condStr.trim();
     if (!s) return opts.permissive;
 
-    // Handle literal TRUE/FALSE markers (used by parseSQL when stripping LIKE)
+    // リテラルの TRUE/FALSE を扱う（parseSQL が LIKE を置換した際に使用）
     if (/^true$/i.test(s)) return true;
     if (/^false$/i.test(s)) return false;
 
-    // Aggregate comparison e.g. SUM(col) >= 10
+    // 集計関数による比較（例: SUM(col) >= 10）
     const aggCmp = s.match(/^(SUM|COUNT|AVG|MAX|MIN)\s*\(\s*(\*|(?:\w+(?:\.\w+)?))\s*\)\s*(?:(!=|<>|=|>=|<=|>|<))\s*('.*?'|".*?"|[^\s]+)$/i);
     if (aggCmp) {
         const fn = aggCmp[1].toUpperCase();
@@ -65,7 +65,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
         }
     }
 
-    // LIKE
+    // LIKE 演算子
     const likeMatch = s.match(/^(\w+(?:\.\w+)?)\s+like\s+('.*?'|".*?"|[^\s]+)$/i);
     if (likeMatch) {
         const col = likeMatch[1];
@@ -77,7 +77,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
         return re.test(String(v));
     }
 
-    // IN (literal list)
+    // IN（リテラルリスト）
     const inMatch = s.match(/^(\w+(?:\.\w+)?)\s+in\s*\(([^)]+)\)$/i);
     if (inMatch) {
         const col = inMatch[1];
@@ -95,7 +95,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
         return set.has(key);
     }
 
-    // Simple comparison
+    // 単純比較
     const cmp = parseSimpleComparison(s);
     if (cmp) {
         let lhs = resolveRowValue(row, cmp.col);
@@ -115,7 +115,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
         }
     }
 
-    // Fallback: if we don't understand condition, return permissive option
+    // フォールバック: 条件が解釈できない場合は permissive オプションを返す
     return !!(opts && opts.permissive);
 };
 

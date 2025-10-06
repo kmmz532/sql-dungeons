@@ -59,6 +59,10 @@
     "message.load_failed": "Failed to load game data.",
     "message.sandbox_select_from": "沙盒：仅支持 SELECT ... FROM ... 。",
     "message.sandbox_result": "沙盒执行结果：",
+    "message.error_table_not_found": "表不存在: %s",
+    "message.error_attribute_not_found": "属性不存在: %s",
+    "message.error_where_column_missing": "在 WHERE 子句中找不到列: %s",
+    "message.error_no_matching_rows": "没有符合条件的行。",
     "message.dataset_label": "数据集：",
     "message.floor_label": "第 %s 层",
 

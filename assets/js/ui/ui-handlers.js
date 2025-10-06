@@ -15,7 +15,6 @@ import { ShopItem } from '../models/item.js';
 
 export function setupUIHandlers(game) {
     const dom = game.dom;
-    // Prevent binding handlers multiple times for same DOM manager
     if (dom.__uiHandlersBound) return;
     dom.__uiHandlersBound = true;
     dom.elements['start-button'].addEventListener('click', () => game.startGame());
@@ -82,9 +81,8 @@ export function setupUIHandlers(game) {
         if (e.target.classList.contains('buy-btn')) {
             const itemData = game.gameData.shopItems.items.find(i => i.id === e.target.dataset.itemId);
             if (itemData && game.player.spendGold(itemData.price)) {
-                // Ensure we create a ShopItem instance so getName/getDesc and effects are available
                 const item = new ShopItem(itemData, game.i18n);
-                // debug: log item to verify it's an instance with getName/getDesc
+
                 try { console.log('[shop] purchasing item instance:', item); } catch(e){}
                 handleItemPurchase(game, item);
                 game.updateUI();
@@ -228,7 +226,7 @@ function diagnoseEmptyResult(parsed, results, mockDatabase, i18n) {
                 const part = sqlParser.parseSQL(p.raw);
                 if (!part) return t('message.invalid_query') || '無効なクエリです。';
                 const tk = String(part.from.table).toLowerCase();
-                if (!(tk in mockDatabase)) return `このテーブルは存在しません: ${part.from.table}`;
+                    if (!(tk in mockDatabase)) return t('message.error_table_not_found', part.from.table) || `このテーブルは存在しません: ${part.from.table}`;
             } catch (e) { return t('message.invalid_query') || '無効なクエリです。'; }
         }
     }
@@ -241,7 +239,7 @@ function diagnoseEmptyResult(parsed, results, mockDatabase, i18n) {
             if (clean === '*' || /\(|\)/.test(clean)) continue;
             const key = clean.includes('.') ? clean.split('.').pop() : clean;
             if (!(key in sample)) {
-                return `この属性は存在しません: ${key}`;
+                return t('message.error_attribute_not_found', key) || `この属性は存在しません: ${key}`;
             }
         }
     }
@@ -252,12 +250,12 @@ function diagnoseEmptyResult(parsed, results, mockDatabase, i18n) {
             if (m) {
                 const col = m[1];
                 const key = col.includes('.') ? col.split('.').pop() : col;
-                if (!(key in sample)) return `WHERE 句のカラムが見つかりません: ${key}`;
+                if (!(key in sample)) return t('message.error_where_column_missing', key) || `WHERE 句のカラムが見つかりません: ${key}`;
             }
         }
     } catch (e) {}
 
-    return t('message.incorrect_try') || '条件に合う行が見つかりませんでした。';
+    return t('message.error_no_matching_rows') || t('message.incorrect_try') || '条件に合う行が見つかりませんでした。';
 }
 
 function validateQuery(game, query, isSandbox = false) {
