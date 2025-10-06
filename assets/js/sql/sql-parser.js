@@ -129,7 +129,9 @@ export class SQLParser {
             // ベーステーブル
             const base = parsed.from; // { table, alias }
             const baseName = base.alias || base.table;
-            const baseRows = mockDatabase[base.table];
+            // normalize table key to lower-case to match mockDatabase keys
+            const baseTableKey = base.table ? String(base.table).toLowerCase() : base.table;
+            const baseRows = mockDatabase[baseTableKey] || mockDatabase[base.table];
             if (!Array.isArray(baseRows)) return [];
 
             // 初期 accumulated rows
@@ -140,7 +142,7 @@ export class SQLParser {
             // 各 JOIN を順に適用（簡易的な nested-loop INNER JOIN）
             if (parsed.joins && parsed.joins.length) {
                 for (const j of parsed.joins) {
-                    const joinTable = mockDatabase[j.table];
+                    const joinTable = mockDatabase[j.table.toLowerCase()] || mockDatabase[j.table];
                     if (!Array.isArray(joinTable)) {
                         accumulated = []; break;
                     }

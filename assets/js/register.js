@@ -2,7 +2,11 @@ const _registries = {
     clause: new Map(),
     aggregate: new Map(),
 };
-let _initialized = false;
+// track initialization per type to allow independent init for 'clause' and 'aggregate'
+const _initialized = {
+    clause: false,
+    aggregate: false,
+};
 
 // type: 'clause' | 'aggregate' 必須
 export function register(name, value, type) {
@@ -26,9 +30,9 @@ export function getAll(type) {
 // type: 'clause' | 'aggregate' 必須
 export async function init(manifestUrl, type) {
     if (!type || !_registries[type]) throw new Error('init: type must be specified as "clause" or "aggregate"');
-    if (_initialized) return getAll(type);
+    if (_initialized[type]) return getAll(type);
     if (!manifestUrl) {
-        _initialized = true;
+        _initialized[type] = true;
         return getAll(type);
     }
     try {
@@ -54,7 +58,7 @@ export async function init(manifestUrl, type) {
     } catch (e) {
         console.warn('Registry init failed', e);
     }
-    _initialized = true;
+    _initialized[type] = true;
     return getAll(type);
 }
 

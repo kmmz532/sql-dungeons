@@ -47,7 +47,8 @@ export class GameCore {
                         r.style.marginLeft = '8px';
                         r.onclick = async () => {
                             showBanner('Retrying manifest...', false);
-                            try { await Register.init(clauseManifestUrl, 'clause'); showBanner('Loaded clause manifest', false); } catch (err) { showBanner('Failed to load clause manifest', true); }
+                            try { await Register.init(clauseManifestUrl, 'clause');
+                                showBanner('Loaded clause manifest', false); } catch (err) { showBanner('Failed to load clause manifest', true); }
                         };
                         b.appendChild(r);
                     }
@@ -59,8 +60,8 @@ export class GameCore {
 
         try {
             await Register.init(aggregateManifestUrl, 'aggregate');
+            console.log('Loaded aggregate manifest');
             showBanner('Loaded aggregate manifest', false);
-            setTimeout(() => { try { const b = document.getElementById('clause-banner'); if (b) b.style.display = 'none'; } catch(e){} }, 2500);
         } catch (e) {
             console.warn('Aggregate registry init failed', e);
             showBanner('Failed to load aggregate manifest', true);
@@ -68,6 +69,7 @@ export class GameCore {
 
         try {
             await Register.init(clauseManifestUrl, 'clause');
+            console.log('Loaded clause manifest');
             showBanner('Loaded clause manifest', false);
             setTimeout(() => { try { const b = document.getElementById('clause-banner'); if (b) b.style.display = 'none'; } catch(e){} }, 2500);
         } catch (e) {
