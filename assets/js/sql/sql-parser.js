@@ -15,6 +15,8 @@ const getRegistryClass = (key, type) => {
  * 今後のSandbox拡張も見据えた設計
  */
 export class SQLParser {
+    // Toggle verbose debugging for SQL parsing/emulation
+    static DEBUG = false;
     /**
      * クエリが課題の条件を満たすか判定
      * @param {string} query
@@ -28,13 +30,17 @@ export class SQLParser {
             const userResult = this._normalizeResult(rawUser);
             const answerResult = this._normalizeResult(rawAnswer);
 
-            try { console.debug('[SQLParser] validate rawUser=', rawUser); } catch(e){}
-            try { console.debug('[SQLParser] validate rawAnswer=', rawAnswer); } catch(e){}
-            try { console.debug('[SQLParser] validate answerQuery=', floorData.answer); } catch(e){}
-            try { console.debug('[SQLParser] validate parsedAnswer=', this.parseSQL(floorData.answer)); } catch(e){}
+            if (SQLParser.DEBUG) {
+                try { console.debug('[SQLParser] validate rawUser=', rawUser); } catch(e){}
+                try { console.debug('[SQLParser] validate rawAnswer=', rawAnswer); } catch(e){}
+                try { console.debug('[SQLParser] validate answerQuery=', floorData.answer); } catch(e){}
+                try { console.debug('[SQLParser] validate parsedAnswer=', this.parseSQL(floorData.answer)); } catch(e){}
+            }
 
-            try { console.debug('[SQLParser] validate userResult=', userResult); } catch(e){}
-            try { console.debug('[SQLParser] validate answerResult=', answerResult); } catch(e){}
+            if (SQLParser.DEBUG) {
+                try { console.debug('[SQLParser] validate userResult=', userResult); } catch(e){}
+                try { console.debug('[SQLParser] validate answerResult=', answerResult); } catch(e){}
+            }
 
             if (Array.isArray(answerResult) && answerResult.length === 0) {
                 return Array.isArray(userResult) && userResult.length === 0;
@@ -46,7 +52,12 @@ export class SQLParser {
             try {
                 if (Array.isArray(answerResult) && Array.isArray(userResult) && !this._resultsEqual(userResult, answerResult)) {
                     console.debug('[SQLParser] validate mismatch: user length=', userResult.length, 'answer length=', answerResult.length);
+                    // always show sample when mismatch to help diagnostics
                     console.debug('[SQLParser] validate sample user[0]=', userResult[0], 'answer[0]=', answerResult[0]);
+                    if (SQLParser.DEBUG) {
+                        console.debug('[SQLParser] full userResult=', userResult);
+                        console.debug('[SQLParser] full answerResult=', answerResult);
+                    }
                 }
             } catch(e){}
             return false;
@@ -120,8 +131,10 @@ export class SQLParser {
             const parsed = this.parseSQL(query);
             // If parsing fails, bail out immediately to avoid reading properties of null
             if (!parsed) return [];
-            try { console.debug('[SQLParser] parsed:', parsed); } catch (e) {}
-            try { console.debug('[SQLParser] parsed.joins=', parsed?.joins); } catch(e){console.error(e);} 
+            if (SQLParser.DEBUG) {
+                try { console.debug('[SQLParser] parsed:', parsed); } catch (e) {}
+                try { console.debug('[SQLParser] parsed.joins=', parsed?.joins); } catch(e){console.error(e);} 
+            }
 
             // Handle INSERT via registered clause class (non-mutating)
             if (parsed.insert) {
@@ -153,8 +166,10 @@ export class SQLParser {
 
             // 初期 accumulated rows
             let accumulated = baseRows.map(r => prefixRow(r, baseName));
-            try { console.debug('[SQLParser] after base rows, accumulated=', accumulated.length); } catch(e){console.error(e);}
-            try { console.debug('[SQLParser] accumulated sample keys=', Object.keys(accumulated[0] || {}).slice(0,20)); } catch(e){console.error(e);}
+            if (SQLParser.DEBUG) {
+                try { console.debug('[SQLParser] after base rows, accumulated=', accumulated.length); } catch(e){console.error(e);}
+                try { console.debug('[SQLParser] accumulated sample keys=', Object.keys(accumulated[0] || {}).slice(0,20)); } catch(e){console.error(e);}
+            }
 
             // 各 JOIN を順に適用（簡易的な nested-loop INNER JOIN）
             if (parsed.joins && parsed.joins.length) {
@@ -196,20 +211,26 @@ export class SQLParser {
                         }
                     }
                     accumulated = newAccum;
-                    try { console.debug('[SQLParser] after join', j.table, 'accumulated=', accumulated.length); } catch(e){console.error(e);}
+                    if (SQLParser.DEBUG) {
+                        try { console.debug('[SQLParser] after join', j.table, 'accumulated=', accumulated.length); } catch(e){console.error(e);}
+                    }
                     if (accumulated.length === 0) break;
                 }
             }
 
             // フェーズ順をランタイムの登録状況（レジストリ）またはフォールバック manifest から決定する
             let resultTable = accumulated;
-            try { console.debug('[SQLParser] before clauses, rows=', resultTable.length); } catch(e){console.error(e);}
-            try { console.debug('[SQLParser] parsed.select=', parsed.select); } catch(e){}
-            try { console.debug('[SQLParser] parsed.aggregateFns=', parsed.aggregateFns); } catch(e){}
+            if (SQLParser.DEBUG) {
+                try { console.debug('[SQLParser] before clauses, rows=', resultTable.length); } catch(e){console.error(e);}
+                try { console.debug('[SQLParser] parsed.select=', parsed.select); } catch(e){}
+                try { console.debug('[SQLParser] parsed.aggregateFns=', parsed.aggregateFns); } catch(e){}
+            }
             const registered = Registry.getAll ? Registry.getAll('clause') : {};
             // getAll returns an object of { KEY: ctor }
             const runtimeKeys = Object.keys(registered || {});
-            try { console.debug('[SQLParser] runtimeKeys=', runtimeKeys); } catch(e){}
+            if (SQLParser.DEBUG) {
+                try { console.debug('[SQLParser] runtimeKeys=', runtimeKeys); } catch(e){}
+            }
 
             // fallback manifest keys (from static export) if registry is empty
             const fallbackManifest = (typeof getFallbackClauseClasses === 'function') ? getFallbackClauseClasses() : {};
@@ -259,7 +280,9 @@ export class SQLParser {
                     }).filter(Boolean);
                     if (typeof Cls.groupAndAggregate === 'function') {
                         resultTable = Cls.groupAndAggregate(resultTable, parsed.groupBy, aggInstances);
-                        try { console.debug('[SQLParser] after GROUP BY, rows=', resultTable.length, 'sample=', resultTable.slice(0,3)); } catch(e){console.error(e);}
+                        if (SQLParser.DEBUG) {
+                            try { console.debug('[SQLParser] after GROUP BY, rows=', resultTable.length, 'sample=', resultTable.slice(0,3)); } catch(e){console.error(e);} 
+                        }
                         continue;
                     }
                 }
@@ -267,7 +290,9 @@ export class SQLParser {
                 if (phase === 'HAVING' || phase === 'WHERE') {
                     if (typeof Cls.apply === 'function') {
                         resultTable = Cls.apply(resultTable, parsed[prop]);
-                        try { console.debug('[SQLParser] after', phase, 'rows=', resultTable.length, 'sample=', resultTable.slice(0,3)); } catch(e){console.error(e);}
+                        if (SQLParser.DEBUG) {
+                            try { console.debug('[SQLParser] after', phase, 'rows=', resultTable.length, 'sample=', resultTable.slice(0,3)); } catch(e){console.error(e);} 
+                        }
                     }
                     continue;
                 }
@@ -275,7 +300,9 @@ export class SQLParser {
                 if (phase === 'ORDER BY') {
                     if (typeof Cls.apply === 'function') {
                         resultTable = Cls.apply(resultTable, parsed.orderBy);
-                        try { console.debug('[SQLParser] after ORDER BY, rows=', resultTable.length); } catch(e){console.error(e);}
+                        if (SQLParser.DEBUG) {
+                            try { console.debug('[SQLParser] after ORDER BY, rows=', resultTable.length); } catch(e){console.error(e);} 
+                        }
                     }
                     continue;
                 }
@@ -283,7 +310,9 @@ export class SQLParser {
                 if (phase === 'SELECT') {
                     if (typeof Cls.apply === 'function') {
                         const finalRes = Cls.apply(resultTable, parsed.select, !!parsed.distinct);
-                        try { console.debug('[SQLParser] SELECT result rows=', finalRes.length, 'sample=', finalRes.slice(0,3)); } catch(e){console.error(e);}
+                        if (SQLParser.DEBUG) {
+                            try { console.debug('[SQLParser] SELECT result rows=', finalRes.length, 'sample=', finalRes.slice(0,3)); } catch(e){console.error(e);} 
+                        }
                         return finalRes;
                     }
                     return [];
