@@ -228,7 +228,32 @@ function handleCorrectAnswer(game, floorData, query) {
     // Defensive: ensure query is parseable before awarding/emulating
     const parsed = sqlParser.parseSQL(query);
     if (!parsed) {
-        dom.showResult(game.i18n ? game.i18n.t('message.invalid_query') : 'Invalid query', 'error');
+        // try to suggest a correction for common typos
+        const suggestions = {
+            'innser': 'inner',
+            'inser': 'inner',
+            'selet': 'select',
+            'frm': 'from',
+            'whre': 'where',
+            'grup': 'group',
+            'grup by': 'group by',
+            'ordr': 'order',
+            'dep_name': 'dept_name'
+        };
+        const words = query.split(/(\s+|\W+)/);
+        let changed = false;
+        const corrected = words.map(w => {
+            const lw = w.toLowerCase();
+            if (suggestions[lw]) { changed = true; return suggestions[lw]; }
+            return w;
+        }).join('');
+
+        if (changed) {
+            const msg = (game.i18n ? game.i18n.t('message.invalid_query') : 'Invalid query') + '\n' + (game.i18n ? game.i18n.t('message.suggestion') : 'Did you mean:') + '\n' + corrected;
+            dom.showResult(msg, 'error');
+        } else {
+            dom.showResult(game.i18n ? game.i18n.t('message.invalid_query') : 'Invalid query', 'error');
+        }
         return;
     }
 

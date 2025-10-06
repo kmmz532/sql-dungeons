@@ -26,6 +26,9 @@ export class SQLParser {
             const userResult = this._normalizeResult(this.emulate(query, floorData.floor, mockDatabase));
             const answerResult = this._normalizeResult(this.emulate(floorData.answer, floorData.floor, mockDatabase));
 
+            try { console.debug('[SQLParser] validate userResult=', userResult); } catch(e){}
+            try { console.debug('[SQLParser] validate answerResult=', answerResult); } catch(e){}
+
             if (Array.isArray(answerResult) && answerResult.length === 0) {
                 return Array.isArray(userResult) && userResult.length === 0;
             }
@@ -33,6 +36,12 @@ export class SQLParser {
             if (Array.isArray(userResult) && userResult.length > 0 && this._resultsEqual(userResult, answerResult)) {
                 return true;
             }
+            try {
+                if (Array.isArray(answerResult) && Array.isArray(userResult) && !this._resultsEqual(userResult, answerResult)) {
+                    console.debug('[SQLParser] validate mismatch: user length=', userResult.length, 'answer length=', answerResult.length);
+                    console.debug('[SQLParser] validate sample user[0]=', userResult[0], 'answer[0]=', answerResult[0]);
+                }
+            } catch(e){}
             return false;
         }
         // 既存の特殊バリデーション
@@ -105,7 +114,7 @@ export class SQLParser {
             // If parsing fails, bail out immediately to avoid reading properties of null
             if (!parsed) return [];
             try { console.debug('[SQLParser] parsed:', parsed); } catch (e) {}
-            try { console.debug('[SQLParser] parsed.joins=', parsed.joins); } catch(e){console.error(e);}
+            try { console.debug('[SQLParser] parsed.joins=', parsed?.joins); } catch(e){console.error(e);} 
 
             // Handle INSERT via registered clause class (non-mutating)
             if (parsed.insert) {
