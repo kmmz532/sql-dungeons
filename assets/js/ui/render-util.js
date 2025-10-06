@@ -17,8 +17,9 @@ export function renderSchemaHTML(schemaText) {
         return { raw: line, trimmed, lineType };
     });
 
-    const hasPkToken = (txt) => /\b(PK|PRIMARY\s*KEY|PRIMARYKEY|主キー)\b|\(PK\)/i.test(txt);
-    const hasCkToken = (txt) => /\b(CK|CANDIDATE\s*KEY|候補キー)\b|\(CK\)/i.test(txt);
+    // Match PK/CK markers in English (with word boundaries) and in CJK locales (no \b required)
+    const hasPkToken = (txt) => /(\b(?:PK|PRIMARY\s*KEY|PRIMARYKEY)\b|\(PK\)|主キー)/i.test(txt);
+    const hasCkToken = (txt) => /(\b(?:CK|CANDIDATE\s*KEY)\b|\(CK\)|候補キー)/i.test(txt);
 
     parsed.forEach(p => {
         if (p.lineType !== 'columns') return;

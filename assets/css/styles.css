@@ -272,7 +272,7 @@ p {
     border-bottom: 2px dotted var(--gold-color);
 }
 
-/* --- インベントリ / Inventory --- */
+/* --- インベントリ --- */
 #inventory-list {
     display: flex;
     flex-wrap: wrap;
