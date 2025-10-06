@@ -116,30 +116,40 @@
     "sql.next.join": "ON",
     "sql.next.unknown": "未知",
 
-    "dungeon.floor1.title": "新手SELECT",
-    "dungeon.floor1.story": "这里是地牢入口。首先，从products表中找出价格大于等于1000金币的所有物品，显示它们的名称和价格。",
-    "dungeon.floor1.hint": "使用`WHERE`子句根据特定条件筛选行。",
-    
+    "dungeon.floor1.title": "チュートリアル1「SELECTですべてを見せて！」",
+    "dungeon.floor1.story": "SELECT * FROM table001 を呪文に入力して実行してみよう。",
 
-    "dungeon.floor2.title": "GROUP BY挑战",
-    "dungeon.floor2.story": "怪物巢穴！请统计monsters表中每个种族的怪物数量。",
-    "dungeon.floor2.hint": "使用`GROUP BY`对子集进行聚合。",
-    
+    "dungeon.floor2.title": "チュートリアル2「SELECTで一部を見よう！」",
+    "dungeon.floor2.story": "SELECT (カラム名) FROM (テーブル名) で指定した列だけを表示できる。概念スキーマからテーブル名を確認してmessageを取り出してみよう。",
 
-    "dungeon.floor3.title": "INNER JOIN魔法",
-    "dungeon.floor3.story": "欢迎来到公会大厅。连接employees和departments表，列出员工姓名和部门名称。",
-    "dungeon.floor3.hint": "使用`INNER JOIN ... ON ...`根据公共列连接两个表。",
-    
+    "dungeon.floor3.title": "チュートリアル3「WHEREで絞り込もう！」",
+    "dungeon.floor3.story": "SELECT ... FROM ... WHERE (条件式) で特定の条件に合う行だけを絞り込める。フルーツ(fruits)テーブルから、色(color)が 'Red' のフルーツの名前(name)と色(color)を表示してみよう。\n条件式は、カラム名 = '値' のように書く。他にも、<, >, <=, >=, <> などがある。",
 
-    "dungeon.floor4.title": "子查询迷宫",
-    "dungeon.floor4.story": "从销售历史表中找出“开发部”员工的销售总数量。",
-    "dungeon.floor4.hint": "可以在`WHERE`子句中使用嵌套`SELECT`（子查询）逐步筛选。",
-    
+    "dungeon.floor4.title": "チュートリアル4「ORDER BYで並び替え！」",
+    "dungeon.floor4.story": "SELECT ... FROM ... ORDER BY (カラム名) [ASC|DESC] で指定した列によって並び替えられる。フルーツ(fruits)テーブルから、価格(price)が安い順に名前(name)と価格(price)を表示してみよう。\n例えば、ORDER BY id とすればidの昇順となる。デフォルトでASC (昇順)であるため、ASCは省略可能だが、DESC (降順)は明示的に書く必要がある。",
 
-    "dungeon.floor5.title": "Boss战！销售魔像",
-    "dungeon.floor5.story": "Boss战！找出2025年2月以来各部门的销售总数量，只显示总销售10件及以上的部门。",
-    "dungeon.floor5.hint": "连接三张表，使用WHERE按日期筛选，GROUP BY按部门分组，HAVING筛选分组！",
+    "dungeon.floor5.title": "チュートリアル5「GROUP BYで集計！」",
+    "dungeon.floor5.story": "SELECT ... FROM ... GROUP BY (カラム名) で指定した列によってグループ化できる。フルーツ(fruits)テーブルから、色(color)ごとにフルーツの数を数えてみよう。\n集計関数にはCOUNT, SUM, AVG, MIN, MAX などがある。\nCOUNT(*) は行数を数え、SELECT color, COUNT(*) FROM fruits のように使うことができる。",
+
+    "dungeon.floor6.title": "駆け出しのSELECT文",
+    "dungeon.floor6.story": "ダンジョンの入口だ。まずは商品(products)テーブルから、価格(price)が1000ゴールド以上のアイテムの名前(name)と価格(price)をすべて探し出せ。",
+    "dungeon.floor6.hint": "特定の条件に合う行を絞り込むには `WHERE` 句を使う。",
     
+    "dungeon.floor7.title": "集計とGROUP BYの試練",
+    "dungeon.floor7.story": "モンスターの巣窟だ。モンスター(monsters)テーブルにて、種族(species)ごとのモンスターの数を数えよ。",
+    "dungeon.floor7.hint": "グループごとに集計するには `GROUP BY` 句を使う。",
+    
+    "dungeon.floor8.title": "INNER JOINの結合呪文",
+    "dungeon.floor8.story": "ギルドの広間だ。社員(employees)と部署(departments)を結合し、各社員の名前(emp_name)と部署名(dept_name)の一覧を作成せよ。",
+    "dungeon.floor8.hint": "2つのテーブルを共通の列で結びつけるには `INNER JOIN ... ON ...` を使う。",
+    
+    "dungeon.floor9.title": "サブクエリの迷宮",
+    "dungeon.floor9.story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
+    "dungeon.floor9.hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
+
+    "dungeon.floor10.title": "ボス戦！ ゴーレム・オブ・セールス",
+    "dungeon.floor10.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",
+    "dungeon.floor10.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
 
     "sql.keyword.select.desc": "用于从表中选择列的基本SQL子句。",
     "sql.keyword.from.desc": "指定要检索数据的表。",

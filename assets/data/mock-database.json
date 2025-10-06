@@ -69,6 +69,15 @@
             },
             "candidateKeys": [["id"]]
         },
+        "fruits": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color": { "type": "text", "notNull": true },
+                "price": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
         "products": {
             "columns": {
                 "product_id": { "type": "integer", "pk": true, "notNull": true },
