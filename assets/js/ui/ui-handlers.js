@@ -130,10 +130,23 @@ function executeQuery(game) {
                 dom.showResult(game.i18n.t('message.invalid_query'), 'error');
                 return;
             }
-            // Only support SELECT ... FROM ... in sandbox for now
+
             if (!parsed.select || !parsed.from) {
-                dom.showResult(game.i18n.t('message.sandbox_select_from'), 'error');
-                return;
+                if (Array.isArray(parsed.multiple) && parsed.multiple.length > 0) {
+                    const allSimple = parsed.multiple.every(p => {
+                        try {
+                            const part = sqlParser.parseSQL(p.raw);
+                            return part && part.select && part.from;
+                        } catch (e) { return false; }
+                    });
+                    if (!allSimple) {
+                        dom.showResult(game.i18n.t('message.sandbox_select_from'), 'error');
+                        return;
+                    }
+                } else {
+                    dom.showResult(game.i18n.t('message.sandbox_select_from'), 'error');
+                    return;
+                }
             }
             const results = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase);
             dom.showResult(game.i18n.t('message.sandbox_result'), 'success');

@@ -1,5 +1,7 @@
 {
   "SUM": "./sum-function.js",
   "COUNT": "./count-function.js",
-  "AVG": "./avg-function.js"
+  "AVG": "./avg-function.js",
+  "MAX": "./max-function.js",
+  "MIN": "./min-function.js"
 }

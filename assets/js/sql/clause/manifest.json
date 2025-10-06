@@ -1,6 +1,10 @@
 {
   "SELECT": "./select-clause.js",
   "WHERE": "./where-clause.js",
+  "IN": "./in-clause.js",
+  "INNER JOIN": "./inner-join-clause.js",
+  "OUTER JOIN": "./outer-join-clause.js",
+  "UNION": "./union-clause.js",
   "GROUP BY": "./groupby-clause.js",
   "ORDER BY": "./orderby-clause.js",
   "INSERT": "./insert-clause.js",

@@ -1,5 +1,6 @@
 // SQLParser: クエリのバリデーションとエミュレーションを統合
 import Registry from '../register.js';
+import { evaluateCondition } from './util/condition-util.js';
 
 const getRegistryClass = (key, type) => {
     try {
@@ -16,7 +17,7 @@ const getRegistryClass = (key, type) => {
  */
 export class SQLParser {
     // Toggle verbose debugging for SQL parsing/emulation
-    static DEBUG = false;
+    static DEBUG = true;
     /**
      * クエリが課題の条件を満たすか判定
      * @param {string} query
@@ -131,6 +132,55 @@ export class SQLParser {
             const parsed = this.parseSQL(query);
             // If parsing fails, bail out immediately to avoid reading properties of null
             if (!parsed) return [];
+            // If parseSQL returned multiple SELECTs (UNION/UNION ALL), evaluate each and combine
+            if (Array.isArray(parsed.multiple) && parsed.multiple.length > 0) {
+                // Evaluate each part and collect results
+                const resultsList = parsed.multiple.map(p => this.emulate(p.raw, currentFloor, mockDatabase) || []);
+
+                // Helper: strip any prefix like 'alias.' or 'table.' from object keys
+                const stripPrefixes = rows => rows.map(r => {
+                    const out = {};
+                    for (const k of Object.keys(r)) {
+                        const short = k.includes('.') ? k.split('.').pop() : k;
+                        out[short] = r[k];
+                    }
+                    return out;
+                });
+
+                // Determine union column set: union of all keys after stripping prefixes
+                const allKeys = new Set();
+                for (const rl of resultsList) {
+                    for (const row of rl) {
+                        for (const k of Object.keys(row)) {
+                            const short = k.includes('.') ? k.split('.').pop() : k;
+                            allKeys.add(short);
+                        }
+                    }
+                }
+                const keysArr = Array.from(allKeys);
+
+                // Normalize each result row to have same keys (missing -> null) and stripped key names
+                const normalizedLists = resultsList.map(rl => stripPrefixes(rl).map(r => {
+                    const nr = {};
+                    for (const key of keysArr) nr[key] = (key in r) ? r[key] : null;
+                    return nr;
+                }));
+
+                if (parsed.unionAll) {
+                    // concat all preserving duplicates
+                    return normalizedLists.flat();
+                } else {
+                    // UNION: concat then dedupe rows by JSON
+                    const all = normalizedLists.flat();
+                    const seen = new Set();
+                    const unique = [];
+                    for (const r of all) {
+                        const k = JSON.stringify(r);
+                        if (!seen.has(k)) { seen.add(k); unique.push(r); }
+                    }
+                    return unique;
+                }
+            }
             if (SQLParser.DEBUG) {
                 try { console.debug('[SQLParser] parsed:', parsed); } catch (e) {}
                 try { console.debug('[SQLParser] parsed.joins=', parsed?.joins); } catch(e){console.error(e);} 
@@ -181,8 +231,9 @@ export class SQLParser {
                     const joinName = j.alias || j.table;
                     const newAccum = [];
 
-                    // parse ON: 単純な等式 a.col = b.col のみサポート
-                    const onMatch = j.on.match(/(\w+(?:\.\w+)?)\s*=\s*(\w+(?:\.\w+)?)/);
+                    // parse ON: prefer using centralized evaluateCondition which supports more operators
+                    const onExpr = j.on.trim();
+                    const onMatch = null;
 
                     for (const leftRow of accumulated) {
                         for (const rightRow of joinTable) {
@@ -190,21 +241,29 @@ export class SQLParser {
                             const combined = Object.assign({}, leftRow, prefRight);
 
                             let onOk = true;
-                            if (onMatch) {
-                                const leftKey = onMatch[1];
-                                const rightKey = onMatch[2];
-                                const getVal = (obj, key) => {
-                                    if (key in obj) return obj[key];
-                                    // unqualified:探してみる
-                                    if (!key.includes('.')) {
-                                        const found = Object.keys(obj).find(k => k.endsWith('.' + key));
-                                        return found ? obj[found] : undefined;
-                                    }
-                                    return undefined;
-                                };
-                                const lv = getVal(combined, leftKey);
-                                const rv = getVal(combined, rightKey);
-                                onOk = (lv === rv);
+                            try {
+                                // Use evaluateCondition to support richer ON conditions (LIKE, IN, comparisons)
+                                onOk = evaluateCondition(combined, onExpr, { permissive: false });
+                            } catch (e) {
+                                // fallback: try the simple equality parse
+                                const fallback = j.on.match(/(\w+(?:\.\w+)?)\s*=\s*(\w+(?:\.\w+)?)/);
+                                if (fallback) {
+                                    const leftKey = fallback[1];
+                                    const rightKey = fallback[2];
+                                    const getVal = (obj, key) => {
+                                        if (key in obj) return obj[key];
+                                        if (!key.includes('.')) {
+                                            const found = Object.keys(obj).find(k => k.endsWith('.' + key));
+                                            return found ? obj[found] : undefined;
+                                        }
+                                        return undefined;
+                                    };
+                                    const lv = getVal(combined, leftKey);
+                                    const rv = getVal(combined, rightKey);
+                                    onOk = (lv === rv);
+                                } else {
+                                    onOk = false;
+                                }
                             }
 
                             if (onOk) newAccum.push(combined);
@@ -220,6 +279,65 @@ export class SQLParser {
 
             // フェーズ順をランタイムの登録状況（レジストリ）またはフォールバック manifest から決定する
             let resultTable = accumulated;
+            // Preprocess WHERE: handle IN (SELECT ...) by evaluating the subquery and replacing RHS with a literal list
+            try {
+                if (parsed.where) {
+                    if (SQLParser.DEBUG) console.debug('[SQLParser] where before preprocess =', parsed.where);
+                    const inSubMatch = parsed.where.match(/(\w+(?:\.\w+)?)\s+in\s*\((\s*select[\s\S]+)\)/i);
+                    if (inSubMatch) {
+                        const col = inSubMatch[1];
+                        const subQuery = inSubMatch[2];
+                        // Evaluate subquery
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] evaluating IN subquery:', subQuery);
+                        const subRows = this.emulate(subQuery, currentFloor, mockDatabase) || [];
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] IN subquery rows count=', subRows.length, 'sample=', subRows.slice(0,5));
+                        // Attempt to extract single-column values from subRows
+                        const vals = subRows.map(r => {
+                            const keys = Object.keys(r);
+                            if (keys.length === 1) return r[keys[0]];
+                            // If more columns, pick first
+                            return r[keys[0]];
+                        });
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] IN subquery extracted values=', vals);
+                        // Build literal list string for WhereClause to handle
+                        const litList = vals.map(v => (typeof v === 'string' ? `'${String(v).replace(/'/g, "''")}'` : String(v))).join(', ');
+                        parsed.where = `${col} IN (${litList})`;
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] where replaced with=', parsed.where);
+                    }
+                }
+            } catch (e) { if (SQLParser.DEBUG) console.error('Error preprocessing IN(subquery):', e); }
+
+            // Additionally handle equality to subquery: col = (SELECT ...)
+            try {
+                if (parsed.where) {
+                    const eqSubMatch = parsed.where.match(/(\w+(?:\.\w+)?)\s*=\s*\((\s*select[\s\S]+)\)/i);
+                    if (eqSubMatch) {
+                        const col = eqSubMatch[1];
+                        const subQuery = eqSubMatch[2];
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] evaluating = (subquery):', subQuery);
+                        const subRows = this.emulate(subQuery, currentFloor, mockDatabase) || [];
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] =(subquery) rows count=', subRows.length, 'sample=', subRows.slice(0,5));
+                        const vals = subRows.map(r => {
+                            const keys = Object.keys(r);
+                            if (keys.length === 1) return r[keys[0]];
+                            return r[keys[0]];
+                        });
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] =(subquery) extracted values=', vals);
+                        if (vals.length === 0) {
+                            // No matching values — make condition impossible
+                            parsed.where = `${col} IN ()`;
+                        } else if (vals.length === 1) {
+                            const v = vals[0];
+                            parsed.where = `${col} = ${typeof v === 'string' ? `'${String(v).replace(/'/g, "''")}'` : String(v)}`;
+                        } else {
+                            // multiple values -> convert to IN list
+                            const litList = vals.map(v => (typeof v === 'string' ? `'${String(v).replace(/'/g, "''")}'` : String(v))).join(', ');
+                            parsed.where = `${col} IN (${litList})`;
+                        }
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] where replaced with=', parsed.where);
+                    }
+                }
+            } catch (e) { if (SQLParser.DEBUG) console.error('Error preprocessing =(subquery):', e); }
             if (SQLParser.DEBUG) {
                 try { console.debug('[SQLParser] before clauses, rows=', resultTable.length); } catch(e){console.error(e);}
                 try { console.debug('[SQLParser] parsed.select=', parsed.select); } catch(e){}
@@ -255,40 +373,20 @@ export class SQLParser {
             // Ensure SELECT is last
             keys = keys.filter(k => k.toUpperCase() !== 'SELECT').concat(keys.filter(k => k.toUpperCase() === 'SELECT'));
 
-            // If there are aggregate functions requested but no GROUP BY, compute them as a single aggregated row
-            if ((parsed.aggregateFns || []).length > 0 && (!parsed.groupBy || parsed.groupBy.length === 0)) {
-                const aggInstances = (parsed.aggregateFns || []).map(af => {
-                    const AggCls = getRegistryClass(String(af.fn).toUpperCase(), 'aggregate');
-                    if (!AggCls) return null;
-                    const col = (af.column === '*' || String(af.column).trim() === '1') ? undefined : af.column;
-                    return new AggCls(col, !!af.distinct);
-                }).filter(Boolean);
-                // compute each aggregate and produce single-row result
-                const aggRow = {};
-                for (const a of aggInstances) {
-                    const key = a.getResultKey();
-                    try {
-                        aggRow[key] = a.apply(resultTable);
-                    } catch (e) {
-                        aggRow[key] = null;
-                    }
-                }
-                resultTable = [aggRow];
-            }
+            // NOTE: aggregate functions will be applied after WHERE/GROUP BY in the main loop below
 
             for (const key of keys) {
                 const phase = key.toUpperCase();
                 const Cls = getRegistryClass(phase, 'clause');
                 if (!Cls) continue;
 
-                // map phase to parsed property
                 let prop = null;
                 if (phase === 'WHERE') prop = 'where';
                 else if (phase === 'GROUP BY') prop = 'groupBy';
                 else if (phase === 'HAVING') prop = 'having';
                 else if (phase === 'ORDER BY') prop = 'orderBy';
                 else if (phase === 'SELECT') prop = 'select';
-                // skip if not present in parsed
+
                 if (!prop || !(prop in parsed) || parsed[prop] == null) continue;
 
                 if (phase === 'GROUP BY') {
@@ -318,6 +416,16 @@ export class SQLParser {
                     continue;
                 }
 
+                if (phase === 'IN') {
+                    try {
+                        if (parsed.in && Array.isArray(parsed.in) && typeof Cls.apply === 'function') {
+                            resultTable = Cls.apply(resultTable, parsed.in);
+                            if (SQLParser.DEBUG) console.debug('[SQLParser] after IN, rows=', resultTable.length);
+                        }
+                    } catch (e) { if (SQLParser.DEBUG) console.error('Error applying IN clause', e); }
+                    continue;
+                }
+
                 if (phase === 'ORDER BY') {
                     if (typeof Cls.apply === 'function') {
                         resultTable = Cls.apply(resultTable, parsed.orderBy);
@@ -329,6 +437,25 @@ export class SQLParser {
                 }
 
                 if (phase === 'SELECT') {
+                    if ((parsed.aggregateFns || []).length > 0 && (!parsed.groupBy || parsed.groupBy.length === 0)) {
+                        const aggInstances = (parsed.aggregateFns || []).map(af => {
+                            const AggCls = getRegistryClass(String(af.fn).toUpperCase(), 'aggregate');
+                            if (!AggCls) return null;
+                            const col = (af.column === '*' || String(af.column).trim() === '1') ? undefined : af.column;
+                            return new AggCls(col, !!af.distinct);
+                        }).filter(Boolean);
+                        const aggRow = {};
+                        for (const a of aggInstances) {
+                            const key = a.getResultKey();
+                            try {
+                                aggRow[key] = a.apply(resultTable);
+                            } catch (e) {
+                                aggRow[key] = null;
+                            }
+                        }
+                        resultTable = [aggRow];
+                    }
+
                     if (typeof Cls.apply === 'function') {
                         const finalRes = Cls.apply(resultTable, parsed.select, !!parsed.distinct);
                         if (SQLParser.DEBUG) {
@@ -360,6 +487,16 @@ export class SQLParser {
             const cols = insertMatch[2].split(',').map(s => s.trim());
             const vals = insertMatch[3].split(',').map(s => s.trim().replace(/^'|'$/g, ''));
             return { insert: { table, columns: cols, values: vals } };
+        }
+
+        // Handle UNION / UNION ALL by splitting top-level SELECTs
+        const unionSplit = query.split(/\bunion\s+all\b|\bunion\b/i);
+        if (unionSplit.length > 1) {
+            // Determine if any 'union all' literal exists to preserve duplicates
+            const unionAll = /\bunion\s+all\b/i.test(query);
+            // Build array of raw SELECT parts (trimmed)
+            const parts = query.split(/\bunion\s+all\b|\bunion\b/i).map(s => s.trim()).filter(Boolean);
+            return { multiple: parts.map(p => ({ raw: p })), unionAll };
         }
 
         // SELECT ... FROM ... [WHERE ...] [GROUP BY ...] [ORDER BY ...]
@@ -402,12 +539,33 @@ export class SQLParser {
             distinct: !!(selectMatch[1] && /distinct/i.test(selectMatch[1])),
             from: { table: fromMatch ? fromMatch[1] : null, alias: fromMatch ? (fromMatch[2] || null) : null },
             where: whereMatch ? whereMatch[1].trim() : null,
+            in: null, // will hold parsed IN specs: [{col, items}] or [{col, subquery}]
             groupBy: groupByMatch ? groupByMatch[1].split(',').map(s => s.trim()) : null,
             orderBy,
             joins: [],
             aggregateFns: [],
             having: null
         };
+
+        // parse literal IN(...) in where into parsed.in if present
+        try {
+            if (parsed.where) {
+                const inLitMatch = parsed.where.match(/(\w+(?:\.\w+)?)\s+in\s*\(([^)]+)\)/i);
+                if (inLitMatch) {
+                    const col = inLitMatch[1];
+                    const inner = inLitMatch[2].trim();
+                    // split into values (simple)
+                    const parts = inner.match(/('.*?'|[^,\s][^,]*[^,\s]?)/g) || [];
+                    const items = parts.map(p => {
+                        p = p.trim();
+                        if (p.startsWith("'") && p.endsWith("'")) return p.slice(1, -1);
+                        if (/^\d+$/.test(p)) return Number(p);
+                        return p;
+                    });
+                    parsed.in = [{ col, items }];
+                }
+            }
+        } catch (e) {}
 
         // Normalize aggregate function tokens in select list to uppercase function name
         try {
@@ -431,8 +589,8 @@ export class SQLParser {
 
         // Extract aggregate functions from SELECT list (SUM/COUNT/AVG) and support DISTINCT
         // Support forms: COUNT(*), COUNT(1), COUNT(col), COUNT(DISTINCT col)
-        const aggReSingle = /(SUM|COUNT|AVG)\s*\(\s*(?:DISTINCT\s+)?(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
-        const aggDistinctRe = /(SUM|COUNT|AVG)\s*\(\s*DISTINCT\s+(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
+        const aggReSingle = /(SUM|COUNT|AVG|MAX|MIN)\s*\(\s*(?:DISTINCT\s+)?(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
+        const aggDistinctRe = /(SUM|COUNT|AVG|MAX|MIN)\s*\(\s*DISTINCT\s+(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
         for (const s of parsed.select) {
             // capture DISTINCT separately
             const md = s.match(aggDistinctRe);
@@ -449,6 +607,8 @@ export class SQLParser {
         // Extract HAVING clause if present
         const havingMatch = query.match(/having\s+(.+?)(order by|$)/i);
         if (havingMatch) parsed.having = havingMatch[1].trim();
+
+        // no special extraction of LIKE from HAVING; HAVING will be evaluated by HavingClause via evaluateCondition
 
         return parsed;
     }

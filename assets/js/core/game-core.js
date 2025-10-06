@@ -181,6 +181,17 @@ export class GameCore {
                         const schemaText = fd.getSchema ? fd.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase }) : fd.schema || '';
                         this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
                     }
+                    // update hint button visibility for selected floor
+                    try {
+                        const hintText = (typeof fd.getHint === 'function') ? fd.getHint({ i18n: this.i18n }) : fd.hint;
+                        if (this.dom.elements['hint-btn']) {
+                            if (hintText && String(hintText).trim() !== '') {
+                                this.dom.elements['hint-btn'].classList.remove('hidden');
+                            } else {
+                                this.dom.elements['hint-btn'].classList.add('hidden');
+                            }
+                        }
+                    } catch (e) { console.error('Error updating hint button in sandbox selector', e); }
                 });
                 controls.appendChild(select);
                 headerEl.appendChild(controls);
@@ -229,7 +240,18 @@ export class GameCore {
             const schemaText = (typeof floorData.getSchema === 'function') ? floorData.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase }) : floorData.schema || '';
             this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
         }
-        this.dom.elements['sql-editor'].value = '';
+        // Show/hide hint button depending on whether this floor has a hint
+        try {
+            const hintText = (typeof floorData.getHint === 'function') ? floorData.getHint({ i18n: this.i18n }) : floorData.hint;
+            if (this.dom.elements['hint-btn']) {
+                if (hintText && String(hintText).trim() !== '') {
+                    this.dom.elements['hint-btn'].classList.remove('hidden');
+                } else {
+                    this.dom.elements['hint-btn'].classList.add('hidden');
+                }
+            }
+        } catch (e) { console.error('Error updating hint button visibility', e); }
+    this.dom.elements['sql-editor'].value = '';
         this.dom.elements['result-area'].innerHTML = '';
         this.dom.elements['result-area'].className = '';
         if (this.player) {
@@ -280,6 +302,7 @@ export class GameCore {
             this.dom.showScreen('game');
             setupUIHandlers(this); // 画面切り替え時に再バインド
             this.loadFloor(this.currentFloor);
+        if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.add('hidden');
             this.dom.showFeedback(this.i18n.t('message.load_success'));
                 try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){console.error(e);}
                 try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sw.remove(); } catch(e){console.error(e);}
