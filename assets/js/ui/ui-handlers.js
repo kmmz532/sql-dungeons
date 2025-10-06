@@ -295,15 +295,47 @@ function useKuNext(game) {
     const lastWord = query.split(/\s+/).pop() || '';
     let nextClause = determineNextClause(game, query, lastWord);
     if (typeof nextClause !== 'string' || !nextClause) nextClause = '不明';
-    game.dom.showResult(game.i18n.t('message.next_spell').replace('%s', nextClause), 'hint', true);
+    // Use i18n formatting (pass as argument) instead of manual replace to avoid 'undefined' insertion
+    game.dom.showResult(game.i18n.t('message.next_spell', nextClause), 'hint', true);
     game.updateUI();
 }
 
 function determineNextClause(game, query, lastWord) {
     if (query === '') return 'SELECT';
+    // If the query contains SELECT but not FROM yet, suggest FROM
+    try {
+        const hasSelect = /\bSELECT\b/i.test(query);
+        const hasFrom = /\bFROM\b/i.test(query);
+        if (hasSelect && !hasFrom) return 'FROM';
+    } catch (e) {}
     if (['SELECT', ','].includes(lastWord) || /\w+\(.*\)/.test(lastWord)) return 'FROM';
-    if (Object.keys(game.gameData.mockDatabase).includes(lastWord.toLowerCase())) return 'WHERE / JOIN / GROUP BY';
-    if (lastWord === 'WHERE' || lastWord === 'ON') return 'GROUP BY / JOIN';
+    // Determine allowed clauses for the current floor from dungeon data
+    let allowed = null;
+    try {
+        const floorIndex = game.currentFloor || 0;
+        const floorData = game.gameData?.dungeonData?.floors?.[floorIndex] || {};
+        allowed = Array.isArray(floorData.borrowed) ? floorData.borrowed.map(s => s.toUpperCase()) : null;
+    } catch (e) {
+        allowed = null;
+    }
+
+    // If the last token appears to be a table name, suggest clauses that are allowed on this floor
+    if (Object.keys(game.gameData.mockDatabase).includes(lastWord.toLowerCase())) {
+        // Default suggestions in absence of floor-specific constraints
+        const defaultSet = ['WHERE', 'JOIN', 'GROUP BY'];
+        const candidates = allowed ? defaultSet.filter(w => {
+            // 'GROUP BY' in borrowed may be represented as ['GROUP','BY'] or as 'GROUP' + 'BY'
+            if (w === 'GROUP BY') return allowed.includes('GROUP') || allowed.includes('GROUP BY') || (allowed.includes('GROUP') && allowed.includes('BY'));
+            return allowed.includes(w) || allowed.includes(w.split(' ')[0]);
+        }) : defaultSet;
+        return candidates.length ? candidates.join(' / ') : 'WHERE';
+    }
+
+    if (lastWord === 'WHERE' || lastWord === 'ON') {
+        // After WHERE or ON, suggest GROUP BY only if allowed on this floor
+        const allowGroup = allowed ? (allowed.includes('GROUP') || allowed.includes('GROUP BY') || (allowed.includes('GROUP') && allowed.includes('BY'))) : true;
+        return allowGroup ? 'GROUP BY / JOIN' : (allowed && allowed.includes('JOIN') ? 'JOIN' : '不明');
+    }
     if (lastWord === 'BY') return 'HAVING';
     if (lastWord === 'JOIN') return 'ON';
     return '不明';

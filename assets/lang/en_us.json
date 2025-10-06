@@ -127,7 +127,7 @@
     "dungeon.floor4.title": "Subquery Maze",
     "dungeon.floor4.story": "Find the total quantity of sales made by employees in the 'Development' department from the sales history table.",
     "dungeon.floor4.hint": "You can use nested `SELECT` statements (subqueries) in the `WHERE` clause to filter step by step.",
-    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, date)\n- sale_id: primary key\n- emp_id: integer\n- quantity: integer\n- date: date",
+    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, sale_date)\n- sale_id: primary key (integer)\n- emp_id: integer\n- quantity: integer\n- sale_date: date (e.g. '2025-02-01')",
 
     "dungeon.floor5.title": "Boss Battle! Sales Golem",
     "dungeon.floor5.story": "Boss battle! Find the total quantity of sales by department since February 2025, but only show departments with 10 or more total sales.",

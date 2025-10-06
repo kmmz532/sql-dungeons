@@ -50,7 +50,7 @@
             "floor": 4,
             "title": "サブクエリの迷宮",
             "story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
-            "schema": "テーブル名: sales\n- sale_id, emp_id, quantity\nテーブル名: employees\n- emp_id, dept_id\nテーブル名: departments\n- dept_id, dept_name",
+            "schema": "テーブル名: sales\n- sale_id (主キー, 整数)\n- emp_id (社員ID, 整数)\n- quantity (数量, 整数)\n- sale_date (日付, 例: '2025-02-01')\nテーブル名: employees\n- emp_id, dept_id\nテーブル名: departments\n- dept_id, dept_name",
             "solutionPatterns": ["SELECT\\s+SUM\\(quantity\\)\\s+FROM\\s+sales\\s+WHERE\\s+emp_id\\s+IN\\s*\\(\\s*SELECT\\s+emp_id\\s+FROM\\s+employees\\s+WHERE\\s+dept_id\\s*=\\s*\\(\\s*SELECT\\s+dept_id\\s+FROM\\s+departments\\s+WHERE\\s+dept_name\\s*=\\s*'開発部'\\s*\\)\\s*\\)"],
             "answer": "SELECT SUM(quantity) FROM sales WHERE emp_id IN (SELECT emp_id FROM employees WHERE dept_id = (SELECT dept_id FROM departments WHERE dept_name = '開発部'))",
             "borrowed": ["SUM", "IN"],

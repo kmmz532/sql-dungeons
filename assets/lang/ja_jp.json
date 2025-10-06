@@ -127,7 +127,7 @@
     "dungeon.floor4.title": "サブクエリの迷宮",
     "dungeon.floor4.story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
     "dungeon.floor4.hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
-    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, date)\n- sale_id: 主キー\n- emp_id: 整数\n- quantity: 整数\n- date: 日付",
+    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, sale_date)\n- sale_id: 主キー (整数)\n- emp_id: 整数\n- quantity: 整数\n- sale_date: 日付 (例: '2025-02-01')\n\nemployees (emp_id, emp_name, dept_id)\n- emp_id: 主キー\n- emp_name: テキスト\n- dept_id: 整数\n\ndepartments (dept_id, dept_name)\n- dept_id: 主キー\n- dept_name: テキスト",
 
     "dungeon.floor5.title": "ボス戦！ ゴーレム・オブ・セールス",
     "dungeon.floor5.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",

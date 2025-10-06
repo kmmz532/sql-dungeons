@@ -127,7 +127,7 @@
     "dungeon.floor4.title": "서브쿼리 미궁",
     "dungeon.floor4.story": "sales 테이블에서 '개발부' 직원의 판매 수량 합계를 구하세요.",
     "dungeon.floor4.hint": "`WHERE` 구문에 중첩 `SELECT`(서브쿼리)를 사용해 단계적으로 필터링할 수 있습니다.",
-    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, date)\n- sale_id: 기본 키\n- emp_id: 정수\n- quantity: 정수\n- date: 날짜",
+    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, sale_date)\n- sale_id: 기본 키 (정수)\n- emp_id: 정수\n- quantity: 정수\n- sale_date: 날짜 (예: '2025-02-01')",
 
     "dungeon.floor5.title": "보스전! 세일즈 골렘",
     "dungeon.floor5.story": "보스전! 2025년 2월 이후 부서별 판매 수량 합계를 구하되, 합계가 10 미만인 부서는 표시하지 마세요.",

@@ -126,7 +126,7 @@
     "dungeon.floor4.title": "子查询迷宫",
     "dungeon.floor4.story": "从销售历史表中找出“开发部”员工的销售总数量。",
     "dungeon.floor4.hint": "可以在`WHERE`子句中使用嵌套`SELECT`（子查询）逐步筛选。",
-    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, date)\n- sale_id: 主键\n- emp_id: 整数\n- quantity: 整数\n- date: 日期",
+    "dungeon.floor4.schema": "sales (sale_id, emp_id, quantity, sale_date)\n- sale_id: 主键 (整数)\n- emp_id: 整数\n- quantity: 整数\n- sale_date: 日期 (例如: '2025-02-01')",
 
     "dungeon.floor5.title": "Boss战！销售魔像",
     "dungeon.floor5.story": "Boss战！找出2025年2月以来各部门的销售总数量，只显示总销售10件及以上的部门。",
