@@ -84,6 +84,8 @@ export function setupUIHandlers(game) {
             if (itemData && game.player.spendGold(itemData.price)) {
                 // Ensure we create a ShopItem instance so getName/getDesc and effects are available
                 const item = new ShopItem(itemData, game.i18n);
+                // debug: log item to verify it's an instance with getName/getDesc
+                try { console.log('[shop] purchasing item instance:', item); } catch(e){}
                 handleItemPurchase(game, item);
                 game.updateUI();
                 openShop(game);
