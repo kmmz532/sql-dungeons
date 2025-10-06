@@ -17,7 +17,7 @@ export function setupUIHandlers(game) {
     dom.elements['load-button'].addEventListener('click', () => game.loadGame());
     dom.elements['sandbox-button'].addEventListener('click', () => {
         game.startSandbox();
-        try { history.pushState({ mode: 'sandbox' }, '', '?mode=sandbox'); } catch(e) {}
+        try { history.pushState({ mode: 'sandbox' }, '', '?mode=sandbox'); } catch(e) {console.error(e);}
     });
     // Back to title button (confirm if unsaved)
     if (dom.elements['back-to-title-button']) {
@@ -25,11 +25,11 @@ export function setupUIHandlers(game) {
             try {
                 const proceed = () => {
                     // remove any sandbox artifacts that might have been left behind
-                    try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
-                    try { const sw = document.querySelectorAll('.sandbox-schema-wrapper'); if (sw) sw.forEach(s=>s.remove()); } catch(e){}
-                    try { document.body.classList.remove('sandbox-mode'); } catch(e){}
+                    try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){console.error(e);}
+                    try { const sw = document.querySelectorAll('.sandbox-schema-wrapper'); if (sw) sw.forEach(s=>s.remove()); } catch(e){console.error(e);}
+                    try { document.body.classList.remove('sandbox-mode'); } catch(e){console.error(e);}
                     game.dom.showScreen('start');
-                    try { history.pushState({ mode: 'start' }, '', window.location.pathname); } catch(e) {}
+                    try { history.pushState({ mode: 'start' }, '', window.location.pathname); } catch(e){console.error(e);}
                 };
                 if (game && typeof game.isDirty === 'function' && game.isDirty()) {
                     // Show browser confirm for now

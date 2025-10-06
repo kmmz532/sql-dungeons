@@ -87,14 +87,14 @@ export class GameCore {
         this._isDirty = false;
 
         // サンドボックスモードのUIを削除
-        try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
-        try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sc.remove(); } catch(e){}
-        try { document.body.classList.remove('sandbox-mode'); } catch(e){}
+        try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){console.error(e);}
+        try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sc.remove(); } catch(e){console.error(e);}
+        try { document.body.classList.remove('sandbox-mode'); } catch(e){console.error(e);}
         // 通常モードのUIを表示
-        try { if (this.dom.elements['save-button']) this.dom.elements['save-button'].classList.remove('hidden'); } catch(e){}
-        try { const ip = document.getElementById('inventory-panel'); if (ip) ip.classList.remove('hidden'); } catch(e){}
-        try { if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.remove('hidden'); } catch(e){}
-        try { const qp = document.querySelector('.quest-panel'); if (qp) qp.classList.remove('hidden'); } catch(e){}
+        try { if (this.dom.elements['save-button']) this.dom.elements['save-button'].classList.remove('hidden'); } catch(e){console.error(e);}
+        try { const ip = document.getElementById('inventory-panel'); if (ip) ip.classList.remove('hidden'); } catch(e){console.error(e);}
+        try { if (this.dom.elements['hint-btn']) this.dom.elements['hint-btn'].classList.remove('hidden'); } catch(e){console.error(e);}
+        try { const qp = document.querySelector('.quest-panel'); if (qp) qp.classList.remove('hidden'); } catch(e){console.error(e);}
         this.dom.showScreen('game');
         setupUIHandlers(this);
         this.loadFloor(this.currentFloor);
@@ -109,14 +109,17 @@ export class GameCore {
             document.body.classList.add('sandbox-mode');
         } catch(e) {
             console.error('Failed to enter sandbox mode', e);
+            console.error(e);
         }
 
-        if (this.dom.elements['sql-editor']) this.dom.elements['sql-editor'].value = '';
-        if (this.dom.elements['result-area']) {
-            this.dom.elements['result-area'].innerHTML = '';
-            this.dom.elements['result-area'].className = '';
-        }
-        if (this.dom.elements['floor-actions-container']) this.dom.elements['floor-actions-container'].classList.add('hidden');
+        try { if (this.dom.elements['sql-editor']) this.dom.elements['sql-editor'].value = ''; } catch(e){console.error(e);}
+        try {
+            if (this.dom.elements['result-area']) {
+                this.dom.elements['result-area'].innerHTML = '';
+                this.dom.elements['result-area'].className = '';
+            }
+        } catch(e){console.error(e);}
+        try { if (this.dom.elements['floor-actions-container']) this.dom.elements['floor-actions-container'].classList.add('hidden'); } catch(e){console.error(e);}
         if (this.dom.elements['shop-btn']) this.dom.elements['shop-btn'].classList.add('hidden');
         if (this.dom.elements['next-floor-btn']) this.dom.elements['next-floor-btn'].classList.add('hidden');
         if (this.dom.elements['save-button']) this.dom.elements['save-button'].classList.add('hidden');
@@ -137,7 +140,7 @@ export class GameCore {
                 this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
             }
         } else {
-            if (this.dom.elements['floor-title']) this.dom.elements['floor-title'].textContent = 'Sandbox';
+        if (this.dom.elements['floor-title']) this.dom.elements['floor-title'].textContent = 'Sandbox';
         }
 
         try {
@@ -198,11 +201,12 @@ export class GameCore {
                         });
                     }
                 } catch (e) {
-
+                    console.error(e);
                 }
             }
         } catch (e) {
             console.error('Failed to render sandbox controls', e);
+            console.error(e);
         }
     }
 
@@ -272,9 +276,9 @@ export class GameCore {
             setupUIHandlers(this); // 画面切り替え時に再バインド
             this.loadFloor(this.currentFloor);
             this.dom.showFeedback(this.i18n.t('message.load_success'));
-            try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
-            try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sc.remove(); } catch(e){}
-            try { document.body.classList.remove('sandbox-mode'); } catch(e){}
+            try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){console.error(e);}
+            try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sc.remove(); } catch(e){console.error(e);}
+            try { document.body.classList.remove('sandbox-mode'); } catch(e){console.error(e);}
         }
     }
 
@@ -288,8 +292,8 @@ export class GameCore {
         this.dom.elements['end-title'].textContent = title;
         this.dom.elements['end-message'].textContent = message;
         this.dom.showScreen('end');
-        try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){}
-        try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sw.remove(); } catch(e){}
-        try { document.body.classList.remove('sandbox-mode'); } catch(e){}
+    try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){console.error(e);}
+    try { const sw = document.querySelector('.sandbox-schema-wrapper'); if (sw) sc.remove(); } catch(e){console.error(e);}
+    try { document.body.classList.remove('sandbox-mode'); } catch(e){console.error(e);}
     }
 }
