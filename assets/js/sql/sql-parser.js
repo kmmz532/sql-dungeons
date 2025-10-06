@@ -236,8 +236,9 @@ export class SQLParser {
                     const aggInstances = (parsed.aggregateFns || []).map(af => {
                         const AggCls = getRegistryClass(String(af.fn).toUpperCase(), 'aggregate');
                         if (!AggCls) return null;
-                        // COUNT(*)はundefined渡し、それ以外はカラム名
-                        return new AggCls(af.column === '*' ? undefined : af.column);
+                        // Pass column (undefined for *) and distinct flag
+                        const col = (af.column === '*' || String(af.column).trim() === '1') ? undefined : af.column;
+                        return new AggCls(col, !!af.distinct);
                     }).filter(Boolean);
                     if (typeof Cls.groupAndAggregate === 'function') {
                         resultTable = Cls.groupAndAggregate(resultTable, parsed.groupBy, aggInstances);
@@ -356,13 +357,20 @@ export class SQLParser {
             parsed.joins.push({ table: jm[1], alias: jm[2] || null, on: jm[3].trim(), type: 'inner' });
         }
 
-        // Extract aggregate functions from SELECT list (SUM/COUNT/AVG)
-        // Support qualified column names like s.quantity
-        const aggReSingle = /(SUM|COUNT|AVG)\s*\(\s*(\*|(?:\w+(?:\.\w+)?))\s*\)/i;
+        // Extract aggregate functions from SELECT list (SUM/COUNT/AVG) and support DISTINCT
+        // Support forms: COUNT(*), COUNT(1), COUNT(col), COUNT(DISTINCT col)
+        const aggReSingle = /(SUM|COUNT|AVG)\s*\(\s*(?:DISTINCT\s+)?(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
+        const aggDistinctRe = /(SUM|COUNT|AVG)\s*\(\s*DISTINCT\s+(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
         for (const s of parsed.select) {
+            // capture DISTINCT separately
+            const md = s.match(aggDistinctRe);
+            if (md) {
+                parsed.aggregateFns.push({ fn: md[1].toUpperCase(), column: md[2], distinct: true });
+                continue;
+            }
             const m = s.match(aggReSingle);
             if (m) {
-                parsed.aggregateFns.push({ fn: m[1].toUpperCase(), column: m[2] });
+                parsed.aggregateFns.push({ fn: m[1].toUpperCase(), column: m[2], distinct: false });
             }
         }
 

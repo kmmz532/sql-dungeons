@@ -28,15 +28,14 @@ export function setupUIHandlers(game) {
         dom.elements['back-to-title-button'].addEventListener('click', () => {
             try {
                 const proceed = () => {
-                    // remove any sandbox artifacts that might have been left behind
                     try { const sc = document.querySelector('.sandbox-controls'); if (sc) sc.remove(); } catch(e){console.error(e);}
                     try { const sw = document.querySelectorAll('.sandbox-schema-wrapper'); if (sw) sw.forEach(s=>s.remove()); } catch(e){console.error(e);}
                     try { document.body.classList.remove('sandbox-mode'); } catch(e){console.error(e);}
                     game.dom.showScreen('start');
                     try { history.pushState({ mode: 'start' }, '', window.location.pathname); } catch(e){console.error(e);}
                 };
-                if (game && typeof game.isDirty === 'function' && game.isDirty()) {
-                    // Show browser confirm for now
+
+                if (game && typeof game.isDirty === 'function' && game.isDirty() && !game.isSandbox) {
                     const msg = game.i18n ? game.i18n.t('confirm.unsaved_changes') : 'セーブしていません。タイトルに戻りますか？';
                     if (confirm(msg)) {
                         proceed();
@@ -59,7 +58,7 @@ export function setupUIHandlers(game) {
             dom.elements['sql-editor'].focus();
         }
     });
-    // Mark game as dirty when user edits the SQL editor
+
     if (dom.elements['sql-editor']) {
         dom.elements['sql-editor'].addEventListener('input', () => {
             try { if (game && typeof game.markDirty === 'function') game.markDirty(); } catch(e){}
