@@ -255,6 +255,27 @@ export class SQLParser {
             // Ensure SELECT is last
             keys = keys.filter(k => k.toUpperCase() !== 'SELECT').concat(keys.filter(k => k.toUpperCase() === 'SELECT'));
 
+            // If there are aggregate functions requested but no GROUP BY, compute them as a single aggregated row
+            if ((parsed.aggregateFns || []).length > 0 && (!parsed.groupBy || parsed.groupBy.length === 0)) {
+                const aggInstances = (parsed.aggregateFns || []).map(af => {
+                    const AggCls = getRegistryClass(String(af.fn).toUpperCase(), 'aggregate');
+                    if (!AggCls) return null;
+                    const col = (af.column === '*' || String(af.column).trim() === '1') ? undefined : af.column;
+                    return new AggCls(col, !!af.distinct);
+                }).filter(Boolean);
+                // compute each aggregate and produce single-row result
+                const aggRow = {};
+                for (const a of aggInstances) {
+                    const key = a.getResultKey();
+                    try {
+                        aggRow[key] = a.apply(resultTable);
+                    } catch (e) {
+                        aggRow[key] = null;
+                    }
+                }
+                resultTable = [aggRow];
+            }
+
             for (const key of keys) {
                 const phase = key.toUpperCase();
                 const Cls = getRegistryClass(phase, 'clause');

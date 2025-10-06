@@ -294,6 +294,7 @@ function useKuNext(game) {
     const query = game.dom.elements['sql-editor'].value.trim().toUpperCase();
     const lastWord = query.split(/\s+/).pop() || '';
     let nextClause = determineNextClause(game, query, lastWord);
+    if (typeof nextClause !== 'string' || !nextClause) nextClause = '不明';
     game.dom.showResult(game.i18n.t('message.next_spell').replace('%s', nextClause), 'hint', true);
     game.updateUI();
 }
