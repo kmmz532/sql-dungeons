@@ -23,8 +23,15 @@ export class SQLParser {
      */
     validate(query, floorData, mockDatabase) {
         if (floorData.answer) {
-            const userResult = this._normalizeResult(this.emulate(query, floorData.floor, mockDatabase));
-            const answerResult = this._normalizeResult(this.emulate(floorData.answer, floorData.floor, mockDatabase));
+            const rawUser = this.emulate(query, floorData.floor, mockDatabase);
+            const rawAnswer = this.emulate(floorData.answer, floorData.floor, mockDatabase);
+            const userResult = this._normalizeResult(rawUser);
+            const answerResult = this._normalizeResult(rawAnswer);
+
+            try { console.debug('[SQLParser] validate rawUser=', rawUser); } catch(e){}
+            try { console.debug('[SQLParser] validate rawAnswer=', rawAnswer); } catch(e){}
+            try { console.debug('[SQLParser] validate answerQuery=', floorData.answer); } catch(e){}
+            try { console.debug('[SQLParser] validate parsedAnswer=', this.parseSQL(floorData.answer)); } catch(e){}
 
             try { console.debug('[SQLParser] validate userResult=', userResult); } catch(e){}
             try { console.debug('[SQLParser] validate answerResult=', answerResult); } catch(e){}
