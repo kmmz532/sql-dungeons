@@ -231,7 +231,7 @@ export class SQLParser {
 
                 if (phase === 'GROUP BY') {
                     const aggInstances = (parsed.aggregateFns || []).map(af => {
-                        const AggCls = getRegistryClass(af.fn, 'aggregate');
+                        const AggCls = getRegistryClass(String(af.fn).toUpperCase(), 'aggregate');
                         if (!AggCls) return null;
                         // COUNT(*)はundefined渡し、それ以外はカラム名
                         return new AggCls(af.column === '*' ? undefined : af.column);

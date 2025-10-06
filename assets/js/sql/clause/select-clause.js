@@ -16,12 +16,21 @@ export class SelectClause extends AbstractClause {
      */
     static apply(table, selectCols) {
         const resolve = (row, key) => {
+            if (!key) return undefined;
+            // direct match (case-sensitive)
             if (key in row) return row[key];
+            const lowerKey = key.toLowerCase();
+            // try case-insensitive exact match
+            const exact = Object.keys(row).find(k => k.toLowerCase() === lowerKey);
+            if (exact) return row[exact];
+            // try unqualified column match (alias.column)
             if (!key.includes('.')) {
-                const found = Object.keys(row).find(k => k.endsWith('.' + key));
+                const found = Object.keys(row).find(k => k.toLowerCase().endsWith('.' + lowerKey));
                 return found ? row[found] : undefined;
             }
-            return undefined;
+            // try case-insensitive qualified match
+            const qual = Object.keys(row).find(k => k.toLowerCase() === lowerKey);
+            return qual ? row[qual] : undefined;
         };
 
         return table.map(row => {
