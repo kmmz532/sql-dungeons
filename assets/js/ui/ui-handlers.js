@@ -8,7 +8,7 @@ const sqlParser = new SQLParser();
 
 import { EXECUTE_COST } from '../constants.js';
 
-import { handleHint, showHintModal, showPurchaseHintModal, purchaseHint } from './hint.js';
+import { handleHint } from './hint.js';
 import { openShop, handleItemPurchase } from './shop.js';
 
 export function setupUIHandlers(game) {
@@ -176,7 +176,11 @@ function validateQuery(game, query, isSandbox = false) {
     const words = query.toUpperCase().match(/[A-Z_][A-Z0-9_]*/g) || [];
     const wordSet = new Set(words);
     const queryUpper = query.toUpperCase();
-    for (const clause of SQL_KEYWORDS) {
+
+    const registered = Register.getAll ? Object.values(Register.getAll()) : [];
+    const clauseList = (registered && registered.length) ? registered : [];
+    
+    for (const clause of clauseList) {
         // ORDER BY, GROUP BY のような複数語の句もあるので分割してチェック
         const clauseWords = (clause.keyword || '').toUpperCase().split(/\s+/).filter(Boolean);
         let used = false;

@@ -61,6 +61,7 @@
     "message.dataset_label": "データセット:",
     "message.floor_label": "フロア %s",
     "confirm.unsaved_changes": "セーブしていません。タイトルに戻りますか？",
+    "button.back_to_title": "タイトルに戻る",
 
     "settings.title": "設定",
     "settings.language_label": "言語:",

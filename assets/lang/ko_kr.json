@@ -60,6 +60,7 @@
     "message.sandbox_result": "샌드박스 실행 결과:",
     "message.dataset_label": "데이터셋:",
     "message.floor_label": "%s 층",
+    "button.back_to_title": "타이틀로 돌아가기",
 
     "settings.title": "설정",
     "settings.language_label": "언어:",

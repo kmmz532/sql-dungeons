@@ -33,6 +33,7 @@
     "status.gold": "💰 %s G",
     "status.energy": "⚡ %s E",
 
+    "button.back_to_title": "返回标题页",
     "shop.title": "商店",
     "shop.hint.title": "购买提示",
     "shop.hint.confirm": "要查看提示吗？\n需要💰 %s G。",
