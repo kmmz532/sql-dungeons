@@ -80,7 +80,9 @@
       try {
         if (window.opener && window.opener.game && window.opener.game.gameData) return window.opener.game.gameData.mockDatabase;
         if (window.parent && window.parent.game && window.parent.game.gameData) return window.parent.game.gameData.mockDatabase;
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
       return null;
     }
     const md = readMockDb();
@@ -113,8 +115,11 @@
         document.body.appendChild(regOut);
       }
     } catch (e) {
-      // fallback to appending to body if anything unexpected happens
-      try { document.body.appendChild(regOut); } catch (e2) { /* ignore */ }
+      try {
+        document.body.appendChild(regOut);
+      } catch (e2) {
+        console.error('Failed to insert registry output:', e, e2);
+       }
     }
 
     function appendLine(...args) {
