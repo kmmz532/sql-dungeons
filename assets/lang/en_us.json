@@ -122,32 +122,32 @@
 
     "sql.next.unknown": "Unknown",
 
-    "dungeon.floor1.title": "チュートリアル1「SELECTですべてを見せて！」",
-    "dungeon.floor1.story": "SELECT * FROM table001 を呪文に入力して実行してみよう。",
+    "dungeon.floor1.title": "Tutorial 1: Show everything with SELECT",
+    "dungeon.floor1.story": "Type the spell `SELECT * FROM table001` into the editor and execute it.",
 
-    "dungeon.floor2.title": "チュートリアル2「SELECTで一部を見よう！」",
-    "dungeon.floor2.story": "SELECT (カラム名) FROM (テーブル名) で指定した列だけを表示できる。概念スキーマからテーブル名を確認してmessageを取り出してみよう。",
+    "dungeon.floor2.title": "Tutorial 2: Select specific columns",
+    "dungeon.floor2.story": "Use `SELECT (column) FROM (table)` to display specific columns. Check the conceptual schema for the table name and retrieve the `message` column.",
 
-    "dungeon.floor3.title": "チュートリアル3「WHEREで絞り込もう！」",
-    "dungeon.floor3.story": "SELECT ... FROM ... WHERE (条件式) で特定の条件に合う行だけを絞り込める。フルーツ(fruits)テーブルから、色(color)が 'Red' のフルーツの名前(name)と色(color)を表示してみよう。\n条件式は、カラム名 = '値' のように書く。他にも、<, >, <=, >=, <> などがある。",
+    "dungeon.floor3.title": "Tutorial 3: Filter with WHERE",
+    "dungeon.floor3.story": "Use `SELECT ... FROM ... WHERE (condition)` to filter rows. From the `fruits` table, display `name` and `color` where `color = 'Red'`. Conditions look like `column = 'value'`. You can also use <, >, <=, >=, <>.",
 
-    "dungeon.floor4.title": "チュートリアル4「ORDER BYで並び替え！」",
-    "dungeon.floor4.story": "SELECT ... FROM ... ORDER BY (カラム名) [ASC|DESC] で指定した列によって並び替えられる。フルーツ(fruits)テーブルから、価格(price)が安い順に名前(name)と価格(price)を表示してみよう。\n例えば、ORDER BY id とすればidの昇順となる。デフォルトでASC (昇順)であるため、ASCは省略可能だが、DESC (降順)は明示的に書く必要がある。",
+    "dungeon.floor4.title": "Tutorial 4: Sort with ORDER BY",
+    "dungeon.floor4.story": "Use `ORDER BY (column) [ASC|DESC]` to sort results. From the `fruits` table, show `name` and `price` ordered by `price` ascending. `ORDER BY id` sorts by `id` ascending; ASC is the default, use DESC for descending.",
 
-    "dungeon.floor5.title": "チュートリアル5「GROUP BYで集計！」",
-    "dungeon.floor5.story": "SELECT ... FROM ... GROUP BY (カラム名) で指定した列によってグループ化できる。フルーツ(fruits)テーブルから、色(color)ごとにフルーツの数を数えてみよう。\n集計関数にはCOUNT, SUM, AVG, MIN, MAX などがある。\nCOUNT(*) は行数を数え、SELECT color, COUNT(*) FROM fruits のように使うことができる。",
+    "dungeon.floor5.title": "Tutorial 5: Aggregate with GROUP BY",
+    "dungeon.floor5.story": "Use `SELECT ... FROM ... GROUP BY (column)` to group rows. From `fruits`, count how many fruits there are per `color`. Aggregation functions include COUNT, SUM, AVG, MIN, MAX. `COUNT(*)` counts rows, e.g. `SELECT color, COUNT(*) FROM fruits`.",
 
-    "dungeon.floor6.title": "駆け出しのSELECT文",
-    "dungeon.floor6.story": "ダンジョンの入口だ。まずは商品(products)テーブルから、価格(price)が1000ゴールド以上のアイテムの名前(name)と価格(price)をすべて探し出せ。",
-    "dungeon.floor6.hint": "特定の条件に合う行を絞り込むには `WHERE` 句を使う。",
+    "dungeon.floor6.title": "Beginner SELECT",
+    "dungeon.floor6.story": "The dungeon entrance. From `products`, find all items with `price >= 1000` and display `name` and `price`.",
+    "dungeon.floor6.hint": "Use a `WHERE` clause to filter rows that meet specific conditions.",
     
-    "dungeon.floor7.title": "集計とGROUP BYの試練",
-    "dungeon.floor7.story": "モンスターの巣窟だ。モンスター(monsters)テーブルにて、種族(species)ごとのモンスターの数を数えよ。",
-    "dungeon.floor7.hint": "グループごとに集計するには `GROUP BY` 句を使う。",
+    "dungeon.floor7.title": "GROUP BY Challenge",
+    "dungeon.floor7.story": "A monster lair. Count monsters per `species` from the `monsters` table.",
+    "dungeon.floor7.hint": "Use `GROUP BY` to aggregate per group.",
     
-    "dungeon.floor8.title": "INNER JOINの結合呪文",
-    "dungeon.floor8.story": "ギルドの広間だ。社員(employees)と部署(departments)を結合し、各社員の名前(emp_name)と部署名(dept_name)の一覧を作成せよ。",
-    "dungeon.floor8.hint": "Use `INNER JOIN ... ON ...` to connect two tables by a common column.",
+    "dungeon.floor8.title": "INNER JOIN Spell",
+    "dungeon.floor8.story": "In the guild hall. Join `employees` and `departments` and list each employee's `emp_name` and `dept_name`.",
+    "dungeon.floor8.hint": "Use `INNER JOIN ... ON ...` to connect tables by a common column.",
     
     "dungeon.floor9.title": "Find affordable fruits",
     "dungeon.floor9.story": "From the fruits table, display name and price for rows where price < 150.",
@@ -195,5 +195,25 @@
     
     "dungeon.floor20.title": "Final Trial: Department sales filter",
     "dungeon.floor20.story": "Join three tables, filter by date (>= '2025-02-01'), group by dept_name and show departments with SUM(quantity) >= 10.",
-    "dungeon.floor20.hint": "Join 3 tables, filter by date with WHERE, aggregate with GROUP BY, and finalize with HAVING!"
+    "dungeon.floor20.hint": "Join 3 tables, filter by date with WHERE, aggregate with GROUP BY, and finalize with HAVING!",
+
+    "sql.keyword.select.desc": "Basic clause to select columns from a table.",
+    "sql.keyword.from.desc": "Specifies the table to retrieve data from.",
+    "sql.keyword.where.desc": "Filters rows based on a condition.",
+    "sql.keyword.group.desc": "Indicates the start of grouping.",
+    "sql.keyword.by.desc": "Specifies keys for grouping or sorting.",
+    "sql.keyword.inner.desc": "Performs an inner join.",
+    "sql.keyword.outer.desc": "Performs an outer join.",
+    "sql.keyword.left.desc": "Performs a left outer join.",
+    "sql.keyword.right.desc": "Performs a right outer join.",
+    "sql.keyword.join.desc": "Joins two or more tables.",
+    "sql.keyword.on.desc": "Specifies the condition for joining tables.",
+    "sql.keyword.as.desc": "Gives an alias to a column or table.",
+    "sql.keyword.sum.desc": "An aggregate function that calculates the total.",
+    "sql.keyword.avg.desc": "An aggregate function that calculates the average.",
+    "sql.keyword.min.desc": "An aggregate function that returns the minimum value.",
+    "sql.keyword.max.desc": "An aggregate function that returns the maximum value.",
+    "sql.keyword.count.desc": "An aggregate function that counts rows.",
+    "sql.keyword.having.desc": "Specifies conditions after grouping.",
+    "sql.keyword.in.desc": "Checks if a value is in a given set."
 }

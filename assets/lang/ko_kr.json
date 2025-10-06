@@ -121,90 +121,97 @@
     "sql.next.join": "ON",
     "sql.next.unknown": "알 수 없음",
 
-    "dungeon.floor1.title": "チュートリアル1「SELECTですべてを見せて！」",
-    "dungeon.floor1.story": "SELECT * FROM table001 を呪文に入力して実行してみよう。",
+    "dungeon.floor1.title": "튜토리얼1: SELECT로 모두 보기",
+    "dungeon.floor1.story": "편집기에 `SELECT * FROM table001` 을 입력하고 실행해 보세요.",
 
-    "dungeon.floor2.title": "チュートリアル2「SELECTで一部を見よう！」",
-    "dungeon.floor2.story": "SELECT (カラム名) FROM (テーブル名) で指定した列だけを表示できる。概念スキーマからテーブル名を確認してmessageを取り出してみよう。",
+    "dungeon.floor2.title": "튜토리얼2: 특정 열 선택하기",
+    "dungeon.floor2.story": "`SELECT (column) FROM (table)` 로 특정 열만 표시할 수 있습니다. 개념 스키마에서 테이블 이름을 확인하고 `message` 열을 찾아보세요.",
 
-    "dungeon.floor3.title": "チュートリアル3「WHEREで絞り込もう！」",
-    "dungeon.floor3.story": "SELECT ... FROM ... WHERE (条件式) で特定の条件に合う行だけを絞り込める。フルーツ(fruits)テーブルから、色(color)が 'Red' のフルーツの名前(name)と色(color)を表示してみよう。\n条件式は、カラム名 = '値' のように書く。他にも、<, >, <=, >=, <> などがある。",
+    "dungeon.floor3.title": "튜토리얼3: WHERE로 필터링",
+    "dungeon.floor3.story": "`SELECT ... FROM ... WHERE (condition)` 으로 행을 필터링합니다. `fruits` 테이블에서 `color = 'Red'` 인 행의 `name`과 `color`를 표시해보세요. 조건은 `column = 'value'` 형태이며, <, >, <=, >=, <> 등도 사용할 수 있습니다.",
 
-    "dungeon.floor4.title": "チュートリアル4「ORDER BYで並び替え！」",
-    "dungeon.floor4.story": "SELECT ... FROM ... ORDER BY (カラム名) [ASC|DESC] で指定した列によって並び替えられる。フルーツ(fruits)テーブルから、価格(price)が安い順に名前(name)と価格(price)を表示してみよう。\n例えば、ORDER BY id とすればidの昇順となる。デフォルトでASC (昇順)であるため、ASCは省略可能だが、DESC (降順)は明示的に書く必要がある。",
+    "dungeon.floor4.title": "튜토리얼4: ORDER BY로 정렬",
+    "dungeon.floor4.story": "`ORDER BY (column) [ASC|DESC]` 로 결과를 정렬합니다. `fruits` 테이블에서 `price` 오름차순으로 `name`과 `price`를 표시하세요. `ORDER BY id` 는 id의 오름차순이며, 기본은 ASC입니다. 내림차순은 DESC를 사용하세요.",
 
-    "dungeon.floor5.title": "チュートリアル5「GROUP BYで集計！」",
-    "dungeon.floor5.story": "SELECT ... FROM ... GROUP BY (カラム名) で指定した列によってグループ化できる。フルーツ(fruits)テーブルから、色(color)ごとにフルーツの数を数えてみよう。\n集計関数にはCOUNT, SUM, AVG, MIN, MAX などがある。\nCOUNT(*) は行数を数え、SELECT color, COUNT(*) FROM fruits のように使うことができる。",
+    "dungeon.floor5.title": "튜토리얼5: GROUP BY로 집계",
+    "dungeon.floor5.story": "`SELECT ... FROM ... GROUP BY (column)` 으로 그룹화할 수 있습니다. `fruits`에서 `color`별로 개수를 세어보세요. 집계 함수는 COUNT, SUM, AVG, MIN, MAX 등이 있습니다. `COUNT(*)` 는 행 수를 셉니다.",
 
-    "dungeon.floor6.title": "駆け出しのSELECT文",
-    "dungeon.floor6.story": "ダンジョンの入口だ。まずは商品(products)テーブルから、価格(price)が1000ゴールド以上のアイテムの名前(name)と価格(price)をすべて探し出せ。",
-    "dungeon.floor6.hint": "特定の条件に合う行を絞り込むには `WHERE` 句を使う。",
+    "dungeon.floor6.title": "초급 SELECT",
+    "dungeon.floor6.story": "던전 입구입니다. `products`에서 `price >= 1000` 인 아이템의 `name`과 `price`를 모두 찾아보세요.",
+    "dungeon.floor6.hint": "특정 조건으로 행을 좁히려면 `WHERE` 절을 사용하세요.",
+
+    "dungeon.floor7.title": "GROUP BY 도전",
+    "dungeon.floor7.story": "몬스터 소굴입니다. `monsters` 테이블에서 `species`별 몬스터 수를 세어보세요.",
+    "dungeon.floor7.hint": "그룹별로 집계하려면 `GROUP BY` 를 사용하세요.",
+
+    "dungeon.floor8.title": "INNER JOIN 주문",
+    "dungeon.floor8.story": "길드 홀입니다. `employees`와 `departments`를 JOIN하여 각 직원의 `emp_name` 과 `dept_name` 을 나열하세요.",
+    "dungeon.floor8.hint": "공통 열로 테이블을 연결하려면 `INNER JOIN ... ON ...` 을 사용하세요.",
+
+    "dungeon.floor9.title": "서브쿼리 미로",
+    "dungeon.floor9.story": "`sales` 테이블에서 '개발부' 직원들이 판매한 `quantity` 의 합계를 구하세요.",
+    "dungeon.floor9.hint": "WHERE 안에 다른 SELECT(서브쿼리)를 넣어 조건을 단계적으로 좁힐 수 있습니다.",
+
+    "dungeon.floor10.title": "보스전: 세일즈 골렘",
+    "dungeon.floor10.story": "보스전입니다! 각 부서별로 2025-02 이후의 `quantity` 합계를 구하고, 합계가 10 미만인 부서는 제외하세요.",
+    "dungeon.floor10.hint": "세 개의 테이블을 JOIN하고, WHERE로 날짜를 필터한 뒤 GROUP BY로 집계하고 HAVING으로 최종 필터를 적용하세요.",
     
-    "dungeon.floor7.title": "集計とGROUP BYの試練",
-    "dungeon.floor7.story": "モンスターの巣窟だ。モンスター(monsters)テーブルにて、種族(species)ごとのモンスターの数を数えよ。",
-    "dungeon.floor7.hint": "グループごとに集計するには `GROUP BY` 句を使う。",
+    "dungeon.floor11.title": "상품 카테고리로 필터하기",
+    "dungeon.floor11.story": "products 테이블에서 category = '무기' 인 상품의 name 과 price 를 표시한다.",
+    "dungeon.floor11.hint": "특정 카테고리만 가져오려면 `WHERE category = '무기'` 와 같이 쓴다.",
+
+    "dungeon.floor12.title": "몬스터의 HP로 필터하기",
+    "dungeon.floor12.story": "monsters 테이블에서 hp > 20 인 행의 name 과 hp 를 표시한다.",
+    "dungeon.floor12.hint": "숫자 비교에는 `>` 또는 `<` 를 사용한다.",
+
+    "dungeon.floor13.title": "부서로 필터하는 JOIN",
+    "dungeon.floor13.story": "employees 와 departments 를 INNER JOIN 하고, departments.dept_name = '개발부' 인 직원의 emp_name 과 dept_name 을 표시한다.",
+    "dungeon.floor13.hint": "JOIN 과 WHERE 를 조합해서, 조인 후 조건으로 필터할 수 있다.",
+
+    "dungeon.floor14.title": "색상별 그룹화 및 필터링",
+    "dungeon.floor14.story": "fruits 테이블을 color 로 GROUP BY 하고, COUNT(*) > 1 인 그룹만 표시한다.",
+    "dungeon.floor14.hint": "GROUP BY 와 HAVING 을 조합해서 그룹화 이후 조건을 필터할 수 있다.",
+
+    "dungeon.floor15.title": "서브쿼리 미로",
+    "dungeon.floor15.story": "판매 기록(sales) 테이블에서, '개발부' 직원의 판매 수량(quantity) 합계를 구하라.",
+    "dungeon.floor15.hint": "WHERE 절 안에 다른 SELECT 문(서브쿼리)을 넣으면 단계적으로 조건을 좁힐 수 있다.",
+
+    "dungeon.floor16.title": "판매 많이 한 직원 추출",
+    "dungeon.floor16.story": "employees 테이블에서, sales 에서 quantity > 5 를 판매한 emp_id 에 해당하는 emp_name 을 표시하라.",
+    "dungeon.floor16.hint": "IN 과 서브쿼리를 사용해 관련된 행을 추출할 수 있다.",
+
+    "dungeon.floor17.title": "부서별 판매 합계",
+    "dungeon.floor17.story": "sales 와 employees, departments 를 JOIN 하여, dept_name 별로 SUM(quantity) 를 표시한다.",
+    "dungeon.floor17.hint": "JOIN 과 GROUP BY 를 조합해 부서별 집계를 한다.",
+
+    "dungeon.floor18.title": "날짜로 필터한 집계",
+    "dungeon.floor18.story": "sale_date < '2025-02-01' 인 판매에 대해 dept_name 별로 SUM(quantity) 를 표시한다.",
+    "dungeon.floor18.hint": "날짜 비교는 문자열로 비교하는 구현도 있으므로 형식에 주의한다.",
+
+    "dungeon.floor19.title": "HAVING 으로 추가 필터링",
+    "dungeon.floor19.story": "2025‑02‑01 이후 판매를 부서별로 집계하고, SUM(quantity) > 5 인 부서만 표시한다.",
+    "dungeon.floor19.hint": "HAVING 은 GROUP BY 결과에 조건을 적용하는 데 사용된다.",
+
+    "dungeon.floor20.title": "최종 시련: 부서별 판매 필터",
+    "dungeon.floor20.story": "세 개의 테이블을 JOIN 하고, 2025‑02‑01 이후 판매를 부서별로 집계한 뒤, SUM(quantity) ≥ 10 인 부서를 표시하라.",
+    "dungeon.floor20.hint": "세 개의 테이블을 JOIN 하고, WHERE 로 날짜를 필터한 뒤, GROUP BY 로 집계하고, HAVING 으로 최종 필터를 수행하라!",
     
-    "dungeon.floor8.title": "INNER JOINの結合呪文",
-    "dungeon.floor8.story": "ギルドの広間だ。社員(employees)と部署(departments)を結合し、各社員の名前(emp_name)と部署名(dept_name)の一覧を作成せよ。",
-    "dungeon.floor8.hint": "2つのテーブルを共通の列で結びつけるには `INNER JOIN ... ON ...` を使う。",
-    
-    "dungeon.floor9.title": "サブクエリの迷宮",
-    "dungeon.floor9.story": "販売履歴(sales)テーブルにある、「開発部」の社員による売上の数量(quantity)の合計を求めよ。",
-    "dungeon.floor9.hint": "`WHERE`句の中に別の`SELECT`文（サブクエリ）を入れることで、段階的に条件を絞り込める。",
-
-    "dungeon.floor10.title": "ボス戦！ ゴーレム・オブ・セールス",
-    "dungeon.floor10.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",
-    "dungeon.floor10.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
-    
-    "dungeon.floor11.title": "中級の迷宮：サブクエリ応用",
-    "dungeon.floor11.story": "サブクエリを使って複雑な条件を作成し、特定の顧客の購入履歴を分析せよ。",
-    "dungeon.floor11.hint": "サブクエリはネストして使える。外側のクエリの条件に内側の結果を組み込むと良い。",
-
-    "dungeon.floor12.title": "結合の深淵",
-    "dungeon.floor12.story": "複数のテーブルを結合して、従業員ごとの売上集計を算出せよ。",
-    "dungeon.floor12.hint": "JOINでテーブルを結合し、GROUP BYで集計すると便利だ。",
-
-    "dungeon.floor13.title": "日付フィルタの試練",
-    "dungeon.floor13.story": "特定の期間での売上を抽出し、日付関数を使って月別集計を行え。",
-    "dungeon.floor13.hint": "日付型の取り扱いに注意。DATEや文字列のフォーマットを揃えること。",
-
-    "dungeon.floor14.title": "集計関数の祭壇",
-    "dungeon.floor14.story": "SUMやAVGを駆使して商品の売れ筋を分析せよ。",
-    "dungeon.floor14.hint": "集計関数はNULLを無視することがある。必要に応じてCOALESCEを使おう。",
-
-    "dungeon.floor15.title": "階層的クエリの扉",
-    "dungeon.floor15.story": "階層構造を持つデータに対して再帰的なクエリを模した解析を行え。",
-    "dungeon.floor15.hint": "再帰クエリは実装していないが、自己結合やサブクエリで類似の処理が可能だ。",
-
-    "dungeon.floor16.title": "複雑なHAVING戦",
-    "dungeon.floor16.story": "GROUP BYとHAVINGを組み合わせて、条件に合うグループのみを抽出せよ。",
-    "dungeon.floor16.hint": "HAVINGはGROUP BYの後に評価される。集計結果に対して条件を書こう。",
-
-    "dungeon.floor17.title": "ウィンドウ関数の幻影",
-    "dungeon.floor17.story": "ウィンドウ関数の代替として、サブクエリで順位付けを模倣してみよう。",
-    "dungeon.floor17.hint": "本物のウィンドウ関数はないが、サブクエリで順位付けを実現できる。",
-
-    "dungeon.floor18.title": "パフォーマンスの試錬",
-    "dungeon.floor18.story": "大量データを扱う際の絞り込みと結合の順序を考え、効率的なクエリを書け。",
-    "dungeon.floor18.hint": "必要な列だけを選び、不要な結合や集計を避けると良い。",
-
-    "dungeon.floor19.title": "NULLの迷宮",
-    "dungeon.floor19.story": "NULLが混在するデータで正しい集計や比較を行えるクエリを作れ。",
-    "dungeon.floor19.hint": "NULLの扱いを忘れずに。IS NULLやCOALESCEを適切に使おう。",
-
-    "dungeon.floor20.title": "最終決戦：総合演習",
-    "dungeon.floor20.story": "これまで学んだ全ての技を使い、複雑な要件を満たす1つのクエリを作成せよ。",
-    "dungeon.floor20.hint": "設計→分割→検証を繰り返して複雑なクエリを完成させよう。",
     "sql.keyword.select.desc": "테이블에서 열을 선택하는 기본 SQL 구문.",
     "sql.keyword.from.desc": "데이터를 가져올 테이블을 지정.",
     "sql.keyword.where.desc": "조건에 따라 행을 필터링.",
     "sql.keyword.group.desc": "그룹화를 시작함.",
     "sql.keyword.by.desc": "그룹화 또는 정렬의 키를 지정.",
     "sql.keyword.inner.desc": "내부 조인을 수행.",
+    "sql.keyword.outer.desc": "외부 조인을 수행.",
+    "sql.keyword.left.desc": "왼쪽 외부 조인을 수행.",
+    "sql.keyword.right.desc": "오른쪽 외부 조인을 수행.",
     "sql.keyword.join.desc": "테이블을 결합함.",
     "sql.keyword.on.desc": "조인 조건을 지정.",
     "sql.keyword.as.desc": "열이나 테이블에 별칭을 지정.",
     "sql.keyword.sum.desc": "합계를 계산하는 집계 함수.",
+    "sql.keyword.avg.desc": "평균을 계산하는 집계 함수.",
+    "sql.keyword.min.desc": "최솟값을 계산하는 집계 함수.",
+    "sql.keyword.max.desc": "최댓값을 계산하는 집계 함수.",
     "sql.keyword.count.desc": "행의 개수를 세는 집계 함수.",
     "sql.keyword.having.desc": "그룹화 후 조건을 지정.",
     "sql.keyword.in.desc": "값이 집합에 포함되는지 확인."

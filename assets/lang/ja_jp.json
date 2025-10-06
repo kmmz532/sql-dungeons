@@ -148,9 +148,9 @@
     "dungeon.floor8.story": "ギルドの広間だ。社員(employees)と部署(departments)を結合し、各社員の名前(emp_name)と部署名(dept_name)の一覧を作成せよ。",
     "dungeon.floor8.hint": "2つのテーブルを共通の列で結びつけるには `INNER JOIN ... ON ...` を使う。",
     
-    "dungeon.floor9.title": "有料な果物を見つけて",
+    "dungeon.floor9.title": "価格が150未満の果物を探す",
     "dungeon.floor9.story": "fruitsテーブルから price < 150 の行の name, price を表示する。",
-    "dungeon.floor9.hint": "priceが150以下の行を絞るには `WHERE` 句を使う。",
+    "dungeon.floor9.hint": "priceが150未満の行を絞るには `WHERE` 句を使い、price < 150 と書く。",
     
     "dungeon.floor10.title": "メッセージを取得して",
     "dungeon.floor10.story": "table001 テーブルから id = 2 の行の message を取り出す。",
@@ -202,10 +202,16 @@
     "sql.keyword.group.desc": "グループ化の開始を示す。",
     "sql.keyword.by.desc": "グループ化や並び替えのキーを指定。",
     "sql.keyword.inner.desc": "内部結合を行う。",
+    "sql.keyword.outer.desc": "外部結合を行う。",
+    "sql.keyword.left.desc": "左外部結合を行う。",
+    "sql.keyword.right.desc": "右外部結合を行う。",
     "sql.keyword.join.desc": "テーブル同士を結合する。",
     "sql.keyword.on.desc": "結合条件を指定する。",
     "sql.keyword.as.desc": "列やテーブルに別名を付ける。",
     "sql.keyword.sum.desc": "合計値を計算する集約関数。",
+    "sql.keyword.avg.desc": "平均値を計算する集約関数。",
+    "sql.keyword.min.desc": "最小値を計算する集約関数。",
+    "sql.keyword.max.desc": "最大値を計算する集約関数。",
     "sql.keyword.count.desc": "件数を数える集約関数。",
     "sql.keyword.having.desc": "グループ化後の条件を指定。",
     "sql.keyword.in.desc": "指定した集合に値が含まれるか判定。"
