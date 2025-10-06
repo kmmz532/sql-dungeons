@@ -132,7 +132,7 @@ function executeQuery(game) {
     if (!validateQuery(game, query, false)) return;
 
     // フロアの模範解答と照合
-    const isCorrect = sqlParser.validate(query, floorData);
+    const isCorrect = sqlParser.validate(query, floorData, game.gameData.mockDatabase);
 
     game.updateUI();
 
@@ -140,7 +140,7 @@ function executeQuery(game) {
         handleCorrectAnswer(game, floorData, query);
         return;
     }
-    
+
     try {
         const emuResults = sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase);
         if (Array.isArray(emuResults) && emuResults.length > 0) {
