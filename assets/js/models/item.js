@@ -23,6 +23,12 @@ export class Item {
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
+            if (typeof this.name === 'string' && this.name.startsWith('item.sqldungeons.')) {
+                const resolved = i18n.t(this.name);
+                if (locale && locale !== prev) i18n.locale = prev;
+                if (resolved && !resolved.startsWith('item.sqldungeons.')) return resolved;
+            }
+
             const key = `item.sqldungeons.${this.id}`;
             let name = i18n.t(key);
             if (locale && locale !== prev) i18n.locale = prev;
@@ -44,6 +50,12 @@ export class Item {
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
+            if (typeof this.desc === 'string' && this.desc.startsWith('item.sqldungeons.')) {
+                const resolved = i18n.t(this.desc);
+                if (locale && locale !== prev) i18n.locale = prev;
+                if (resolved && !resolved.startsWith('item.sqldungeons.')) return resolved;
+            }
+
             const key = `item.sqldungeons.${this.id}.desc`;
             let desc = i18n.t(key);
             if (locale && locale !== prev) i18n.locale = prev;
