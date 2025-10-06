@@ -1,4 +1,26 @@
 {
+    "table001": [
+        { "id": 1, "message": "Hello World!!" },
+        { "id": 2, "message": "'SELECT * FROM (テーブル名);' はテーブルの全行を取得するSQL文です。'*' はワイルドカードと呼び、全ての列を選択します。" },
+        { "id": 3, "message": "「次のフロアへ進む」から次へ進みましょう！" }
+    ],
+    "table002": [
+        { "id": 1, "message": "'SELECT (カラム名1), (カラム名2) FROM (テーブル名);' は特定の列を選択するSQL文です。" },
+        { "id": 2, "message": "複数の列を選択する場合、カラム名はカンマで区切ります。" },
+        { "id": 3, "message": "ここでカラムとはcolumnのことで日本語で列という意味です。" }
+    ],
+    "fruits": [
+        { "id": 1, "name": "Apple", "color": "Red", "price": 100 },
+        { "id": 2, "name": "Banana", "color": "Yellow", "price": 80 },
+        { "id": 3, "name": "Grape", "color": "Purple", "price": 200 },
+        { "id": 4, "name": "Orange", "color": "Orange", "price": 90 },
+        { "id": 5, "name": "Kiwi", "color": "Green", "price": 150 },
+        { "id": 6, "name": "Pineapple", "color": "Yellow", "price": 300 },
+        { "id": 7, "name": "Melon", "color": "Green", "price": 500 },
+        { "id": 8, "name": "Cherry", "color": "Red", "price": 250 },
+        { "id": 9, "name": "Blueberry", "color": "Blue", "price": 400 },
+        { "id": 10, "name": "Lemon", "color": "Yellow", "price": 120 }
+    ],
     "products": [
         { "product_id": 1, "name": "薬草", "category": "回復", "price": 50 },
         { "product_id": 2, "name": "鋼の剣", "category": "武器", "price": 1500 },
@@ -31,9 +53,22 @@
         { "sale_id": 3, "emp_id": 103, "quantity": 8, "sale_date": "2025-02-05" },
         { "sale_id": 4, "emp_id": 102, "quantity": 12, "sale_date": "2025-02-08" },
         { "sale_id": 5, "emp_id": 101, "quantity": 3, "sale_date": "2025-03-01" }
-    ]
-    ,
+    ],
     "__schema": {
+        "table001": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "message": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "table002": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "message": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
         "products": {
             "columns": {
                 "product_id": { "type": "integer", "pk": true, "notNull": true },
