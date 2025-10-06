@@ -33,6 +33,12 @@ export class SelectClause extends AbstractClause {
             return qual ? row[qual] : undefined;
         };
 
+        // enhanced fallback: match by alphanumeric-only keys (helps with COUNT(*) and functions)
+        // moved outside resolve because it needs access to resolved result; we'll wrap resolve calls where needed
+
+        // helper: strip non-alphanumeric and lowercase
+        const alnum = s => String(s || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+
         const result = table.map(row => {
             const obj = {};
             for (const col of selectCols) {
@@ -41,9 +47,22 @@ export class SelectClause extends AbstractClause {
                 } else if (/ as /i.test(col)) {
                     // エイリアス付き: col as alias
                     const [orig, alias] = col.split(/ as /i).map(s => s.trim());
-                    obj[alias] = resolve(row, orig);
+                    let val = resolve(row, orig);
+                    if (val === undefined) {
+                        // try alphanumeric fallback on row keys
+                        const target = alnum(orig);
+                        const foundKey = Object.keys(row).find(k => alnum(k) === target);
+                        if (foundKey) val = row[foundKey];
+                    }
+                    obj[alias] = val;
                 } else {
-                    obj[col] = resolve(row, col);
+                    let val = resolve(row, col);
+                    if (val === undefined) {
+                        const target = alnum(col);
+                        const foundKey = Object.keys(row).find(k => alnum(k) === target);
+                        if (foundKey) val = row[foundKey];
+                    }
+                    obj[col] = val;
                 }
             }
             return obj;
