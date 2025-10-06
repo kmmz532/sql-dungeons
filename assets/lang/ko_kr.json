@@ -156,6 +156,45 @@
     "dungeon.floor10.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",
     "dungeon.floor10.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
     
+    "dungeon.floor11.title": "中級の迷宮：サブクエリ応用",
+    "dungeon.floor11.story": "サブクエリを使って複雑な条件を作成し、特定の顧客の購入履歴を分析せよ。",
+    "dungeon.floor11.hint": "サブクエリはネストして使える。外側のクエリの条件に内側の結果を組み込むと良い。",
+
+    "dungeon.floor12.title": "結合の深淵",
+    "dungeon.floor12.story": "複数のテーブルを結合して、従業員ごとの売上集計を算出せよ。",
+    "dungeon.floor12.hint": "JOINでテーブルを結合し、GROUP BYで集計すると便利だ。",
+
+    "dungeon.floor13.title": "日付フィルタの試練",
+    "dungeon.floor13.story": "特定の期間での売上を抽出し、日付関数を使って月別集計を行え。",
+    "dungeon.floor13.hint": "日付型の取り扱いに注意。DATEや文字列のフォーマットを揃えること。",
+
+    "dungeon.floor14.title": "集計関数の祭壇",
+    "dungeon.floor14.story": "SUMやAVGを駆使して商品の売れ筋を分析せよ。",
+    "dungeon.floor14.hint": "集計関数はNULLを無視することがある。必要に応じてCOALESCEを使おう。",
+
+    "dungeon.floor15.title": "階層的クエリの扉",
+    "dungeon.floor15.story": "階層構造を持つデータに対して再帰的なクエリを模した解析を行え。",
+    "dungeon.floor15.hint": "再帰クエリは実装していないが、自己結合やサブクエリで類似の処理が可能だ。",
+
+    "dungeon.floor16.title": "複雑なHAVING戦",
+    "dungeon.floor16.story": "GROUP BYとHAVINGを組み合わせて、条件に合うグループのみを抽出せよ。",
+    "dungeon.floor16.hint": "HAVINGはGROUP BYの後に評価される。集計結果に対して条件を書こう。",
+
+    "dungeon.floor17.title": "ウィンドウ関数の幻影",
+    "dungeon.floor17.story": "ウィンドウ関数の代替として、サブクエリで順位付けを模倣してみよう。",
+    "dungeon.floor17.hint": "本物のウィンドウ関数はないが、サブクエリで順位付けを実現できる。",
+
+    "dungeon.floor18.title": "パフォーマンスの試錬",
+    "dungeon.floor18.story": "大量データを扱う際の絞り込みと結合の順序を考え、効率的なクエリを書け。",
+    "dungeon.floor18.hint": "必要な列だけを選び、不要な結合や集計を避けると良い。",
+
+    "dungeon.floor19.title": "NULLの迷宮",
+    "dungeon.floor19.story": "NULLが混在するデータで正しい集計や比較を行えるクエリを作れ。",
+    "dungeon.floor19.hint": "NULLの扱いを忘れずに。IS NULLやCOALESCEを適切に使おう。",
+
+    "dungeon.floor20.title": "最終決戦：総合演習",
+    "dungeon.floor20.story": "これまで学んだ全ての技を使い、複雑な要件を満たす1つのクエリを作成せよ。",
+    "dungeon.floor20.hint": "設計→分割→検証を繰り返して複雑なクエリを完成させよう。",
     "sql.keyword.select.desc": "테이블에서 열을 선택하는 기본 SQL 구문.",
     "sql.keyword.from.desc": "데이터를 가져올 테이블을 지정.",
     "sql.keyword.where.desc": "조건에 따라 행을 필터링.",

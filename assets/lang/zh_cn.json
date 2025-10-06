@@ -154,7 +154,46 @@
     "dungeon.floor10.title": "ボス戦！ ゴーレム・オブ・セールス",
     "dungeon.floor10.story": "ボス戦だ！部署ごとに、2025年2月以降の売上数量(quantity)の合計を求めよ。ただし合計数量が10未満の部署は表示しないこと。",
     "dungeon.floor10.hint": "3つのテーブルをJOINし、WHEREで日付を絞り、GROUP BYで集計し、HAVINGで最終絞込を行うのだ！",
+    
+    "dungeon.floor11.title": "中级迷宫：子查询进阶",
+    "dungeon.floor11.story": "使用子查询构造复杂条件，分析特定客户的购买历史。",
+    "dungeon.floor11.hint": "子查询可以嵌套使用。将内部查询的结果用于外部条件。",
 
+    "dungeon.floor12.title": "连接深渊",
+    "dungeon.floor12.story": "连接多个表以计算每位员工的销售汇总。",
+    "dungeon.floor12.hint": "使用 JOIN 连接表，并结合 GROUP BY 进行汇总。",
+
+    "dungeon.floor13.title": "日期过滤的试炼",
+    "dungeon.floor13.story": "提取特定期间的销售数据，使用日期函数按月汇总。",
+    "dungeon.floor13.hint": "注意日期类型的处理，确保 DATE 与字符串格式一致。",
+
+    "dungeon.floor14.title": "聚合函数祭坛",
+    "dungeon.floor14.story": "使用 SUM 与 AVG 分析商品的畅销程度。",
+    "dungeon.floor14.hint": "聚合函数有时会忽略 NULL，根据情况使用 COALESCE。",
+
+    "dungeon.floor15.title": "层次查询之门",
+    "dungeon.floor15.story": "对层次结构数据进行类似递归查询的分析。",
+    "dungeon.floor15.hint": "虽然没有真正的递归查询，但可使用自连接或子查询模拟。",
+
+    "dungeon.floor16.title": "复杂的 HAVING 对决",
+    "dungeon.floor16.story": "结合 GROUP BY 与 HAVING，筛选满足条件的分组。",
+    "dungeon.floor16.hint": "HAVING 在 GROUP BY 后评估，对聚合结果写条件。",
+
+    "dungeon.floor17.title": "窗口函数幻影",
+    "dungeon.floor17.story": "模拟窗口函数的行为，用子查询实现排名等功能。",
+    "dungeon.floor17.hint": "没有真正的窗口函数，但可用子查询模拟排序/排名。",
+
+    "dungeon.floor18.title": "性能试炼",
+    "dungeon.floor18.story": "考虑筛选与连接的顺序，在大量数据中写出高效查询。",
+    "dungeon.floor18.hint": "只选择必要的列，避免不必要的连接与聚合。",
+
+    "dungeon.floor19.title": "NULL 迷宫",
+    "dungeon.floor19.story": "在包含 NULL 的数据中，编写能正确聚合和比较的查询。",
+    "dungeon.floor19.hint": "注意 NULL 的处理，恰当使用 IS NULL 或 COALESCE。",
+
+    "dungeon.floor20.title": "终极之战：综合演练",
+    "dungeon.floor20.story": "运用迄今为止学到的所有技能，编写一个满足复杂需求的查询。",
+    "dungeon.floor20.hint": "通过设计→拆分→验证的循环来完成复杂查询。",
     "sql.keyword.select.desc": "用于从表中选择列的基本SQL子句。",
     "sql.keyword.from.desc": "指定要检索数据的表。",
     "sql.keyword.where.desc": "根据条件筛选行。",
