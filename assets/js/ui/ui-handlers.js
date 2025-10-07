@@ -103,9 +103,21 @@ function executeQuery(game) {
     }
 
     if (!isSandbox) {
+        // Do not spend energy if this floor was already cleared by the player
+        try {
+            const floorKey = String(game.currentFloor);
+            if (!game.player.clearedFloors || !game.player.clearedFloors.has(floorKey)) {
+                if (!game.player.spendEnergy(EXECUTE_COST)) {
+                    dom.showResult(game.i18n.t('message.no_energy'), 'error');
+                    return;
+                }
+            }
+        } catch (e) {
+            // Fallback: spend energy normally
             if (!game.player.spendEnergy(EXECUTE_COST)) {
-            dom.showResult(game.i18n.t('message.no_energy'), 'error');
-            return;
+                dom.showResult(game.i18n.t('message.no_energy'), 'error');
+                return;
+            }
         }
     }
 
@@ -343,6 +355,17 @@ function handleCorrectAnswer(game, floorData, query) {
         game.player.addEnergy(floorData.reward.energy || 0);
         (floorData.reward.items || []).forEach(item => game.player.addItem(item));
     }
+    // Give a one-time "drink" reward on first clear of this floor (+5 energy)
+    try {
+        const floorKey = String(game.currentFloor);
+        if (!game.player.clearedFloors) game.player.clearedFloors = new Set();
+        if (!game.player.clearedFloors.has(floorKey)) {
+            const DRINK_REWARD = 5;
+            game.player.addEnergy(DRINK_REWARD);
+            game.dom.showFeedback(game.i18n.t('message.purchase_success', game.i18n.t('item.sqldungeons.java_coffee')) || `+${DRINK_REWARD} E`);
+            game.player.clearedFloors.add(floorKey);
+        }
+    } catch (e) { console.error('Failed to give drink reward', e); }
     dom.showResult(game.i18n.t('message.correct_result'), 'success');
     dom.displayTable(sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase));
     dom.elements['floor-actions-container'].classList.remove('hidden');

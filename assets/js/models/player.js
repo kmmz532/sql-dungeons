@@ -8,6 +8,7 @@ export class Player {
         this.purchasedHints = new Set();
         this.specialItems = { kuNext: 0 };
         this.consumableItems = {};
+        this.clearedFloors = new Set();
     }
 
     addItem(item) {
@@ -60,6 +61,7 @@ export class Player {
             purchasedHints: [...this.purchasedHints],
             specialItems: this.specialItems,
             consumableItems: this.consumableItems
+            ,clearedFloors: [...this.clearedFloors]
         };
     }
 
@@ -71,6 +73,7 @@ export class Player {
         player.purchasedHints = new Set(data.purchasedHints);
         player.specialItems = data.specialItems || { kuNext: 0 };
         player.consumableItems = data.consumableItems || {};
+        player.clearedFloors = new Set(data.clearedFloors || []);
         return player;
     }
 }
