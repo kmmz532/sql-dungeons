@@ -103,9 +103,11 @@ function executeQuery(game) {
     }
 
     if (!isSandbox) {
-        // Do not spend energy if this floor was already cleared by the player
+        // Do not spend energy if this floor was already cleared by the player.
+        // Use the same canonical floor id as handleCorrectAnswer (floorData.floor || floorData.id) to avoid 0-based vs 1-based mismatch.
         try {
-            const floorKey = String(game.currentFloor);
+            const floorDataTmp = game.gameData?.dungeonData?.floors?.[game.currentFloor] || {};
+            const floorKey = String(floorDataTmp && (floorDataTmp.floor || floorDataTmp.id) ? (floorDataTmp.floor || floorDataTmp.id) : game.currentFloor);
             if (!game.player.clearedFloors || !game.player.clearedFloors.has(floorKey)) {
                 if (!game.player.spendEnergy(EXECUTE_COST)) {
                     dom.showResult(game.i18n.t('message.no_energy'), 'error');
@@ -120,6 +122,12 @@ function executeQuery(game) {
             }
         }
     }
+
+    // DEBUG: log current floor and cleared floors for troubleshooting
+    try {
+        try { console.log('[debug] executeQuery - currentFloor:', game.currentFloor); } catch(e){}
+        try { console.log('[debug] executeQuery - player.clearedFloors:', game.player && game.player.clearedFloors ? Array.from(game.player.clearedFloors) : null); } catch(e){}
+    } catch (e) {}
 
 
     const floorData = game.gameData?.dungeonData?.floors?.[game.currentFloor] || {};
@@ -350,22 +358,30 @@ function handleCorrectAnswer(game, floorData, query) {
     }
 
     try { if (game && typeof game.markDirty === 'function') game.markDirty(); } catch(e){}
-    if (floorData.reward) {
-        game.player.addGold(floorData.reward.gold || 0);
-        game.player.addEnergy(floorData.reward.energy || 0);
-        (floorData.reward.items || []).forEach(item => game.player.addItem(item));
-    }
-    // Give a one-time "drink" reward on first clear of this floor (+5 energy)
+    // Apply dungeon reward only on the first correct clear of this floor
     try {
-        const floorKey = String(game.currentFloor);
+        const floorId = (floorData && (floorData.floor || floorData.id)) ? String(floorData.floor || floorData.id) : String(game.currentFloor);
         if (!game.player.clearedFloors) game.player.clearedFloors = new Set();
-        if (!game.player.clearedFloors.has(floorKey)) {
-            const DRINK_REWARD = 5;
-            game.player.addEnergy(DRINK_REWARD);
-            game.dom.showFeedback(game.i18n.t('message.purchase_success', game.i18n.t('item.sqldungeons.java_coffee')) || `+${DRINK_REWARD} E`);
-            game.player.clearedFloors.add(floorKey);
+        // DEBUG: log before applying reward
+        try { console.log('[debug] handleCorrectAnswer - floorId:', floorId); } catch(e){}
+        try { console.log('[debug] handleCorrectAnswer - clearedFloors before:', Array.from(game.player.clearedFloors)); } catch(e){}
+        if (!game.player.clearedFloors.has(floorId)) {
+            // first time clear: grant reward from dungeon-data.json
+            try { console.log('[debug] handleCorrectAnswer - granting reward for floor', floorId, floorData.reward); } catch(e){}
+            if (floorData.reward) {
+                game.player.addGold(floorData.reward.gold || 0);
+                game.player.addEnergy(floorData.reward.energy || 0);
+                (floorData.reward.items || []).forEach(item => game.player.addItem(item));
+            }
+            // mark cleared to prevent future rewards for this floor
+            game.player.clearedFloors.add(floorId);
+            try { console.log('[debug] handleCorrectAnswer - clearedFloors after add:', Array.from(game.player.clearedFloors)); } catch(e){}
+            // Update UI immediately so player sees gold/energy changes from the reward
+            try { if (game && typeof game.updateUI === 'function') game.updateUI(); } catch (e) { console.error('Failed to update UI after reward', e); }
+        } else {
+            try { console.log('[debug] handleCorrectAnswer - floor already cleared, skipping reward:', floorId); } catch(e){}
         }
-    } catch (e) { console.error('Failed to give drink reward', e); }
+    } catch (e) { console.error('Failed to apply/mark floor reward', e); }
     dom.showResult(game.i18n.t('message.correct_result'), 'success');
     dom.displayTable(sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase));
     dom.elements['floor-actions-container'].classList.remove('hidden');
