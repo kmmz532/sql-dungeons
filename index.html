@@ -5,10 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="SQLの基礎を学ぶためのRPG風学習ゲーム">
         <title data-i18n="app.title">SQLダンジョン</title>
+        <link rel="icon" type="image/x-icon" href="./favicon.ico">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="./assets/css/styles.css">
+        <link rel="manifest" href="./manifest.json">
+        <meta name="theme-color" content="#1a1a2e">
     </head>
     <body>
         <div class="container" role="application" aria-label="SQLダンジョンゲーム">
@@ -20,11 +23,9 @@
                 </div>
                 <div class="content" role="main">
                     <p data-i18n="app.intro.text">SQLの呪文を習得し、ダンジョンの謎を解き明かせ！<br>
-                    クエリ実行にはエネルギーを、ヒントにはゴールドを消費する。<br>
-                    賢くリソースを管理し、最深部を目指せ！</p>
                     <div class="start-buttons">
-                        <button type="button" class="start-btn" id="start-button" data-i18n="button.start">新しく始める</button>
-                        <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">ロードして再開</button>
+                        <button type="button" class="start-btn" id="start-button" data-i18n="button.start">新しくプレイ</button>
+                        <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">コンティニュー</button>
                         <button type="button" class="sandbox-btn" id="sandbox-button" data-i18n="button.sandbox">サンドボックス</button>
                     </div>
                 </div>
