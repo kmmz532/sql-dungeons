@@ -356,40 +356,54 @@ export class SQLParser {
                         const isNot = !!existsGlobalMatch[1];
                         const sub = existsGlobalMatch[2];
                         if (SQLParser.DEBUG) console.debug('[SQLParser] preprocessing EXISTS subquery (may be correlated)=', sub);
-                        // If subquery references outer alias like table.col, do per-row evaluation
-                        // Detect a pattern of alias.column where alias matches base alias
-                        const baseAlias = baseName;
-                        // detect baseAlias.column or equality patterns like oi.dept_id = o.dept_id
-                        const aliasRefRe = new RegExp(`\\b(?:${baseAlias}\\.\\w+|\\w+\\.\\w+\\s*=\\s*${baseAlias}\\.\\w+)\\b`, 'i');
-                        if (aliasRefRe.test(sub)) {
-                            // We'll filter resultTable by evaluating the subquery for each outer row,
-                            // replacing occurrences of alias.col with literal values.
+                        const aliasRefRe = /\b(\w+)\.(\w+)\b/;
+                        const isCorrelated = aliasRefRe.test(sub);
+                        if (isCorrelated) {
                             const newFiltered = [];
                             for (const outerRow of resultTable) {
-                                // Build subqueryWithLiterals by replacing alias.column with literal from outerRow
-                                let sq = sub;
-                                // Replace all occurrences of baseAlias.col with literal
-                                sq = sq.replace(new RegExp(`${baseAlias}\\.(\\w+)`, 'gi'), (m, colName) => {
-                                    // find value in outerRow keys (might be alias.col or just col)
-                                    const fullKey = Object.keys(outerRow).find(k => k.toLowerCase().endsWith('.' + colName.toLowerCase())) || Object.keys(outerRow).find(k => k.toLowerCase() === colName.toLowerCase());
-                                    const v = fullKey ? outerRow[fullKey] : undefined;
-                                    if (v === null || v === undefined) return 'NULL';
-                                    if (typeof v === 'number') return String(v);
-                                    return `'${String(v).replace(/'/g, "''")}'`;
-                                });
-                                // Evaluate subquery
-                                const subRows = this.emulate(sq, currentFloor, mockDatabase) || [];
+                                const dbCopy = Object.assign({}, mockDatabase);
+                                const outerEntry = {};
+                                for (const k of Object.keys(outerRow)) {
+                                    const parts = String(k).split('.');
+                                    const colName = parts.length > 1 ? parts.pop() : parts[0];
+                                    outerEntry[colName] = outerRow[k];
+                                }
+                                dbCopy['__outer'] = [outerEntry];
+
+
+                                const outerAliases = new Set();
+                                for (const k of Object.keys(outerRow)) {
+                                    if (String(k).includes('.')) {
+                                        outerAliases.add(String(k).split('.')[0]);
+                                    }
+                                }
+                                let subForEval = sub;
+                                if (outerAliases.size > 0) {
+                                    const esc = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                    const alt = Array.from(outerAliases).map(a => esc(a)).join('|');
+                                    const re = new RegExp(`\\b(?:${alt})\\.([a-zA-Z_][a-zA-Z0-9_]*)`, 'g');
+                                    subForEval = sub.replace(re, (m, col) => {
+                                        const fullKey = Object.keys(outerRow).find(k => k.toLowerCase().endsWith('.' + col.toLowerCase())) || Object.keys(outerRow).find(k => k.toLowerCase() === col.toLowerCase());
+                                        const v = fullKey ? outerRow[fullKey] : undefined;
+                                        if (v === null || v === undefined) return 'NULL';
+                                        if (typeof v === 'number') return String(v);
+                                        // escape single quotes
+                                        return `'${String(v).replace(/'/g, "''")}'`;
+                                    });
+                                }
+
+                                // Evaluate the subquery against the dbCopy
+                                const subRows = this.emulate(subForEval, currentFloor, dbCopy) || [];
                                 const has = Array.isArray(subRows) && subRows.length > 0;
                                 const keep = isNot ? !has : has;
                                 if (SQLParser.DEBUG) {
-                                    try { console.debug('[SQLParser] EXISTS per-row check, outerRow sample=', Object.keys(outerRow).slice(0,4).reduce((o,k)=>{o[k]=outerRow[k];return o},{}) , 'sq=', sq, 'subRows=', subRows.length); } catch(e){}
+                                    try { console.debug('[SQLParser] EXISTS per-row inject, outer sample=', Object.keys(outerEntry).slice(0,4).reduce((o,k)=>{o[k]=outerEntry[k];return o},{}) , 'subForEval=', subForEval, 'subRows=', subRows.length); } catch(e){}
                                 }
                                 if (keep) newFiltered.push(outerRow);
                             }
-                            // Replace resultTable with filtered rows and clear parsed.where to avoid double-filtering
                             resultTable = newFiltered;
                             parsed.where = null;
-                            if (SQLParser.DEBUG) console.debug('[SQLParser] EXISTS per-row filtered, remaining=', resultTable.length);
+                            if (SQLParser.DEBUG) console.debug('[SQLParser] EXISTS per-row injected filtered, remaining=', resultTable.length);
                         } else {
                             // Non-correlated: evaluate once globally
                             const subRows = this.emulate(sub, currentFloor, mockDatabase) || [];
