@@ -68,6 +68,12 @@
     "message.floor_label": "Floor %s",
     "confirm.unsaved_changes": "You have unsaved changes. Return to title without saving?",
     "button.back_to_title": "Back to title",
+    "ui.back_to_title": "Back to title",
+    "ui.prev_floor": "Go back to previous floor",
+    "ui.gold_status": "Gold: %s",
+    "ui.energy_status": "Energy: %s",
+    "ui.schema_table": "Table: %s",
+    "ui.schema_column": "Column: %s",
 
     "settings.title": "Settings",
     "settings.language_label": "Language:",

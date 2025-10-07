@@ -16,9 +16,7 @@ export class DOMManager {
         // 外部で言語変更を受け取るためのコールバックを保持できるように
         this.onLanguageChange = null;
 
-        this.setupEventListeners();
-
-        // ツールチップ
+        // ツールチップ要素はイベントリスナのセットアップ前に生成しておく
         try {
             this.tooltipEl = document.createElement('div');
             this.tooltipEl.id = 'tooltip';
@@ -26,6 +24,11 @@ export class DOMManager {
             this.tooltipEl.style.display = 'none';
             document.body.appendChild(this.tooltipEl);
         } catch (e) { this.tooltipEl = null; }
+
+        this.setupEventListeners();
+
+        // Apply i18n-derived UI tooltips now that i18n may be available
+        try { this.applyI18nToUI(); } catch(e) {}
     }
 
     initializeElements() {
@@ -45,6 +48,48 @@ export class DOMManager {
         ];
         ids.forEach(id => {
             this.elements[id] = document.getElementById(id);
+        });
+        // Note: we intentionally avoid setting native `title` attributes here; we use the custom .tooltip element only
+    }
+
+    // Apply i18n strings to common UI elements (not only modals)
+    applyI18nToUI() {
+        if (!this.i18n) return;
+        const t = (k, ...args) => { try { return this.i18n.t(k, ...args); } catch(e) { return null; } };
+        const map = {
+            'back-to-title-button': 'ui.back_to_title',
+            'save-button': 'ui.save',
+            'execute-btn': 'ui.execute',
+            'prev-floor-btn': 'ui.prev_floor',
+        };
+        // add gold/energy mapping but pick the best available key (support ui.gold, ui.gold_status, status.gold)
+        const pickKey = (candidates) => {
+            for (const k of candidates) {
+                try {
+                    const val = this.i18n.t(k);
+                    if (val && val !== k) return k;
+                } catch(e) {}
+            }
+            return candidates[0];
+        };
+        try {
+            const goldKey = pickKey(['ui.gold','ui.gold_status','status.gold']);
+            const energyKey = pickKey(['ui.energy','ui.energy_status','status.energy']);
+            map['gold-status'] = goldKey;
+            map['energy-status'] = energyKey;
+        } catch(e) { /* ignore */ }
+        Object.keys(map).forEach(id => {
+            try {
+                const el = this.elements[id] || document.getElementById(id);
+                if (!el) return;
+                const key = map[id];
+                const txt = t(key);
+                // Only use the i18n key if a real translation exists (i18n.t sometimes returns the key)
+                if (txt && txt !== key) {
+                    // Do NOT set native title; instead store the i18n-key so the custom tooltip can use it
+                    el.setAttribute('data-i18n-title', key);
+                }
+            } catch (e) {}
         });
     }
 
@@ -154,36 +199,135 @@ export class DOMManager {
         const settingsSaveBtn = document.getElementById('settings-save');
         const settingsCancelBtn = document.getElementById('settings-cancel');
         if (settingsSaveBtn) settingsSaveBtn.addEventListener('click', async () => {
-            // apply pendingSettings to actual settings and persist
             if (this.pendingSettings) {
                 this.settings = Object.assign({}, this.settings, this.pendingSettings);
                 this.saveSettings();
-                // Apply language change if any
                 if (typeof this.onLanguageChange === 'function') {
                     try { await this.onLanguageChange(this.settings.language); } catch (e) { console.warn('Language change failed', e); }
                 }
-                // close modal
+
                 const modal = document.getElementById('settings-modal');
                 if (modal) this.closeModal(modal);
             }
         });
         if (settingsCancelBtn) settingsCancelBtn.addEventListener('click', () => {
-            // discard pending settings and reset UI controls to current settings
             this.pendingSettings = Object.assign({}, this.settings);
             const modal = document.getElementById('settings-modal');
             if (modal) this.applyI18nToModal(modal);
-            // reset controls
+
             const langSel = document.getElementById('settings-language'); if (langSel) langSel.value = this.settings.language || 'ja';
             const escChk = document.getElementById('settings-enable-esc'); if (escChk) escChk.checked = !!this.settings.enableEsc;
             const saveChk = document.getElementById('settings-enable-save-shortcut'); if (saveChk) saveChk.checked = !!this.settings.enableSaveShortcut;
             if (modal) this.closeModal(modal);
         });
+
+        try {
+            const exclude = new Set(['start-button','load-button','sandbox-button']);
+            const candidates = ['back-to-title-button','retry-button','save-button','execute-btn','hint-btn','ku-next-btn','shop-btn','next-floor-btn','next-dungeon-btn','settings-button','prev-floor-btn','gold-status','energy-status'];
+            const getTextForEl = (el) => {
+                if (!el) return '';
+                const key = el.getAttribute('data-i18n-title');
+                if (key && this.i18n) {
+                    try { const t = this.i18n.t(key); if (t && t !== key) return t; } catch(e) {}
+                }
+
+                if (el.getAttribute('title')) return el.getAttribute('title');
+                if (el.getAttribute('aria-label')) return el.getAttribute('aria-label');
+                return (el.textContent || '').trim();
+            };
+
+            const attachTooltip = (el) => {
+                if (!el || exclude.has(el.id)) return;
+                if (!this.tooltipEl) return;
+                let touchTimer = null;
+                let touchStartX = 0;
+                let touchStartY = 0;
+                const LONGPRESS_MS = 400;
+
+                const show = (x, y) => {
+                    try {
+                        const txt = getTextForEl(el);
+                        if (!txt) return;
+                        this.tooltipEl.textContent = txt;
+                        this.tooltipEl.style.display = 'block';
+                        this.tooltipEl.style.left = (x + 12) + 'px';
+                        this.tooltipEl.style.top = (y + 12) + 'px';
+                    } catch (e) {}
+                };
+                const hide = () => { try { if (this.tooltipEl) this.tooltipEl.style.display = 'none'; } catch(e) {} };
+
+                el.addEventListener('mouseenter', (ev) => { try { show(ev.pageX, ev.pageY); } catch(e) {} });
+                el.addEventListener('mousemove', (ev) => { try { if (this.tooltipEl && this.tooltipEl.style.display === 'block') { this.tooltipEl.style.left = (ev.pageX + 12) + 'px'; this.tooltipEl.style.top = (ev.pageY + 12) + 'px'; } } catch(e) {} });
+                el.addEventListener('mouseleave', () => { hide(); });
+
+                el.addEventListener('touchstart', (ev) => {
+                    if (!ev.touches || ev.touches.length === 0) return;
+                    const t = ev.touches[0];
+                    touchStartX = t.pageX; touchStartY = t.pageY;
+                    touchTimer = setTimeout(() => { show(touchStartX, touchStartY); }, LONGPRESS_MS);
+                }, { passive: true });
+                el.addEventListener('touchmove', (ev) => {
+                    if (!ev.touches || ev.touches.length === 0) return;
+                    const t = ev.touches[0];
+                    const dx = Math.abs(t.pageX - touchStartX); const dy = Math.abs(t.pageY - touchStartY);
+                    if (dx > 10 || dy > 10) { if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; } hide(); }
+                }, { passive: true });
+                el.addEventListener('touchend', () => { if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; } hide(); });
+                el.addEventListener('touchcancel', () => { if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; } hide(); });
+            };
+
+            candidates.forEach(id => {
+                try { const el = this.elements[id] || document.getElementById(id); if (el) attachTooltip(el); } catch(e) {}
+            });
+
+            try {
+                const schemaRoot = document.getElementById('quest-schema');
+                if (schemaRoot && this.tooltipEl) {
+                    schemaRoot.addEventListener('mouseenter', (ev) => {
+                        const t = ev.target;
+                        if (t && t.classList && t.classList.contains('schema-term')) {
+                            const term = t.getAttribute('data-term') || t.textContent || '';
+                            const termType = t.getAttribute('data-term-type');
+                            const line = t.closest('.schema-line');
+                            const lineType = line ? line.getAttribute('data-line-type') : null;
+                            try {
+                                let key = null;
+                                if (termType === 'column') key = 'ui.schema_column';
+                                else if (termType === 'table') key = 'ui.schema_table';
+                                else {
+                                    if (lineType === 'table' || /table/i.test(lineType)) key = 'ui.schema_table';
+                                    else key = 'ui.schema_column';
+                                }
+
+                                let txt = (this.i18n && typeof this.i18n.t === 'function') ? this.i18n.t(key, term) : null;
+                                if (!txt || txt === key) {
+                                    txt = term;
+                                }
+
+                                this.tooltipEl.textContent = txt;
+                                this.tooltipEl.style.display = 'block';
+                                const r = t.getBoundingClientRect();
+                                this.tooltipEl.style.left = (window.scrollX + r.right + 8) + 'px';
+                                this.tooltipEl.style.top = (window.scrollY + r.top) + 'px';
+                            } catch (e) {
+                                try { this.tooltipEl.textContent = term; this.tooltipEl.style.display = 'block'; } catch(_){ }
+                            }
+                        }
+                    }, true);
+                    schemaRoot.addEventListener('mouseleave', (ev) => {
+                        const t = ev.target;
+                        if (t && t.classList && t.classList.contains('schema-term')) {
+                            try { this.tooltipEl.style.display = 'none'; } catch(e) {}
+                        }
+                    }, true);
+                }
+            } catch(e) {}
+
+        } catch (e) {}
     }
 
-    // Apply data-i18n attributes inside a modal element using this.i18n
     applyI18nToModal(modalEl) {
         if (!modalEl || !this.i18n) return;
-        // find any elements with data-i18n or data-i18n-placeholder
         modalEl.querySelectorAll('[data-i18n]').forEach(el => {
             try {
                 const key = el.getAttribute('data-i18n');
@@ -198,6 +342,8 @@ export class DOMManager {
                 if (txt && txt !== key) el.setAttribute('placeholder', txt);
             } catch (e) { /* ignore */ }
         });
+
+        try { this.applyI18nToUI(); } catch(e) {}
     }
 
     showScreen(screenName) {
@@ -247,12 +393,11 @@ export class DOMManager {
         } catch (e) { console.warn('Settings load failed', e); }
     }
 
-    // ゲームデータをJSONとしてエクスポート（localStorageのSAVE_KEYを想定）
     exportJSON() {
         try {
             const data = localStorage.getItem(SAVE_KEY);
             if (!data) { this.showFeedback('保存データが存在しません'); return; }
-            // pretty-print JSON for readability
+
             let pretty;
             try { pretty = JSON.stringify(JSON.parse(data), null, 2); } catch (e) { pretty = data; }
             const ts = new Date().toISOString().replace(/[:.]/g, '-');
@@ -268,7 +413,6 @@ export class DOMManager {
         } catch (e) { this.showFeedback('エクスポートに失敗しました'); }
     }
 
-    // JSONインポート: ファイル選択イベントを受け取る
     importJSON(ev) {
         const f = ev.target.files && ev.target.files[0];
         if (!f) return;
@@ -276,17 +420,16 @@ export class DOMManager {
         reader.onload = (e) => {
             try {
                 const text = e.target.result;
-                // validate JSON
                 let parsed;
                 try { parsed = JSON.parse(text); } catch (err) { this.showFeedback('無効なJSONです'); return; }
-                // 上書き保存（整形して保存）
+
                 localStorage.setItem(SAVE_KEY, JSON.stringify(parsed));
                 this.showFeedback('インポート成功。ゲームをロードします...');
-                // If DOMManager has a reference to game, call its loadGame
+
                 if (this.game && typeof this.game.loadGame === 'function') {
                     try { this.game.loadGame(); this.showFeedback('ゲームデータを読み込みました'); } catch (err) { this.showFeedback('ゲーム読み込みに失敗しました'); }
                 } else {
-                    // Fallback: reload the page
+
                     setTimeout(() => { location.reload(); }, 700);
                 }
             } catch (err) { this.showFeedback('インポートに失敗しました'); }

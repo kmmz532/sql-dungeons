@@ -69,6 +69,17 @@
     "confirm.unsaved_changes": "セーブしていません。タイトルに戻りますか？",
     "button.back_to_title": "タイトルに戻る",
 
+    "ui.back_to_title": "タイトル画面に戻ります",
+    "ui.prev_floor": "前のフロアへ戻ります",
+    "ui.save": "現在のデータを保存します",
+    "ui.execute": "呪文に記述されたSQLクエリを実行します",
+    "ui.gold": "現在の所持金です。ショップなどで使います",
+    "ui.energy": "現在のエネルギーです。呪文を実行するために消費します",
+    "ui.gold_status": "所持ゴールド",
+    "ui.energy_status": "所持エネルギー",
+    "ui.schema_table": "%s はテーブル名です",
+    "ui.schema_column": "%s はカラム名です。属性名、列名とも言います。",
+
     "settings.title": "設定",
     "settings.language_label": "言語:",
     "settings.enable_esc": "ESCでダイアログを閉じる",

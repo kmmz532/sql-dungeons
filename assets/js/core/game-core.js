@@ -164,7 +164,6 @@ export class GameCore {
                 const existing = headerEl.querySelector('.sandbox-controls');
                 if (existing) existing.remove();
 
-                // Remove any existing schema wrapper inserted earlier to avoid duplicates
                 try { const existingWrapper = document.querySelector('.sandbox-schema-wrapper'); if (existingWrapper) existingWrapper.remove(); } catch(e){}
 
                 const controls = document.createElement('div');
@@ -176,25 +175,43 @@ export class GameCore {
 
                 const select = document.createElement('select');
                 select.className = 'sandbox-select';
-                (this.gameData?.dungeonData?.floors || []).forEach((f, idx) => {
-                    const opt = document.createElement('option');
-                    opt.value = idx;
-                    opt.textContent = `Floor ${f.floor}`;
-                    select.appendChild(opt);
-                });
-                select.value = this.currentFloor || 0;
+
+                const opts = [];
+                if (this.gameData && this.gameData.dungeons) {
+                    Object.keys(this.gameData.dungeons).forEach(dkey => {
+                        const set = this.gameData.dungeons[dkey];
+                        if (!set || !Array.isArray(set.floors)) return;
+                        set.floors.forEach((f, idx) => {
+                            const opt = document.createElement('option');
+
+                            opt.value = `${dkey}:${idx}`;
+                            try {
+                                const fd = new Floor(f, this.i18n);
+                                opt.textContent = fd.getTitle ? fd.getTitle({ i18n: this.i18n, currentDungeon: dkey }) : (`Floor ${f.floor}`);
+                            } catch (e) { opt.textContent = `Floor ${f.floor}`; }
+                            select.appendChild(opt);
+                            opts.push({ dungeon: dkey, idx });
+                        });
+                    });
+                }
+
+                if (select.options.length > 0) select.value = select.options[0].value;
                 select.addEventListener('change', (ev) => {
-                    const idx = parseInt(ev.target.value, 10);
+                    const raw = ev.target.value || '';
+                    const parts = String(raw).split(':');
+                    const dkey = parts[0] || Object.keys(this.gameData.dungeons || {})[0];
+                    const idx = parseInt(parts[1] || '0', 10);
+                    this.currentDungeon = dkey;
                     this.currentFloor = idx;
-                    const fr = this.gameData.dungeonData.floors[idx];
+                    const fr = this.gameData.dungeons?.[dkey]?.floors?.[idx];
+                    if (!fr) return;
                     const fd = new Floor(fr, this.i18n);
-                    if (this.dom.elements['floor-title']) this.dom.elements['floor-title'].textContent = `Sandbox - ${fd.getTitle({ i18n: this.i18n })}`;
-                    // update quest-schema display to selected floor
+                    if (this.dom.elements['floor-title']) this.dom.elements['floor-title'].textContent = `Sandbox - ${fd.getTitle({ i18n: this.i18n, currentDungeon: dkey })}`;
                     if (this.dom.elements['quest-schema']) {
                         const schemaText = fd.getSchema ? fd.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase }) : fd.schema || '';
                         this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
                     }
-                    // update hint button visibility for selected floor
+
                     try {
                         const hintText = (typeof fd.getHint === 'function') ? fd.getHint({ i18n: this.i18n }) : fd.hint;
                         if (this.dom.elements['hint-btn']) {
@@ -209,7 +226,6 @@ export class GameCore {
                 controls.appendChild(select);
                 headerEl.appendChild(controls);
 
-                // also move a clone of the selector above quest-schema for direct schema selection
                 try {
                     const schemaContainer = this.dom.elements['quest-schema'];
                     if (schemaContainer) {
@@ -223,9 +239,7 @@ export class GameCore {
                         
                         const localSelect = localWrapper.querySelector('select');
                         localSelect.addEventListener('change', (ev) => {
-                            const idx = parseInt(ev.target.value, 10);
-                            // update both selects
-                            select.value = idx;
+                            select.value = ev.target.value;
                             select.dispatchEvent(new Event('change'));
                         });
                     }
@@ -240,15 +254,12 @@ export class GameCore {
     }
 
     loadFloor(floorIndex) {
-           // Normalize floorIndex and ensure internal currentFloor stays in sync to avoid UI inconsistencies
         try { console.debug('[GameCore] loadFloor', { floorIndex, currentFloor: this.currentFloor, dungeonFloorsLength: (this.gameData && this.gameData.dungeonData && this.gameData.dungeonData.floors) ? this.gameData.dungeonData.floors.length : null, currentDungeon: this.currentDungeon }); } catch(e) {}
-           // Defensive normalization: prefer numeric index, clamp to available floors
            let idx = Number(floorIndex);
            if (Number.isNaN(idx) || !isFinite(idx)) idx = 0;
            const floors = this.gameData && this.gameData.dungeonData && Array.isArray(this.gameData.dungeonData.floors) ? this.gameData.dungeonData.floors : [];
            if (idx < 0) idx = 0;
            if (idx >= floors.length) idx = Math.max(0, floors.length - 1);
-           // keep internal state consistent
            this.currentFloor = idx;
            const floorRaw = floors[idx];
         const floorData = new Floor(floorRaw);
@@ -260,26 +271,24 @@ export class GameCore {
         if (this.dom.elements['next-dungeon-btn']) this.dom.elements['next-dungeon-btn'].onclick = null;
         if (this.dom.elements['prev-floor-btn']) this.dom.elements['prev-floor-btn'].onclick = null;
         this.dom.elements['shop-btn'].classList.add('hidden');
-    // pass currentDungeon so Floor prefers per-dungeon i18n keys
-    // build a left-side label using per-dungeon prefix if available (e.g. "チュートリアル %s")
-    let canonicalFloorNumber = 0;
-    try {
-        if (floorData && (floorData.floor || floorData.id)) canonicalFloorNumber = Number(floorData.floor || floorData.id);
-        else canonicalFloorNumber = Number(this.currentFloor) + 1;
-    } catch (e) { canonicalFloorNumber = Number(this.currentFloor) + 1; }
+        let canonicalFloorNumber = 0;
+        try {
+            if (floorData && (floorData.floor || floorData.id)) canonicalFloorNumber = Number(floorData.floor || floorData.id);
+            else canonicalFloorNumber = Number(this.currentFloor) + 1;
+        } catch (e) { canonicalFloorNumber = Number(this.currentFloor) + 1; }
 
-    let leftLabel = null;
-    try {
-        if (this.currentDungeon && this.i18n && typeof this.i18n.t === 'function') {
-            const tryLabel = this.i18n.t(`dungeon.${this.currentDungeon}.prefix`, canonicalFloorNumber);
-            // if i18n returns the key itself or an empty value, treat as missing
-            if (tryLabel && !String(tryLabel).startsWith('dungeon.')) leftLabel = tryLabel;
-        }
-    } catch (e) { leftLabel = null; }
-    if (!leftLabel) leftLabel = this.i18n.t('message.floor_label', canonicalFloorNumber);
+        let leftLabel = null;
+        try {
+            if (this.currentDungeon && this.i18n && typeof this.i18n.t === 'function') {
+                const tryLabel = this.i18n.t(`dungeon.${this.currentDungeon}.prefix`, canonicalFloorNumber);
+                // if i18n returns the key itself or an empty value, treat as missing
+                if (tryLabel && !String(tryLabel).startsWith('dungeon.')) leftLabel = tryLabel;
+            }
+        } catch (e) { leftLabel = null; }
+        if (!leftLabel) leftLabel = this.i18n.t('message.floor_label', canonicalFloorNumber);
 
-    this.dom.elements['floor-title'].textContent = `${leftLabel} - ${floorData.getTitle({ i18n: this.i18n, currentDungeon: this.currentDungeon })}`;
-    this.dom.elements['quest-story'].innerHTML = floorData.getStory({ i18n: this.i18n, currentDungeon: this.currentDungeon });
+        this.dom.elements['floor-title'].textContent = `${leftLabel} - ${floorData.getTitle({ i18n: this.i18n, currentDungeon: this.currentDungeon })}`;
+        this.dom.elements['quest-story'].innerHTML = floorData.getStory({ i18n: this.i18n, currentDungeon: this.currentDungeon });
 
         if (this.dom.elements['quest-schema']) {
             const schemaText = (typeof floorData.getSchema === 'function') ? floorData.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase }) : floorData.schema || '';
@@ -296,7 +305,7 @@ export class GameCore {
                 }
             }
         } catch (e) { console.error('Error updating hint button visibility', e); }
-    this.dom.elements['sql-editor'].value = '';
+        this.dom.elements['sql-editor'].value = '';
         this.dom.elements['result-area'].innerHTML = '';
         this.dom.elements['result-area'].className = '';
         if (this.player) {

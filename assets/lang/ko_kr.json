@@ -68,6 +68,13 @@
     "message.floor_label": "%s 층",
     "button.back_to_title": "타이틀로 돌아가기",
 
+    "ui.back_to_title": "타이틀로 돌아가기",
+    "ui.prev_floor": "이전 층으로",
+    "ui.gold_status": "골드: %s",
+    "ui.energy_status": "에너지: %s",
+    "ui.schema_table": "테이블: %s",
+    "ui.schema_column": "컬럼: %s",
+
     "settings.title": "설정",
     "settings.language_label": "언어:",
     "settings.enable_esc": "ESC로 대화상자 닫기",

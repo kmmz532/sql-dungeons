@@ -1,9 +1,22 @@
+{
     "sql.next.unknown": "未知",
     "settings.save": "保存",
     "settings.cancel": "取消",
 
     "item.sqldungeons.java_coffee": "Java咖啡",
     "item.sqldungeons.java_coffee.desc": "恢复5点能量。",
+    "item.sqldungeons.postgres_ramen": "Postgres拉面",
+    "item.sqldungeons.postgres_ramen.desc": "恢复15点能量。",
+    "item.sqldungeons.oracle_steak": "Oracle牛排",
+    "item.sqldungeons.oracle_steak.desc": "恢复30点能量。",
+    "item.sqldungeons.ku_next": "下一句卷轴（%d个）",
+    "item.sqldungeons.ku_next.desc": "告诉你下一个SQL子句的卷轴。",
+    "item.sqldungeons.ku_next_pack": "下一句卷轴包",
+    "item.sqldungeons.ku_next_pack.desc": "包含多个下一句卷轴的包（x5）。",
+    "item.sqldungeons.having": "一次性“HAVING”",
+    "item.sqldungeons.having.desc": "一次性聚合后筛选魔法。",
+    "item.sqldungeons.consumable_having": "消耗型 HAVING",
+    "item.sqldungeons.consumable_having.desc": "授予一次性 HAVING 使用的消耗品。",
     "item.sqldungeons.postgres_ramen": "Postgres拉面",
     "item.sqldungeons.postgres_ramen.desc": "恢复15点能量。",
     "item.sqldungeons.oracle_steak": "Oracle牛排",
@@ -223,5 +236,12 @@
     "sql.keyword.max.desc": "用于计算最大值的聚合函数。",
     "sql.keyword.count.desc": "用于计数的聚合函数。",
     "sql.keyword.having.desc": "分组后的条件筛选。",
-    "sql.keyword.in.desc": "判断值是否包含在集合中。"
+    "sql.keyword.in.desc": "判断值是否包含在集合中。",
+
+    "ui.back_to_title": "返回标题",
+    "ui.prev_floor": "返回上一层",
+    "ui.gold_status": "金币: %s",
+    "ui.energy_status": "能量: %s",
+    "ui.schema_table": "表: %s",
+    "ui.schema_column": "列: %s"
 }

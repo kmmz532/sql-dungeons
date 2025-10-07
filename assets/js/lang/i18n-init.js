@@ -40,18 +40,15 @@ function localeFromSavedSettings() {
 }
 
 async function initI18n() {
-    // load manifest of available languages if present
     let manifest = null;
     try {
         const res = await fetch('./assets/lang/manifest.json');
         if (res && res.ok) manifest = await res.json();
     } catch (e) { manifest = null; }
 
-    // determine initial locale: saved setting or browser detection, but prefer manifest if present
     const saved = localeFromSavedSettings();
     let initialLocale = saved || detectLocale();
     if (manifest) {
-        // pick a manifest key that matches initialLocale style (ja_jp -> ja_jp vs ja)
         if (!manifest[initialLocale]) {
             const short = initialLocale.split('_')[0];
             const candidate = Object.keys(manifest).find(k => k.startsWith(short));
@@ -65,7 +62,6 @@ async function initI18n() {
     await i18n.init();
     applyI18n(i18n);
 
-    // expose available locales to callers (DOMManager will read these)
     try { window.availableLocales = i18n.getAvailableLocales(); } catch (e) { window.availableLocales = null; }
 
     // i18n初期化後にmain.jsのエントリポイントを呼ぶ
