@@ -23,6 +23,8 @@ export class I18n {
 		this.locale = defaultLocale;
 		this.translations = new Map();
 		this.fallbackLocale = 'en_us';
+		// locale -> { file, name }
+		this.langManifest = null;
 	}
 
     /**
@@ -30,12 +32,16 @@ export class I18n {
      */
 	async init() {
 		try {
-			// 言語ファイルを読み込む
-			const response = await fetch(`./assets/lang/${this.locale}.json`);
+			let localePath = `./assets/lang/${this.locale}.json`;
+			try {
+				if (this.langManifest && this.langManifest[this.locale] && this.langManifest[this.locale].file) {
+					localePath = `./assets/lang/${this.langManifest[this.locale].file}`;
+				}
+			} catch(e) {}
+			const response = await fetch(localePath);
 			const translations = await response.json();
 			this.translations.set(this.locale, translations);
 
-			// フォールバックロケールも読み込む
 			if (this.fallbackLocale !== this.locale) {
 				const fallbackResponse = await fetch(`./assets/lang/${this.fallbackLocale}.json`);
 				const fallbackTranslations = await fallbackResponse.json();
@@ -54,6 +60,28 @@ export class I18n {
 	setLocale(locale) {
 		this.locale = locale;
 		return this.init();
+	}
+
+	/**
+	 * manifestを設定する
+	 * @param {object} manifest
+	 */
+	setManifest(manifest) {
+		this.langManifest = manifest || null;
+	}
+
+	/**
+	 * 利用できる言語を取得する
+	 * @return {Array<{code: string, name: string}>}
+	 */
+	getAvailableLocales() {
+		if (this.langManifest) return Object.keys(this.langManifest).map(k => ({ code: k, name: this.langManifest[k].name || k }));
+		return [
+			{ code: 'ja_jp', name: '日本語' },
+			{ code: 'en_us', name: 'English' },
+			{ code: 'zh_cn', name: '中文' },
+			{ code: 'ko_kr', name: '한국어' }
+		];
 	}
 
     /**

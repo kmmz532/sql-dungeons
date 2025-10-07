@@ -1,0 +1,6 @@
+{
+  "en_us": { "file": "en_us.json", "name": "English" },
+  "ja_jp": { "file": "ja_jp.json", "name": "日本語" },
+  "zh_cn": { "file": "zh_cn.json", "name": "中文" },
+  "ko_kr": { "file": "ko_kr.json", "name": "한국어" }
+}

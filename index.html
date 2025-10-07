@@ -41,6 +41,11 @@
                         <span class="icon-back">↶</span>
                         <span class="visually-hidden" data-i18n="button.back_to_title">タイトルに戻る</span>
                     </button>
+                    <!-- 前フロアへ戻るボタン -->
+                    <button type="button" id="prev-floor-btn" class="action-btn" aria-label="前のフロアへ戻る">
+                        <span class="icon-prev">←</span>
+                        <span class="visually-hidden" data-i18n="button.prev_floor">前のフロアへ</span>
+                    </button>
                 </header>
                 <div class="content game-grid" id="game-grid" role="main">
                     <div id="inventory-panel" class="panel" role="region" aria-labelledby="inventory-title">
@@ -71,6 +76,7 @@
                         <div id="floor-actions-container" class="floor-actions hidden">
                             <button type="button" id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">ショップへ立ち寄る</button>
                             <button type="button" id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">次のフロアへ進む</button>
+                            <button type="button" id="next-dungeon-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_dungeon">次のダンジョンへ進む</button>
                         </div>
                     </div>
                 </div>

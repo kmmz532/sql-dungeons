@@ -11,9 +11,17 @@ export async function startApp(i18n) {
     dom.game = game;
     // Allow DOMManager to request language changes; map two-letter codes to full locale
     dom.onLanguageChange = async (lang) => {
-        const map = { ja: 'ja_jp', en: 'en_us', zh: 'zh_cn', ko: 'ko_kr' };
-        const locale = map[lang] || 'ja_jp';
         try {
+            // If lang is already a full locale like 'ja_jp' or 'en_us', use it directly
+            let locale = 'ja_jp';
+            if (typeof lang === 'string') {
+                const l = lang.toLowerCase();
+                if (l.indexOf('_') >= 0) locale = l;
+                else {
+                    const map = { ja: 'ja_jp', en: 'en_us', zh: 'zh_cn', ko: 'ko_kr' };
+                    locale = map[l] || 'ja_jp';
+                }
+            }
             await i18n.setLocale(locale);
             applyI18n(i18n);
             // Update settings modal labels if open
@@ -70,6 +78,17 @@ export async function startApp(i18n) {
             dom.showResult(i18n.t('message.load_failed'), 'error');
         }
     };
+
+    // Register service worker for offline/PWA support where available
+    try {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('Service worker registered', reg.scope);
+            }).catch(err => {
+                console.warn('Service worker registration failed', err);
+            });
+        }
+    } catch (e) {}
 
     // If the document is still loading, wait for DOMContentLoaded; otherwise run immediately.
     if (document.readyState === 'loading') {

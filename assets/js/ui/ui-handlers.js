@@ -52,10 +52,27 @@ export function setupUIHandlers(game) {
     dom.elements['hint-btn'].addEventListener('click', () => handleHint(game));
     dom.elements['ku-next-btn'].addEventListener('click', () => useKuNext(game));
     dom.elements['shop-btn'].addEventListener('click', () => openShop(game));
+
     dom.elements['inventory-list'].addEventListener('click', e => {
         if (e.target.classList.contains('inventory-item')) {
-            dom.elements['sql-editor'].value += `${e.target.dataset.item} `;
-            dom.elements['sql-editor'].focus();
+            const insertText = String(e.target.dataset.item || '');
+            const fnMatch = insertText.match(/^(COUNT|SUM|AVG|MIN|MAX)\s*$/i);
+            if (fnMatch) {
+                const fn = fnMatch[1].toUpperCase();
+                const editor = dom.elements['sql-editor'];
+                const before = editor.value || '';
+                const selectionStart = editor.selectionStart || before.length;
+                const selectionEnd = editor.selectionEnd || selectionStart;
+                const toInsert = `${fn}()`;
+                const newVal = before.slice(0, selectionStart) + toInsert + ' ' + before.slice(selectionEnd);
+                editor.value = newVal;
+
+                const cursorPos = selectionStart + fn.length + 1;
+                try { editor.focus(); editor.setSelectionRange(cursorPos, cursorPos); } catch (err) { editor.focus(); }
+            } else {
+                dom.elements['sql-editor'].value += `${insertText} `;
+                dom.elements['sql-editor'].focus();
+            }
         }
     });
 
@@ -103,11 +120,10 @@ function executeQuery(game) {
     }
 
     if (!isSandbox) {
-        // Do not spend energy if this floor was already cleared by the player.
-        // Use the same canonical floor id as handleCorrectAnswer (floorData.floor || floorData.id) to avoid 0-based vs 1-based mismatch.
         try {
             const floorDataTmp = game.gameData?.dungeonData?.floors?.[game.currentFloor] || {};
-            const floorKey = String(floorDataTmp && (floorDataTmp.floor || floorDataTmp.id) ? (floorDataTmp.floor || floorDataTmp.id) : game.currentFloor);
+            const canonicalFloorNumTmp = (floorDataTmp && (floorDataTmp.floor || floorDataTmp.id)) ? Number(floorDataTmp.floor || floorDataTmp.id) : (Number(game.currentFloor) + 1);
+            const floorKey = Number(canonicalFloorNumTmp);
             if (!game.player.clearedFloors || !game.player.clearedFloors.has(floorKey)) {
                 if (!game.player.spendEnergy(EXECUTE_COST)) {
                     dom.showResult(game.i18n.t('message.no_energy'), 'error');
@@ -123,7 +139,6 @@ function executeQuery(game) {
         }
     }
 
-    // DEBUG: log current floor and cleared floors for troubleshooting
     try {
         try { console.log('[debug] executeQuery - currentFloor:', game.currentFloor); } catch(e){}
         try { console.log('[debug] executeQuery - player.clearedFloors:', game.player && game.player.clearedFloors ? Array.from(game.player.clearedFloors) : null); } catch(e){}
@@ -317,7 +332,19 @@ function validateQuery(game, query, isSandbox = false) {
             // by のような一般語で誤検出しないように、SQLキーワードリストにあるものだけをチェック
             const ownsAll = clauseWords.every(w => usableItems.has(w));
             if (!ownsAll) {
-                dom.showResult(game.i18n.t('message.unknown_spell').replace('%s', clause.getKeyword({i18n: game.i18n})), 'error');
+                // Safely get a display name for the clause; fall back to clause.keyword or a generic placeholder
+                let kw = null;
+                try { kw = (typeof clause.getKeyword === 'function') ? clause.getKeyword({i18n: game.i18n}) : (clause.keyword || ''); } catch (e) { kw = (clause && clause.keyword) ? clause.keyword : ''; }
+                if (!kw) kw = clauseWords.join(' ');
+                const displayKw = (kw === undefined || kw === null) ? '' : String(kw);
+                try { console.debug('[validateQuery] unknown-spell debug', { clauseKeyword: clause.keyword, kw, displayKw, clauseObj: clause }); } catch(e) {}
+                // Use i18n formatting with a safe fallback so undefined never appears
+                const safeName = displayKw || '不明';
+                if (game && game.i18n && typeof game.i18n.t === 'function') {
+                    dom.showResult(game.i18n.t('message.unknown_spell', safeName), 'error');
+                } else {
+                    dom.showResult(`まだ覚えていない呪文「${safeName}」が含まれています。`, 'error');
+                }
                 return false;
             }
         }
@@ -360,12 +387,13 @@ function handleCorrectAnswer(game, floorData, query) {
     try { if (game && typeof game.markDirty === 'function') game.markDirty(); } catch(e){}
     // Apply dungeon reward only on the first correct clear of this floor
     try {
-        const floorId = (floorData && (floorData.floor || floorData.id)) ? String(floorData.floor || floorData.id) : String(game.currentFloor);
-        if (!game.player.clearedFloors) game.player.clearedFloors = new Set();
-        // DEBUG: log before applying reward
-        try { console.log('[debug] handleCorrectAnswer - floorId:', floorId); } catch(e){}
-        try { console.log('[debug] handleCorrectAnswer - clearedFloors before:', Array.from(game.player.clearedFloors)); } catch(e){}
-        if (!game.player.clearedFloors.has(floorId)) {
+    const canonicalFloorNum = (floorData && (floorData.floor || floorData.id)) ? Number(floorData.floor || floorData.id) : (Number(game.currentFloor) + 1);
+    const floorKeyCheck = Number(canonicalFloorNum);
+    if (!game.player.clearedFloors) game.player.clearedFloors = new Set();
+    // DEBUG: log before applying reward
+    try { console.log('[debug] handleCorrectAnswer - canonicalFloorNum:', canonicalFloorNum, 'floorKeyCheck:', floorKeyCheck); } catch(e){}
+    try { console.log('[debug] handleCorrectAnswer - clearedFloors before:', Array.from(game.player.clearedFloors)); } catch(e){}
+    if (!game.player.clearedFloors.has(floorKeyCheck)) {
             // first time clear: grant reward from dungeon-data.json
             try { console.log('[debug] handleCorrectAnswer - granting reward for floor', floorId, floorData.reward); } catch(e){}
             if (floorData.reward) {
@@ -374,8 +402,18 @@ function handleCorrectAnswer(game, floorData, query) {
                 (floorData.reward.items || []).forEach(item => game.player.addItem(item));
             }
             // mark cleared to prevent future rewards for this floor
-            game.player.clearedFloors.add(floorId);
-            try { console.log('[debug] handleCorrectAnswer - clearedFloors after add:', Array.from(game.player.clearedFloors)); } catch(e){}
+            try {
+                // canonical numeric floor number (prefer floor/id, else index+1)
+                const canonicalFloorNum = (floorData && (floorData.floor || floorData.id)) ? Number(floorData.floor || floorData.id) : (Number(game.currentFloor) + 1);
+                const keyNumeric = Number(canonicalFloorNum);
+                if (!game.player.clearedFloors) game.player.clearedFloors = new Set();
+                try { console.debug('[handleCorrectAnswer] marking floor cleared', { currentFloorIndex: game.currentFloor, floorDataFloor: floorData && (floorData.floor || floorData.id), keysToAdd: [keyNumeric], before: Array.from(game.player.clearedFloors) }); } catch(e) {}
+                // add numeric key
+                game.player.clearedFloors.add(keyNumeric);
+                try { console.debug('[handleCorrectAnswer] clearedFloors after add', Array.from(game.player.clearedFloors)); } catch(e){}
+            } catch (e) {
+                console.error('Failed to mark floor cleared', e);
+            }
             // Update UI immediately so player sees gold/energy changes from the reward
             try { if (game && typeof game.updateUI === 'function') game.updateUI(); } catch (e) { console.error('Failed to update UI after reward', e); }
         } else {
@@ -386,15 +424,70 @@ function handleCorrectAnswer(game, floorData, query) {
     dom.displayTable(sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase));
     dom.elements['floor-actions-container'].classList.remove('hidden');
     if (game.currentFloor < game.gameData.dungeonData.floors.length - 1) {
-        dom.elements['next-floor-btn'].classList.remove('hidden');
-        dom.elements['next-floor-btn'].onclick = () => {
-            game.currentFloor++;
-            game.loadFloor(game.currentFloor);
-        };
-        } else {
+        try { console.debug('[handleCorrectAnswer] showing next-floor; currentFloor:', game.currentFloor, 'floorsLen:', game.gameData.dungeonData.floors.length, 'clearedFloors:', Array.from(game.player.clearedFloors || [])); } catch(e) {}
+        if (dom.elements['next-floor-btn']) {
+            dom.elements['next-floor-btn'].classList.remove('hidden');
+            try { dom.elements['next-floor-btn'].style.display = ''; } catch(e) {}
+            dom.elements['next-floor-btn'].onclick = () => {
+                game.currentFloor++;
+                game.loadFloor(game.currentFloor);
+            };
+            try { this && console.debug && console.debug('[handleCorrectAnswer] next-floor button configured'); } catch(e) {}
+        }
+    } else {
         dom.elements['next-floor-btn'].classList.add('hidden');
         dom.elements['next-floor-btn'].onclick = null;
-        setTimeout(() => game.showEndScreen(game.i18n.t('message.clear'), game.i18n.t('message.clear_all')), 1200);
+
+        // If this is the last floor, show either a next-dungeon button (if another dungeon is available and this floor is cleared)
+        try {
+            const isCleared = (() => {
+                try {
+                    const fd = game.gameData.dungeonData.floors[game.currentFloor];
+                    const canonicalFloorNum = fd && (fd.floor || fd.id) ? Number(fd.floor || fd.id) : (Number(game.currentFloor) + 1);
+                    const candidates = [`floor:${canonicalFloorNum}`];
+                    try { console.debug('[handleCorrectAnswer] isCleared candidates', candidates, 'player.clearedFloors', Array.from(game.player.clearedFloors || [])); } catch(e) {}
+                    return game.player && game.player.clearedFloors && candidates.some(c => game.player.clearedFloors.has(c));
+                } catch (e) { return false; }
+            })();
+
+            const hasNextDungeon = !!(game.gameData && game.gameData.dungeons && Object.keys(game.gameData.dungeons).length > 1);
+            try { console.debug('[handleCorrectAnswer] next-dungeon check', { currentDungeon: game.currentDungeon, dungeonKeys: Object.keys(game.gameData?.dungeons || {}), hasNextDungeon }); } catch(e) {}
+            if (isCleared && hasNextDungeon && dom.elements['next-dungeon-btn']) {
+                try { console.debug('[handleCorrectAnswer] showing next-dungeon button; pre-state:', { className: dom.elements['next-dungeon-btn'].className, inlineDisplay: dom.elements['next-dungeon-btn'].style && dom.elements['next-dungeon-btn'].style.display }); } catch(e) {}
+                dom.elements['next-dungeon-btn'].classList.remove('hidden');
+                try { dom.elements['next-dungeon-btn'].style.display = ''; } catch(e) {}
+                // make sure the container is visible
+                try { dom.elements['floor-actions-container'] && dom.elements['floor-actions-container'].classList.remove('hidden'); } catch(e) {}
+                dom.elements['next-dungeon-btn'].onclick = async () => {
+                    const ok = game.advanceToNextDungeon ? game.advanceToNextDungeon() : false;
+                    if (!ok) {
+                        // fallback: show end screen
+                        setTimeout(() => game.showEndScreen(game.i18n.t('message.clear'), game.i18n.t('message.clear_all')), 1200);
+                    }
+                };
+                try { console.debug('[handleCorrectAnswer] next-dungeon button shown; post-state:', { className: dom.elements['next-dungeon-btn'].className, inlineDisplay: dom.elements['next-dungeon-btn'].style && dom.elements['next-dungeon-btn'].style.display }); } catch(e) {}
+            } else {
+                try { console.debug('[handleCorrectAnswer] not showing next-dungeon; reasons', { isCleared, hasNextDungeon, hasButton: !!dom.elements['next-dungeon-btn'] }); } catch(e) {}
+                if (dom.elements['next-dungeon-btn']) {
+                    dom.elements['next-dungeon-btn'].classList.add('hidden');
+                    dom.elements['next-dungeon-btn'].onclick = null;
+                }
+                // mark the whole dungeon as cleared for the player
+                try {
+                    const dungeonKey = game.currentDungeon || null;
+                    if (dungeonKey && game.player) {
+                        if (!game.player.clearedDungeons) game.player.clearedDungeons = new Set();
+                        game.player.clearedDungeons.add(dungeonKey);
+                        // auto-save so the cleared dungeon is persisted and included in export
+                        try { if (typeof game.saveGame === 'function') game.saveGame(); } catch (e) { console.warn('Auto-save failed after dungeon clear', e); }
+                    }
+                } catch (e) { console.error('Failed to mark dungeon cleared', e); }
+
+                setTimeout(() => game.showEndScreen(game.i18n.t('message.clear'), game.i18n.t('message.clear_all')), 1200);
+            }
+        } catch (e) {
+            setTimeout(() => game.showEndScreen(game.i18n.t('message.clear'), game.i18n.t('message.clear_all')), 1200);
+        }
     }
     if (floorData.opensShop) {
         dom.elements['shop-btn'].classList.remove('hidden');

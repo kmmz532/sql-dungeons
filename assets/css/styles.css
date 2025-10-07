@@ -435,6 +435,17 @@ button,
     box-shadow: 0 4px #3a9a5c;
 }
 
+#prev-floor-btn {
+    background-color: #6c7a89; /* muted blue-gray */
+    color: white;
+    box-shadow: 0 4px #55606a;
+}
+
+#prev-floor-btn:hover {
+    background-color: #85a0b9;
+    box-shadow: 0 4px #5b6f7f;
+}
+
 #next-floor-btn:hover {
     background-color: #6ee28a;
     box-shadow: 0 4px #4aaa6c;
@@ -444,6 +455,24 @@ button,
     transform: translateY(1px);
     background-color: #6ee28a;
     box-shadow: 0 3px #4aaa6c;
+}
+
+/* Next-dungeon button: ensure visible text/background (was accidentally white-on-white) */
+#next-dungeon-btn {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 4px rgba(0,0,0,0.45);
+}
+
+#next-dungeon-btn:hover {
+    background-color: #ff6a84; /* slightly lighter accent */
+    box-shadow: 0 4px rgba(0,0,0,0.5);
+}
+
+#next-dungeon-btn:active {
+    transform: translateY(1px);
+    background-color: #ff6a84;
+    box-shadow: 0 3px rgba(0,0,0,0.45);
 }
 
 #shop-btn {

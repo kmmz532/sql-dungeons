@@ -21,6 +21,8 @@
     "button.execute": "Execute",
     "button.shop": "Visit Shop",
     "button.next_floor": "Next Floor",
+    "button.prev_floor": "Previous Floor",
+    "button.next_dungeon": "Next Dungeon",
     "button.close": "Close",
     "button.yes": "Yes",
 
@@ -122,80 +124,85 @@
 
     "sql.next.unknown": "Unknown",
 
-    "dungeon.floor1.title": "Tutorial 1: Show everything with SELECT",
-    "dungeon.floor1.story": "Type the spell `SELECT * FROM table001` into the editor and execute it.",
+    "dungeon.tutorial.prefix": "Tutorial %s",
+    "dungeon.beginner.prefix": "Floor %s",
 
-    "dungeon.floor2.title": "Tutorial 2: Select specific columns",
-    "dungeon.floor2.story": "Use `SELECT (column) FROM (table)` to display specific columns. Check the conceptual schema for the table name and retrieve the `message` column.",
+    "dungeon.tutorial.floor1.title": "Show everything with SELECT",
+    "dungeon.tutorial.floor1.story": "Type the spell `SELECT * FROM table001` into the editor and execute it.",
+    "dungeon.tutorial.floor1.hint": "",
 
-    "dungeon.floor3.title": "Tutorial 3: Filter with WHERE",
-    "dungeon.floor3.story": "Use `SELECT ... FROM ... WHERE (condition)` to filter rows. From the `fruits` table, display `name` and `color` where `color = 'Red'`. Conditions look like `column = 'value'`. You can also use <, >, <=, >=, <>.",
+    "dungeon.tutorial.floor2.title": "Select specific columns",
+    "dungeon.tutorial.floor2.story": "Use `SELECT (column) FROM (table)` to display specific columns. Check the conceptual schema for the table name and retrieve the `message` column.",
+    "dungeon.tutorial.floor2.hint": "",
 
-    "dungeon.floor4.title": "Tutorial 4: Sort with ORDER BY",
-    "dungeon.floor4.story": "Use `ORDER BY (column) [ASC|DESC]` to sort results. From the `fruits` table, show `name` and `price` ordered by `price` ascending. `ORDER BY id` sorts by `id` ascending; ASC is the default, use DESC for descending.",
+    "dungeon.tutorial.floor3.title": "Filter with WHERE",
+    "dungeon.tutorial.floor3.story": "Use `SELECT ... FROM ... WHERE (condition)` to filter rows. From the `fruits` table, display `name` and `color` where `color = 'Red'`. Conditions look like `column = 'value'`. You can also use <, >, <=, >=, <>.",
+    "dungeon.tutorial.floor3.hint": "",
 
-    "dungeon.floor5.title": "Tutorial 5: Aggregate with GROUP BY",
-    "dungeon.floor5.story": "Use `SELECT ... FROM ... GROUP BY (column)` to group rows. From `fruits`, count how many fruits there are per `color`. Aggregation functions include COUNT, SUM, AVG, MIN, MAX. `COUNT(*)` counts rows, e.g. `SELECT color, COUNT(*) FROM fruits`.",
+    "dungeon.tutorial.floor4.title": "Sort with ORDER BY",
+    "dungeon.tutorial.floor4.story": "Use `ORDER BY (column) [ASC|DESC]` to sort results. From the `fruits` table, show `name` and `price` ordered by `price` ascending. `ORDER BY id` sorts by `id` ascending; ASC is the default, use DESC for descending.",
+    "dungeon.tutorial.floor4.hint": "",
 
-    "dungeon.floor6.title": "Beginner SELECT",
-    "dungeon.floor6.story": "The dungeon entrance. From `products`, find all items with `price >= 1000` and display `name` and `price`.",
-    "dungeon.floor6.hint": "Use a `WHERE` clause to filter rows that meet specific conditions.",
-    
-    "dungeon.floor7.title": "GROUP BY Challenge",
-    "dungeon.floor7.story": "A monster lair. Count monsters per `species` from the `monsters` table.",
-    "dungeon.floor7.hint": "Use `GROUP BY` to aggregate per group.",
-    
-    "dungeon.floor8.title": "INNER JOIN Spell",
-    "dungeon.floor8.story": "In the guild hall. Join `employees` and `departments` and list each employee's `emp_name` and `dept_name`.",
-    "dungeon.floor8.hint": "Use `INNER JOIN ... ON ...` to connect tables by a common column.",
-    
-    "dungeon.floor9.title": "Find affordable fruits",
-    "dungeon.floor9.story": "From the fruits table, display name and price for rows where price < 150.",
-    "dungeon.floor9.hint": "Use a WHERE clause to filter rows by price.",
-    
-    "dungeon.floor10.title": "Retrieve a message",
-    "dungeon.floor10.story": "From table001, fetch the message for the row where id = 2.",
-    "dungeon.floor10.hint": "To target a specific row, use the primary key in a WHERE clause like `WHERE id = 2`.",
+    "dungeon.tutorial.floor5.title": "Aggregate with GROUP BY",
+    "dungeon.tutorial.floor5.story": "Use `SELECT ... FROM ... GROUP BY (column)` to group rows. From `fruits`, count how many fruits there are per `color`. Aggregation functions include COUNT, SUM, AVG, MIN, MAX. `COUNT(*)` counts rows, e.g. `SELECT color, COUNT(*) FROM fruits`.",
+    "dungeon.tutorial.floor5.hint": "",
 
-    "dungeon.floor11.title": "Filter by product category",
-    "dungeon.floor11.story": "From products, display name and price where category = '武器'.",
-    "dungeon.floor11.hint": "Use WHERE category = '武器' to select only products of a specific category.",
-    
-    "dungeon.floor12.title": "Filter monsters by HP",
-    "dungeon.floor12.story": "From monsters, display name and hp for rows where hp > 20.",
-    "dungeon.floor12.hint": "Use numeric comparisons like > and < to filter by HP.",
-    
-    "dungeon.floor13.title": "Join and filter by department",
-    "dungeon.floor13.story": "Inner join employees and departments, then show emp_name and dept_name where departments.dept_name = '開発部'.",
-    "dungeon.floor13.hint": "Combine JOIN and WHERE to filter after joining.",
-    
-    "dungeon.floor14.title": "Group and filter by count",
-    "dungeon.floor14.story": "Group fruits by color and show groups having COUNT(*) > 1.",
-    "dungeon.floor14.hint": "Use GROUP BY with HAVING to filter aggregated results.",
+    "dungeon.beginner.floor1.title": "Beginner SELECT",
+    "dungeon.beginner.floor2.title": "GROUP BY Challenge",
+    "dungeon.beginner.floor2.story": "A monster lair. Count monsters per `species` from the `monsters` table.",
+    "dungeon.beginner.floor2.hint": "Use `GROUP BY` to aggregate per group.",
 
-    "dungeon.floor15.title": "Find affordable fruits",
-    "dungeon.floor15.story": "From the fruits table, display name and price for rows where price < 150.",
-    "dungeon.floor15.hint": "Use a WHERE clause to filter rows by price.",
+    "dungeon.beginner.floor3.title": "INNER JOIN Spell",
+    "dungeon.beginner.floor3.story": "In the guild hall. Join `employees` and `departments` and list each employee's `emp_name` and `dept_name`.",
+    "dungeon.beginner.floor3.hint": "Use `INNER JOIN ... ON ...` to connect tables by a common column.",
 
-    "dungeon.floor16.title": "Find employees with big sales",
-    "dungeon.floor16.story": "Select emp_name from employees where emp_id IN (SELECT emp_id FROM sales WHERE quantity > 5).",
-    "dungeon.floor16.hint": "Use IN with a subquery to relate rows between tables.",
-    
-    "dungeon.floor17.title": "Department sales totals",
-    "dungeon.floor17.story": "Join sales, employees, and departments and show SUM(quantity) grouped by dept_name.",
-    "dungeon.floor17.hint": "Use JOIN combined with GROUP BY to aggregate per department.",
-    
-    "dungeon.floor18.title": "Date-filtered aggregation",
-    "dungeon.floor18.story": "For sales before 2025-02-01, show SUM(quantity) per dept_name.",
-    "dungeon.floor18.hint": "Be mindful of date formats when comparing dates as strings.",
-    
-    "dungeon.floor19.title": "Filter after aggregation with HAVING",
-    "dungeon.floor19.story": "Aggregate sales since 2025-02-01 by department and show only those with SUM(quantity) > 5.",
-    "dungeon.floor19.hint": "HAVING applies conditions to grouped results.",
-    
-    "dungeon.floor20.title": "Final Trial: Department sales filter",
-    "dungeon.floor20.story": "Join three tables, filter by date (>= '2025-02-01'), group by dept_name and show departments with SUM(quantity) >= 10.",
-    "dungeon.floor20.hint": "Join 3 tables, filter by date with WHERE, aggregate with GROUP BY, and finalize with HAVING!",
+    "dungeon.beginner.floor4.title": "Find affordable fruits",
+    "dungeon.beginner.floor4.story": "From the fruits table, display name and price for rows where price < 150.",
+    "dungeon.beginner.floor4.hint": "Use a WHERE clause to filter rows by price.",
+
+    "dungeon.beginner.floor5.title": "Retrieve a message",
+    "dungeon.beginner.floor5.story": "From table001, fetch the message for the row where id = 2.",
+    "dungeon.beginner.floor5.hint": "To target a specific row, use the primary key in a WHERE clause like `WHERE id = 2`.",
+
+    "dungeon.beginner.floor6.title": "Filter by product category",
+    "dungeon.beginner.floor6.story": "From products, display name and price where category = '武器'.",
+    "dungeon.beginner.floor6.hint": "Use WHERE category = '武器' to select only products of a specific category.",
+
+    "dungeon.beginner.floor7.title": "Filter monsters by HP",
+    "dungeon.beginner.floor7.story": "From monsters, display name and hp for rows where hp > 20.",
+    "dungeon.beginner.floor7.hint": "Use numeric comparisons like > and < to filter by HP.",
+
+    "dungeon.beginner.floor8.title": "Join and filter by department",
+    "dungeon.beginner.floor8.story": "Inner join employees and departments, then show emp_name and dept_name where departments.dept_name = '開発部'.",
+    "dungeon.beginner.floor8.hint": "Combine JOIN and WHERE to filter after joining.",
+
+    "dungeon.beginner.floor9.title": "Group and filter by count",
+    "dungeon.beginner.floor9.story": "Group fruits by color and show groups having COUNT(*) > 1.",
+    "dungeon.beginner.floor9.hint": "Use GROUP BY with HAVING to filter aggregated results.",
+
+    "dungeon.beginner.floor10.title": "Find affordable fruits",
+    "dungeon.beginner.floor10.story": "From the fruits table, display name and price for rows where price < 150.",
+    "dungeon.beginner.floor10.hint": "Use a WHERE clause to filter rows by price.",
+
+    "dungeon.beginner.floor11.title": "Find employees with big sales",
+    "dungeon.beginner.floor11.story": "Select emp_name from employees where emp_id IN (SELECT emp_id FROM sales WHERE quantity > 5).",
+    "dungeon.beginner.floor11.hint": "Use IN with a subquery to relate rows between tables.",
+
+    "dungeon.beginner.floor12.title": "Department sales totals",
+    "dungeon.beginner.floor12.story": "Join sales, employees, and departments and show SUM(quantity) grouped by dept_name.",
+    "dungeon.beginner.floor12.hint": "Use JOIN combined with GROUP BY to aggregate per department.",
+
+    "dungeon.beginner.floor13.title": "Date-filtered aggregation",
+    "dungeon.beginner.floor13.story": "For sales before 2025-02-01, show SUM(quantity) per dept_name.",
+    "dungeon.beginner.floor13.hint": "Be mindful of date formats when comparing dates as strings.",
+
+    "dungeon.beginner.floor14.title": "Filter after aggregation with HAVING",
+    "dungeon.beginner.floor14.story": "Aggregate sales since 2025-02-01 by department and show only those with SUM(quantity) > 5.",
+    "dungeon.beginner.floor14.hint": "HAVING applies conditions to grouped results.",
+
+    "dungeon.beginner.floor15.title": "Final Trial: Department sales filter",
+    "dungeon.beginner.floor15.story": "Join three tables, filter by date (>= '2025-02-01'), group by dept_name and show departments with SUM(quantity) >= 10.",
+    "dungeon.beginner.floor15.hint": "Join 3 tables, filter by date with WHERE, aggregate with GROUP BY, and finalize with HAVING!",
 
     "sql.keyword.select.desc": "Basic clause to select columns from a table.",
     "sql.keyword.from.desc": "Specifies the table to retrieve data from.",

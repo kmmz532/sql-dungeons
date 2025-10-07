@@ -1,0 +1,44 @@
+{
+  "floors": [
+    {
+      "floor": 1,
+      "tables": ["table001"],
+      "solutionPatterns": ["SELECT\\s+\\*\\s+FROM\\s+table001"],
+      "answer": "SELECT * FROM table001",
+      "borrowed": [],
+      "reward": { "gold": 10, "energy": 1, "items": [] }
+    },
+    {
+      "floor": 2,
+      "tables": ["table002"],
+      "solutionPatterns": ["SELECT\\s+message\\s+FROM\\s+table002"],
+      "answer": "SELECT message FROM table002",
+      "borrowed": [],
+      "reward": { "gold": 10, "energy": 1, "items": [] }
+    },
+    {
+      "floor": 3,
+      "tables": ["fruits"],
+      "solutionPatterns": ["SELECT\\s+name,\\s*color\\s+FROM\\s+fruits\\s+WHERE\\s*color\\s*=\\s*'Red'"],
+      "answer": "SELECT name, color FROM fruits WHERE color = 'Red'",
+      "borrowed": ["WHERE"],
+      "reward": { "gold": 10, "energy": 1, "items": [] }
+    },
+    {
+      "floor": 4,
+      "tables": ["fruits"],
+      "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+fruits\\s+ORDER\\s+BY\\s*price"],
+      "answer": "SELECT name, price FROM fruits ORDER BY price",
+      "borrowed": ["ORDER", "BY"],
+      "reward": { "gold": 10, "energy": 1, "items": [] }
+    },
+    {
+      "floor": 5,
+      "tables": ["fruits"],
+      "solutionPatterns": ["SELECT\\s+color,\\s*COUNT\\(\\s*(?:\\*|id)\\s*\\)\\s+FROM\\s+fruits\\s+GROUP\\s+BY\\s+color"],
+      "answer": "SELECT color, COUNT(*) FROM fruits GROUP BY color",
+      "borrowed": ["COUNT", "GROUP", "BY"],
+      "reward": { "gold": 20, "energy": 2, "items": [] }
+    }
+  ]
+}

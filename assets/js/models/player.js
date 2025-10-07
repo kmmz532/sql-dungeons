@@ -9,6 +9,8 @@ export class Player {
         this.specialItems = { kuNext: 0 };
         this.consumableItems = {};
         this.clearedFloors = new Set();
+        // track which named dungeons (e.g., 'tutorial', 'beginner') the player has fully cleared
+        this.clearedDungeons = new Set();
     }
 
     addItem(item) {
@@ -62,6 +64,7 @@ export class Player {
             specialItems: this.specialItems,
             consumableItems: this.consumableItems
             ,clearedFloors: [...this.clearedFloors]
+            ,clearedDungeons: [...this.clearedDungeons]
         };
     }
 
@@ -74,6 +77,7 @@ export class Player {
         player.specialItems = data.specialItems || { kuNext: 0 };
         player.consumableItems = data.consumableItems || {};
         player.clearedFloors = new Set(data.clearedFloors || []);
+        player.clearedDungeons = new Set(data.clearedDungeons || []);
         return player;
     }
 }

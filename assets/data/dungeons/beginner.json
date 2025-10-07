@@ -1,0 +1,133 @@
+{
+  "floors": [
+    {
+      "floor": 1,
+      "tables": ["products"],
+      "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+products\\s+WHERE\\s*price\\s*>=\\s*1000"],
+      "answer": "SELECT name, price FROM products WHERE price >= 1000",
+      "borrowed": ["WHERE"],
+      "reward": { "gold": 100, "energy": 5, "items": ["WHERE"] },
+      "hint": true
+    },
+    {
+      "floor": 2,
+      "tables": ["monsters"],
+      "solutionPatterns": ["SELECT\\s+species,\\s*COUNT\\(\\s*(?:\\*|monster_id)\\s*\\)\\s+FROM\\s+monsters\\s+GROUP\\s+BY\\s+species"],
+      "answer": "SELECT species, COUNT(*) FROM monsters GROUP BY species",
+      "borrowed": ["COUNT", "GROUP", "BY"],
+      "reward": { "gold": 150, "energy": 5, "items": ["COUNT", "GROUP", "BY"] },
+      "hint": true
+    },
+    {
+      "floor": 3,
+      "tables": ["employees", "departments"],
+      "specialValidation": true,
+      "answer": "SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id",
+      "borrowed": ["INNER", "JOIN", "ON", "AS"],
+      "reward": { "gold": 200, "energy": 5, "items": ["INNER", "JOIN", "ON", "AS"] },
+      "hint": true,
+      "opensShop": true
+    },
+    {
+      "floor": 4,
+      "tables": ["fruits"],
+      "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+fruits\\s+WHERE\\s*price\\s*<\\s*150"],
+      "answer": "SELECT name, price FROM fruits WHERE price < 150",
+      "borrowed": ["WHERE"],
+      "reward": { "gold": 80, "energy": 3, "items": [] }
+    },
+    {
+      "floor": 5,
+      "tables": ["table001"],
+      "solutionPatterns": ["SELECT\\s+message\\s+FROM\\s+table001\\s+WHERE\\s*id\\s*=\\s*2"],
+      "answer": "SELECT message FROM table001 WHERE id = 2",
+      "borrowed": ["WHERE"],
+      "reward": { "gold": 80, "energy": 3, "items": [] },
+      "opensShop": true
+    },
+    {
+      "floor": 6,
+      "tables": ["products"],
+      "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+products\\s+WHERE\\s*category\\s*=\\s*'武器'"],
+      "answer": "SELECT name, price FROM products WHERE category = '武器'",
+      "borrowed": ["WHERE"],
+      "reward": { "gold": 120, "energy": 4, "items": [] }
+    },
+    {
+      "floor": 7,
+      "tables": ["monsters"],
+      "solutionPatterns": ["SELECT\\s+name,\\s*hp\\s+FROM\\s+monsters\\s+WHERE\\s*hp\\s*>\\s*20"],
+      "answer": "SELECT name, hp FROM monsters WHERE hp > 20",
+      "borrowed": ["WHERE"],
+      "reward": { "gold": 120, "energy": 4, "items": [] }
+    },
+    {
+      "floor": 8,
+      "tables": ["employees", "departments"],
+      "solutionPatterns": ["SELECT\\s+emp_name,\\s*dept_name\\s+FROM\\s+employees\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+WHERE\\s+departments\\.dept_name\\s*=\\s*'開発部'"],
+      "answer": "SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE departments.dept_name = '開発部'",
+      "borrowed": ["INNER", "JOIN", "ON", "WHERE"],
+      "reward": { "gold": 150, "energy": 5, "items": [] }
+    },
+    {
+      "floor": 9,
+      "tables": ["fruits"],
+      "solutionPatterns": ["SELECT\\s+color,\\s*COUNT\\(\\s*\\*\\s*\\)\\s+FROM\\s+fruits\\s+GROUP\\s+BY\\s+color\\s+HAVING\\s+COUNT\\(\\s*\\*\\s*\\)\\s*>\\s*1"],
+      "answer": "SELECT color, COUNT(*) FROM fruits GROUP BY color HAVING COUNT(*) > 1",
+      "borrowed": ["COUNT", "GROUP", "BY", "HAVING"],
+      "reward": { "gold": 180, "energy": 5, "items": ["HAVING"] }
+    },
+    {
+      "floor": 10,
+      "tables": ["sales", "employees", "departments"],
+      "solutionPatterns": ["SELECT\\s+SUM\\(quantity\\)\\s+FROM\\s+sales\\s+WHERE\\s+emp_id\\s+IN\\s*\\(\\s*SELECT\\s+emp_id\\s+FROM\\s+employees\\s+WHERE\\s+dept_id\\s*=\\s*\\(\\s*SELECT\\s+dept_id\\s+FROM\\s+departments\\s+WHERE\\s+dept_name\\s*=\\s*'開発部'\\s*\\)\\s*\\)"],
+      "answer": "SELECT SUM(quantity) FROM sales WHERE emp_id IN (SELECT emp_id FROM employees WHERE dept_id = (SELECT dept_id FROM departments WHERE dept_name = '開発部'))",
+      "borrowed": ["SUM", "IN"],
+      "reward": { "gold": 300, "energy": 5, "items": ["SUM", "IN"] },
+      "hint": true,
+      "opensShop": true
+    },
+    {
+      "floor": 11,
+      "tables": ["sales", "employees"],
+      "solutionPatterns": ["SELECT\\s+emp_name\\s+FROM\\s+employees\\s+WHERE\\s+emp_id\\s+IN\\s*\\(\\s*SELECT\\s+emp_id\\s+FROM\\s+sales\\s+WHERE\\s+quantity\\s*>\\s*5\\s*\\)"],
+      "answer": "SELECT emp_name FROM employees WHERE emp_id IN (SELECT emp_id FROM sales WHERE quantity > 5)",
+      "borrowed": ["IN", "WHERE"],
+      "reward": { "gold": 220, "energy": 6, "items": [] }
+    },
+    {
+      "floor": 12,
+      "tables": ["sales", "employees", "departments"],
+      "solutionPatterns": ["SELECT\\s+dept_name,\\s*SUM\\(quantity\\)\\s+FROM\\s+sales\\s+INNER\\s+JOIN\\s+employees\\s+ON\\s+sales\\.emp_id\\s*=\\s*employees\\.emp_id\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+GROUP\\s+BY\\s+dept_name"],
+      "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id GROUP BY dept_name",
+      "borrowed": ["SUM", "GROUP", "BY", "INNER", "JOIN", "ON"],
+      "reward": { "gold": 260, "energy": 7, "items": [] }
+    },
+    {
+      "floor": 13,
+      "tables": ["sales", "employees", "departments"],
+      "solutionPatterns": ["SELECT\\s+dept_name,\\s*SUM\\(quantity\\)\\s+FROM\\s+sales\\s+INNER\\s+JOIN\\s+employees\\s+ON\\s+sales\\.emp_id\\s*=\\s*employees\\.emp_id\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+WHERE\\s+sale_date\\s*<\\s*'2025-02-01'\\s+GROUP\\s+BY\\s+dept_name"],
+      "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE sale_date < '2025-02-01' GROUP BY dept_name",
+      "borrowed": ["SUM", "GROUP", "BY", "WHERE", "INNER", "JOIN", "ON"],
+      "reward": { "gold": 280, "energy": 8, "items": [] }
+    },
+    {
+      "floor": 14,
+      "tables": ["sales", "employees", "departments"],
+      "solutionPatterns": ["SELECT\\s+dept_name,\\s*SUM\\(quantity\\)\\s+FROM\\s+sales\\s+INNER\\s+JOIN\\s+employees\\s+ON\\s+sales\\.emp_id\\s*=\\s*employees\\.emp_id\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+WHERE\\s+sale_date\\s*>=\\s*'2025-02-01'\\s+GROUP\\s+BY\\s+dept_name\\s+HAVING\\s+SUM\\(quantity\\)\\s*>\\s*5"],
+      "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE sale_date >= '2025-02-01' GROUP BY dept_name HAVING SUM(quantity) > 5",
+      "borrowed": ["SUM", "GROUP", "BY", "HAVING", "INNER", "JOIN", "ON"],
+      "reward": { "gold": 320, "energy": 9, "items": ["HAVING"] }
+    },
+    {
+      "floor": 15,
+      "tables": ["sales", "employees", "departments"],
+      "specialValidation": true,
+      "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE sale_date >= '2025-02-01' GROUP BY dept_name HAVING SUM(quantity) >= 10",
+      "borrowed": ["HAVING"],
+      "reward": { "gold": 500, "energy": 10, "items": [] },
+      "hint": true,
+      "opensShop": true
+    }
+  ]
+}

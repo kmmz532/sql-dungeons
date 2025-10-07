@@ -32,7 +32,7 @@ export class DOMManager {
         const ids = [
             'start-screen', 'game-screen', 'end-screen', 'game-grid',
             'start-button', 'load-button', 'sandbox-button', 'retry-button', 'save-button',
-            'next-floor-btn', 'floor-title', 'gold-status', 'energy-status',
+            'next-floor-btn', 'next-dungeon-btn', 'prev-floor-btn', 'floor-title', 'gold-status', 'energy-status',
             'inventory-list', 'quest-story', 'quest-schema', 'sql-editor',
             'execute-btn', 'hint-btn', 'ku-next-btn', 'result-area',
             'end-title', 'end-message', 'feedback-message', 'shop-modal',
@@ -101,8 +101,33 @@ export class DOMManager {
         if (importBtn && importFile) importBtn.addEventListener('click', () => importFile.click());
         if (importFile) importFile.addEventListener('change', (ev) => this.importJSON(ev));
         if (langSelect) {
-            const langVal = (this.settings && this.settings.language) ? this.settings.language : 'ja';
-            langSelect.value = langVal;
+            // Populate language options from availableLocales if provided by i18n-init
+            try {
+                const avail = window.availableLocales || null;
+                if (Array.isArray(avail) && avail.length) {
+                    langSelect.innerHTML = '';
+                    avail.forEach(l => {
+                        const opt = document.createElement('option');
+                        // opt.value should be a short two-letter code used by settings (map handled in main)
+                        // use code like 'ja_jp' but keep option value as the short form for backward compat
+                        opt.value = l.code;
+                        opt.textContent = l.name || l.code;
+                        langSelect.appendChild(opt);
+                    });
+                }
+            } catch (e) { /* ignore */ }
+
+            // prefer i18n's active locale if available (full code like 'ja_jp'); fall back to saved short form
+            const preferred = (this.i18n && this.i18n.locale) ? this.i18n.locale : ((this.settings && this.settings.language) ? this.settings.language : 'ja_jp');
+            // if the select contains this exact value, use it; otherwise try to match by prefix (e.g., 'ja')
+            if ([...langSelect.options].some(o => o.value === preferred)) {
+                langSelect.value = preferred;
+            } else {
+                const short = String(preferred).split('_')[0];
+                const match = [...langSelect.options].find(o => String(o.value).startsWith(short));
+                if (match) langSelect.value = match.value;
+                else langSelect.value = langSelect.options.length ? langSelect.options[0].value : preferred;
+            }
 
             if (!this.pendingSettings) this.pendingSettings = Object.assign({}, this.settings);
             langSelect.addEventListener('change', (ev) => {

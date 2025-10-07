@@ -24,11 +24,21 @@ export class Floor {
     getTitle(options = {}) {
         const i18n = options.i18n || this.i18n;
         const locale = options.locale || (i18n && i18n.locale);
+        const currentDungeon = options.currentDungeon || (window && window.game && window.game.currentDungeon) || null;
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
-            const key = `dungeon.floor${this.floor}.title`;
-            let title = i18n.t(key);
+            // prefer per-dungeon key if available
+            let title = null;
+            if (currentDungeon) {
+                const pdKey = `dungeon.${currentDungeon}.floor${this.floor}.title`;
+                title = i18n.t(pdKey);
+                if (title && title.startsWith('dungeon.')) title = null;
+            }
+            if (!title) {
+                const key = `dungeon.floor${this.floor}.title`;
+                title = i18n.t(key);
+            }
             if (locale && locale !== prev) i18n.locale = prev;
             if (title && !title.startsWith('dungeon.')) return title;
         }
@@ -41,11 +51,20 @@ export class Floor {
     getStory(options = {}) {
         const i18n = options.i18n || window.i18n;
         const locale = options.locale || (i18n && i18n.locale);
+        const currentDungeon = options.currentDungeon || (window && window.game && window.game.currentDungeon) || null;
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
-            const key = `dungeon.floor${this.floor}.story`;
-            let story = i18n.t(key);
+            let story = null;
+            if (currentDungeon) {
+                const pdKey = `dungeon.${currentDungeon}.floor${this.floor}.story`;
+                story = i18n.t(pdKey);
+                if (story && story.startsWith('dungeon.')) story = null;
+            }
+            if (!story) {
+                const key = `dungeon.floor${this.floor}.story`;
+                story = i18n.t(key);
+            }
             if (locale && locale !== prev) i18n.locale = prev;
             if (story && !story.startsWith('dungeon.')) return story;
         }
@@ -58,11 +77,20 @@ export class Floor {
     getHint(options = {}) {
         const i18n = options.i18n || window.i18n;
         const locale = options.locale || (i18n && i18n.locale);
+        const currentDungeon = options.currentDungeon || (window && window.game && window.game.currentDungeon) || null;
         if (i18n) {
             const prev = i18n.locale;
             if (locale && locale !== prev) i18n.locale = locale;
-            const key = `dungeon.floor${this.floor}.hint`;
-            let hint = i18n.t(key);
+            let hint = null;
+            if (currentDungeon) {
+                const pdKey = `dungeon.${currentDungeon}.floor${this.floor}.hint`;
+                hint = i18n.t(pdKey);
+                if (hint && hint.startsWith('dungeon.')) hint = null;
+            }
+            if (!hint) {
+                const key = `dungeon.floor${this.floor}.hint`;
+                hint = i18n.t(key);
+            }
             if (locale && locale !== prev) i18n.locale = prev;
             if (hint && !hint.startsWith('dungeon.')) return hint;
         }
