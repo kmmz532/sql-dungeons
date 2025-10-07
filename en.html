@@ -20,8 +20,8 @@
                     Executing queries consumes energy, and hints cost gold.<br>
                     Manage your resources wisely and aim for the deepest floor!</p>
                     <div class="start-buttons">
-                        <button class="start-btn" id="start-button" data-i18n="button.start">Start New Game</button>
-                        <button class="load-btn hidden" id="load-button" data-i18n="button.load">Load Game</button>
+                        <button type="button" class="start-btn" id="start-button" data-i18n="button.start">Start New Game</button>
+                        <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">Load Game</button>
                     </div>
                 </div>
             </div>
@@ -32,7 +32,7 @@
                         <span id="gold-status" class="status-item" aria-label="Gold"></span>
                         <span id="energy-status" class="status-item" aria-label="Energy"></span>
                     </div>
-                    <button id="save-button" class="action-btn" data-i18n="button.save">Save</button>
+                    <button type="button" id="save-button" class="action-btn" data-i18n="button.save">Save</button>
                 </header>
                 <div class="content game-grid" id="game-grid" role="main">
                     <div id="inventory-panel" class="panel" role="region" aria-labelledby="inventory-title">
@@ -48,21 +48,21 @@
                         <div class="editor-header">
                             <h2 data-i18n="game.editor.title">Cast Spell (SQL Query)</h2>
                             <div class="editor-tools">
-                                <button class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">Query Next</button>
-                                <button class="action-btn" id="hint-btn" data-i18n="button.hint">?</button>
+                                <button type="button" class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">Query Next</button>
+                                <button type="button" class="action-btn" id="hint-btn" data-i18n="button.hint">?</button>
                             </div>
                         </div>
                         <textarea id="sql-editor" data-i18n-placeholder="game.editor.placeholder" placeholder="Enter SQL here..." aria-label="SQL Query Input Area" role="textbox"></textarea>
                         <div class="action-buttons">
-                            <button class="action-btn" id="execute-btn" data-i18n="button.execute">Cast Spell (Execute)</button>
+                            <button type="button" class="action-btn" id="execute-btn" data-i18n="button.execute">Cast Spell (Execute)</button>
                         </div>
                     </div>
                     <div class="result-panel panel" style="grid-column: 1 / -1;">
                         <h2 data-i18n="game.result.title">Execution Result</h2>
                         <div id="result-area"></div>
                         <div id="floor-actions-container" class="floor-actions hidden">
-                            <button id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">Visit Shop</button>
-                            <button id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">Next Floor</button>
+                            <button type="button" id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">Visit Shop</button>
+                            <button type="button" id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">Next Floor</button>
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                 <div class="header"><h1 id="end-title"></h1></div>
                 <div class="content">
                     <p id="end-message"></p>
-                    <button class="retry-btn" id="retry-button" data-i18n="button.retry">Try Again</button>
+                    <button type="button" class="retry-btn" id="retry-button" data-i18n="button.retry">Try Again</button>
                 </div>
             </div>
 
@@ -79,7 +79,7 @@
                 <div class="modal-content" role="document">
                     <div class="modal-header">
                         <h2 id="shop-title" data-i18n="shop.title">Shop</h2>
-                        <button class="close-btn" data-modal-id="shop-modal">&times;</button>
+                        <button type="button" class="close-btn" data-modal-id="shop-modal">&times;</button>
                     </div>
                     <div id="shop-item-list"></div>
                 </div>
@@ -88,7 +88,7 @@
                 <div class="modal-content" role="document">
                     <div class="modal-header">
                         <h2 id="hint-modal-title" data-i18n="modal.hint.title"></h2>
-                        <button class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
+                        <button type="button" class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
                     </div>
                     <div class="modal-body">
                         <p id="hint-modal-text"></p>

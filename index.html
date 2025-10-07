@@ -16,16 +16,16 @@
             <div id="start-screen">
                 <div class="header">
                     <h1 data-i18n="app.title.beginner">SQLダンジョン - 初級 -</h1>
-                    <button id="settings-button" class="action-btn" aria-label="設定">⚙</button>
+                    <button type="button" id="settings-button" class="action-btn" aria-label="設定">⚙</button>
                 </div>
                 <div class="content" role="main">
                     <p data-i18n="app.intro.text">SQLの呪文を習得し、ダンジョンの謎を解き明かせ！<br>
                     クエリ実行にはエネルギーを、ヒントにはゴールドを消費する。<br>
                     賢くリソースを管理し、最深部を目指せ！</p>
                     <div class="start-buttons">
-                        <button class="start-btn" id="start-button" data-i18n="button.start">新しく始める</button>
-                        <button class="load-btn hidden" id="load-button" data-i18n="button.load">ロードして再開</button>
-                        <button class="sandbox-btn" id="sandbox-button" data-i18n="button.sandbox">サンドボックス</button>
+                        <button type="button" class="start-btn" id="start-button" data-i18n="button.start">新しく始める</button>
+                        <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">ロードして再開</button>
+                        <button type="button" class="sandbox-btn" id="sandbox-button" data-i18n="button.sandbox">サンドボックス</button>
                     </div>
                 </div>
             </div>
@@ -36,8 +36,8 @@
                         <span id="gold-status" class="status-item" aria-label="所持金"></span>
                         <span id="energy-status" class="status-item" aria-label="エネルギー"></span>
                     </div>
-                    <button id="save-button" class="action-btn" data-i18n="button.save">セーブ</button>
-                    <button id="back-to-title-button" class="action-btn" aria-label="タイトルに戻る">
+                    <button type="button" id="save-button" class="action-btn" data-i18n="button.save">セーブ</button>
+                    <button type="button" id="back-to-title-button" class="action-btn" aria-label="タイトルに戻る">
                         <span class="icon-back">↶</span>
                         <span class="visually-hidden" data-i18n="button.back_to_title">タイトルに戻る</span>
                     </button>
@@ -56,21 +56,21 @@
                         <div class="editor-header">
                             <h2 data-i18n="game.editor.title">呪文</h2>
                             <div class="editor-tools">
-                                <button class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">句ネクスト</button>
-                                <button class="action-btn" id="hint-btn" data-i18n="button.hint">？</button>
+                                <button type="button" class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">句ネクスト</button>
+                                <button type="button" class="action-btn" id="hint-btn" data-i18n="button.hint">？</button>
                             </div>
                         </div>
                         <textarea id="sql-editor" data-i18n-placeholder="game.editor.placeholder" placeholder="ここにSQLを入力..." aria-label="SQLクエリ入力エリア" role="textbox"></textarea>
                         <div class="action-buttons">
-                            <button class="action-btn" id="execute-btn" data-i18n="button.execute">呪文を唱える (実行)</button>
+                            <button type="button" class="action-btn" id="execute-btn" data-i18n="button.execute">呪文を唱える (実行)</button>
                         </div>
                     </div>
                     <div class="result-panel panel" style="grid-column: 1 / -1;">
                         <h2 data-i18n="game.result.title">実行結果</h2>
                         <div id="result-area"></div>
                         <div id="floor-actions-container" class="floor-actions hidden">
-                            <button id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">ショップへ立ち寄る</button>
-                            <button id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">次のフロアへ進む</button>
+                            <button type="button" id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">ショップへ立ち寄る</button>
+                            <button type="button" id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">次のフロアへ進む</button>
                         </div>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
                 <div class="header"><h1 id="end-title"></h1></div>
                 <div class="content">
                     <p id="end-message"></p>
-                    <button class="retry-btn" id="retry-button" data-i18n="button.retry">もう一度挑戦する</button>
+                    <button type="button" class="retry-btn" id="retry-button" data-i18n="button.retry">もう一度挑戦する</button>
                 </div>
             </div>
 
@@ -88,7 +88,7 @@
                 <div class="modal-content" role="document">
                     <div class="modal-header">
                         <h2 id="shop-title" data-i18n="shop.title">ショップ</h2>
-                        <button class="close-btn" data-modal-id="shop-modal">&times;</button>
+                        <button type="button" class="close-btn" data-modal-id="shop-modal">&times;</button>
                     </div>
                     <div id="shop-item-list"></div>
                 </div>
@@ -97,7 +97,7 @@
                 <div class="modal-content" role="document">
                     <div class="modal-header">
                         <h2 id="hint-modal-title" data-i18n="modal.hint.title"></h2>
-                        <button class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
+                        <button type="button" class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
                     </div>
                     <div class="modal-body">
                         <p id="hint-modal-text"></p>
@@ -110,7 +110,7 @@
                 <div class="modal-content" role="document">
                     <div class="modal-header">
                         <h2 id="settings-title" data-i18n="settings.title">設定</h2>
-                        <button class="close-btn" data-modal-id="settings-modal" data-i18n="modal.close">&times;</button>
+                        <button type="button" class="close-btn" data-modal-id="settings-modal" data-i18n="modal.close">&times;</button>
                     </div>
                     <div class="modal-body">
                         <div class="modal-actions" style="flex-direction: column; align-items: flex-start; gap: 10px;">
@@ -130,13 +130,13 @@
                                 <input type="checkbox" id="settings-enable-save-shortcut" checked /> <span data-i18n="settings.enable_save_shortcut">Ctrl+Sで保存する</span>
                             </label>
                             <div style="display:flex; gap:10px; align-items:center;">
-                                <button id="export-json" class="action-btn" data-i18n="settings.export_json">JSONエクスポート</button>
+                                <button type="button" id="export-json" class="action-btn" data-i18n="settings.export_json">JSONエクスポート</button>
                                 <input type="file" id="import-json-file" accept="application/json" style="display:none;" />
-                                <button id="import-json" class="action-btn" data-i18n="settings.import_json">JSONインポート</button>
+                                <button type="button" id="import-json" class="action-btn" data-i18n="settings.import_json">JSONインポート</button>
                             </div>
                             <div style="display:flex; gap:10px; margin-top:12px;">
-                                <button id="settings-save" class="action-btn" data-i18n="settings.save">保存</button>
-                                <button id="settings-cancel" class="action-btn" data-i18n="settings.cancel">キャンセル</button>
+                                <button type="button" id="settings-save" class="action-btn" data-i18n="settings.save">保存</button>
+                                <button type="button" id="settings-cancel" class="action-btn" data-i18n="settings.cancel">キャンセル</button>
                             </div>
                         </div>
                     </div>

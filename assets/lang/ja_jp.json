@@ -121,19 +121,19 @@
     "sql.next.join": "ON",
     "sql.next.unknown": "不明",
 
-    "dungeon.floor1.title": "チュートリアル1「SELECTですべてを見せて！」",
+    "dungeon.floor1.title": "チュートリアル1 SELECT",
     "dungeon.floor1.story": "SELECT * FROM table001 を呪文に入力して実行してみよう。",
 
-    "dungeon.floor2.title": "チュートリアル2「SELECTで一部を見よう！」",
+    "dungeon.floor2.title": "チュートリアル2 SELECT-2",
     "dungeon.floor2.story": "SELECT (カラム名) FROM (テーブル名) で指定した列だけを表示できる。概念スキーマからテーブル名を確認してmessageを取り出してみよう。",
 
-    "dungeon.floor3.title": "チュートリアル3「WHEREで絞り込もう！」",
+    "dungeon.floor3.title": "チュートリアル3 WHERE",
     "dungeon.floor3.story": "SELECT ... FROM ... WHERE (条件式) で特定の条件に合う行だけを絞り込める。フルーツ(fruits)テーブルから、色(color)が 'Red' のフルーツの名前(name)と色(color)を表示してみよう。\n条件式は、カラム名 = '値' のように書く。他にも、<, >, <=, >=, <> などがある。",
 
-    "dungeon.floor4.title": "チュートリアル4「ORDER BYで並び替え！」",
+    "dungeon.floor4.title": "チュートリアル4 ORDER BY",
     "dungeon.floor4.story": "SELECT ... FROM ... ORDER BY (カラム名) [ASC|DESC] で指定した列によって並び替えられる。フルーツ(fruits)テーブルから、価格(price)が安い順に名前(name)と価格(price)を表示してみよう。\n例えば、ORDER BY id とすればidの昇順となる。デフォルトでASC (昇順)であるため、ASCは省略可能だが、DESC (降順)は明示的に書く必要がある。",
 
-    "dungeon.floor5.title": "チュートリアル5「GROUP BYで集計！」",
+    "dungeon.floor5.title": "チュートリアル5 GROUP BY",
     "dungeon.floor5.story": "SELECT ... FROM ... GROUP BY (カラム名) で指定した列によってグループ化できる。フルーツ(fruits)テーブルから、色(color)ごとにフルーツの数を数えてみよう。\n集計関数にはCOUNT, SUM, AVG, MIN, MAX などがある。\nCOUNT(*) は行数を数え、SELECT color, COUNT(*) FROM fruits のように使うことができる。",
 
     "dungeon.floor6.title": "駆け出しのSELECT文",

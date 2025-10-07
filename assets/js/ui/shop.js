@@ -16,7 +16,7 @@ export function openShop(game) {
                 <p>${name}</p>
                 <p class="item-desc">${desc}</p>
             </div>
-            <button class="action-btn buy-btn" data-item-id="${item.id}" ${game.player.gold < item.price ? 'disabled' : ''}>
+            <button type="button" class="action-btn buy-btn" data-item-id="${item.id}" ${game.player.gold < item.price ? 'disabled' : ''}>
                 💰 ${item.price} G
             </button>
         `;

@@ -20,8 +20,8 @@
                 쿼리 실행에는 에너지가, 힌트에는 골드가 소모됩니다.<br>
                 자원을 현명하게 관리하여 최심부를 목표로 하세요!</p>
                 <div class="start-buttons">
-                    <button class="start-btn" id="start-button" data-i18n="button.start">새로 시작하기</button>
-                    <button class="load-btn hidden" id="load-button" data-i18n="button.load">불러오기</button>
+                    <button type="button" class="start-btn" id="start-button" data-i18n="button.start">새로 시작하기</button>
+                    <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">불러오기</button>
                 </div>
             </div>
         </div>
@@ -32,7 +32,7 @@
                     <span id="gold-status" class="status-item" aria-label="골드"></span>
                     <span id="energy-status" class="status-item" aria-label="에너지"></span>
                 </div>
-                <button id="save-button" class="action-btn" data-i18n="button.save">저장</button>
+                <button type="button" id="save-button" class="action-btn" data-i18n="button.save">저장</button>
             </header>
             <div class="content game-grid" id="game-grid" role="main">
                 <div id="inventory-panel" class="panel" role="region" aria-labelledby="inventory-title">
@@ -48,21 +48,21 @@
                     <div class="editor-header">
                         <h2 data-i18n="game.editor.title">마법 시전 (SQL 쿼리)</h2>
                         <div class="editor-tools">
-                            <button class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">구문 넥스트</button>
-                            <button class="action-btn" id="hint-btn" data-i18n="button.hint">?</button>
+                            <button type="button" class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">구문 넥스트</button>
+                            <button type="button" class="action-btn" id="hint-btn" data-i18n="button.hint">?</button>
                         </div>
                     </div>
                     <textarea id="sql-editor" data-i18n-placeholder="game.editor.placeholder" placeholder="여기에 SQL을 입력..." aria-label="SQL 쿼리 입력 영역" role="textbox"></textarea>
                     <div class="action-buttons">
-                        <button class="action-btn" id="execute-btn" data-i18n="button.execute">마법 시전 (실행)</button>
+                        <button type="button" class="action-btn" id="execute-btn" data-i18n="button.execute">마법 시전 (실행)</button>
                     </div>
                 </div>
                 <div class="result-panel panel" style="grid-column: 1 / -1;">
                     <h2 data-i18n="game.result.title">실행 결과</h2>
                     <div id="result-area"></div>
                     <div id="floor-actions-container" class="floor-actions hidden">
-                        <button id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">상점 방문</button>
-                        <button id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">다음 플로어</button>
+                        <button type="button" id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">상점 방문</button>
+                        <button type="button" id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">다음 플로어</button>
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
             <div class="header"><h1 id="end-title"></h1></div>
             <div class="content">
                 <p id="end-message"></p>
-                <button class="retry-btn" id="retry-button" data-i18n="button.retry">다시 도전하기</button>
+                <button type="button" class="retry-btn" id="retry-button" data-i18n="button.retry">다시 도전하기</button>
             </div>
         </div>
 
@@ -79,7 +79,7 @@
             <div class="modal-content" role="document">
                 <div class="modal-header">
                     <h2 id="shop-title" data-i18n="shop.title">상점</h2>
-                    <button class="close-btn" data-modal-id="shop-modal">&times;</button>
+                    <button type="button" class="close-btn" data-modal-id="shop-modal">&times;</button>
                 </div>
                 <div id="shop-item-list"></div>
             </div>
@@ -88,7 +88,7 @@
             <div class="modal-content" role="document">
                 <div class="modal-header">
                     <h2 id="hint-modal-title" data-i18n="modal.hint.title"></h2>
-                    <button class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
+                    <button type="button" class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <p id="hint-modal-text"></p>

@@ -20,8 +20,8 @@
                 执行查询会消耗能量，提示会消耗金币。<br>
                 明智地管理资源，目标是最深层！</p>
                 <div class="start-buttons">
-                    <button class="start-btn" id="start-button" data-i18n="button.start">新游戏</button>
-                    <button class="load-btn hidden" id="load-button" data-i18n="button.load">加载游戏</button>
+                    <button type="button" class="start-btn" id="start-button" data-i18n="button.start">新游戏</button>
+                    <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">加载游戏</button>
                 </div>
             </div>
         </div>
@@ -32,7 +32,7 @@
                     <span id="gold-status" class="status-item" aria-label="金币"></span>
                     <span id="energy-status" class="status-item" aria-label="能量"></span>
                 </div>
-                <button id="save-button" class="action-btn" data-i18n="button.save">保存</button>
+                <button type="button" id="save-button" class="action-btn" data-i18n="button.save">保存</button>
             </header>
             <div class="content game-grid" id="game-grid" role="main">
                 <div id="inventory-panel" class="panel" role="region" aria-labelledby="inventory-title">
@@ -48,21 +48,21 @@
                     <div class="editor-header">
                         <h2 data-i18n="game.editor.title">施法（SQL查询）</h2>
                         <div class="editor-tools">
-                            <button class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">句子下一个</button>
-                            <button class="action-btn" id="hint-btn" data-i18n="button.hint">?</button>
+                            <button type="button" class="action-btn hidden" id="ku-next-btn" data-i18n="button.ku_next">句子下一个</button>
+                            <button type="button" class="action-btn" id="hint-btn" data-i18n="button.hint">?</button>
                         </div>
                     </div>
                     <textarea id="sql-editor" data-i18n-placeholder="game.editor.placeholder" placeholder="在此输入SQL..." aria-label="SQL查询输入区" role="textbox"></textarea>
                     <div class="action-buttons">
-                        <button class="action-btn" id="execute-btn" data-i18n="button.execute">施法（执行）</button>
+                        <button type="button" class="action-btn" id="execute-btn" data-i18n="button.execute">施法（执行）</button>
                     </div>
                 </div>
                 <div class="result-panel panel" style="grid-column: 1 / -1;">
                     <h2 data-i18n="game.result.title">执行结果</h2>
                     <div id="result-area"></div>
                     <div id="floor-actions-container" class="floor-actions hidden">
-                        <button id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">前往商店</button>
-                        <button id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">下一层</button>
+                        <button type="button" id="shop-btn" class="action-btn floor-action-btn hidden" data-i18n="button.shop">前往商店</button>
+                        <button type="button" id="next-floor-btn" class="action-btn floor-action-btn hidden" data-i18n="button.next_floor">下一层</button>
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
             <div class="header"><h1 id="end-title"></h1></div>
             <div class="content">
                 <p id="end-message"></p>
-                <button class="retry-btn" id="retry-button" data-i18n="button.retry">再试一次</button>
+                <button type="button" class="retry-btn" id="retry-button" data-i18n="button.retry">再试一次</button>
             </div>
         </div>
 
@@ -79,7 +79,7 @@
             <div class="modal-content" role="document">
                 <div class="modal-header">
                     <h2 id="shop-title" data-i18n="shop.title">商店</h2>
-                    <button class="close-btn" data-modal-id="shop-modal">&times;</button>
+                    <button type="button" class="close-btn" data-modal-id="shop-modal">&times;</button>
                 </div>
                 <div id="shop-item-list"></div>
             </div>
@@ -88,7 +88,7 @@
             <div class="modal-content" role="document">
                 <div class="modal-header">
                     <h2 id="hint-modal-title" data-i18n="modal.hint.title"></h2>
-                    <button class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
+                    <button type="button" class="close-btn" data-modal-id="hint-modal" data-i18n="modal.close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <p id="hint-modal-text"></p>

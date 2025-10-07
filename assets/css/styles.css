@@ -56,7 +56,6 @@ body {
     position: relative;
 }
 
-/* 設定ボタン */
 #settings-button {
     background: #6b6b6b;
     color: #fff;
@@ -67,14 +66,15 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: calc(var(--settings-size) * 0.75);
+    font-size: calc(var(--settings-size) * 0.85);
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     position: absolute;
-    right: 12px;
+    right: 7px;
     top: 50%;
     transform: translateY(-50%);
 }
+
 #settings-button:hover {
     background: #7d7d7d;
 }
@@ -108,7 +108,6 @@ p {
     display: none !important;
 }
 
-/* --- ステータスバー / Status bar --- */
 #status-bar {
     display: flex;
     gap: 15px;
@@ -129,7 +128,6 @@ p {
     color: var(--energy-color);
 }
 
-/* --- スタート/エンド画面 / Start / End screens --- */
 .content {
     padding: 20px;
 }
@@ -142,6 +140,7 @@ p {
 }
 
 .start-btn,
+.sandbox-btn,
 .retry-btn,
 .load-btn {
     color: white;
@@ -156,64 +155,38 @@ p {
     max-width: 400px;
 }
 
-.sandbox-btn {
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 15px 30px;
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-shadow: 2px 2px 2px #000;
-    width: 100%;
-    max-width: 400px;
-    background: linear-gradient(45deg, #2ecc71, #27ae60);
-    box-shadow: 0 4px #1f7a44;
+.start-btn, .load-btn, .sandbox-btn {
+    background: #5a5a7a;
+    box-shadow: 0 4px #303050;
 }
 
-.sandbox-btn:hover {
-    box-shadow: 0 6px #1f7a44;
-}
-
-.sandbox-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px #1f7a44;
-}
-
-.start-btn {
-    background: linear-gradient(45deg, var(--accent-color), #c0392b);
-    box-shadow: 0 4px #800000;
-}
-
-.start-btn:hover {
-    box-shadow: 0 6px #800000;
-}
-
-.start-btn:active {
-    box-shadow: 0 2px #800000;
-}
-
-.load-btn {
-    background: linear-gradient(45deg, var(--energy-color), #2980b9);
+.start-btn:hover, .load-btn:hover, .sandbox-btn:hover {
+    background: #2980b9;
     box-shadow: 0 4px #1a5276;
 }
 
-.load-btn:hover {
-    box-shadow: 0 6px #1a5276;
-}
-
-.load-btn:active {
-    transform: translateY(2px);
+.start-btn:active, .load-btn:active, .sandbox-btn:active {
+    background: #2980b9;
     box-shadow: 0 2px #1a5276;
+    transform: translateY(2px);
 }
 
 .retry-btn {
-    background: linear-gradient(45deg, var(--accent-color), #c0392b);
+    background: linear-gradient(45deg, #e94560, #c0392b);
     box-shadow: 0 4px #800000;
     margin-top: 20px;
 }
 
-/* --- ゲーム画面レイアウト / Game layout --- */
+.retry-btn:hover {
+    background: linear-gradient(45deg, #ff5e75, #c0392b);
+    box-shadow: 0 4px #800000;
+}
+
+.retry-btn:active {
+    box-shadow: 0 2px #800000;
+    transform: translateY(2px);
+}
+
 .game-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -232,7 +205,6 @@ p {
     }
 }
 
-/* --- パネルスタイル / Panel styles --- */
 .panel {
     background-color: rgba(0, 0, 0, 0.2);
     border: 2px solid var(--border-color);
@@ -272,7 +244,6 @@ p {
     border-bottom: 2px dotted var(--gold-color);
 }
 
-/* --- インベントリ --- */
 #inventory-list {
     display: flex;
     flex-wrap: wrap;
@@ -301,7 +272,6 @@ p {
     color: #ccc;
 }
 
-/* --- エディタ / Editor & Actions --- */
 #sql-editor {
     width: 100%;
     height: 150px;
@@ -326,7 +296,6 @@ p {
     gap: 10px;
 }
 
-/* エディタの見出し (例: 呪文) が広がって下線が横幅いっぱいになるように */
 .editor-header h2 {
     flex: 1;
     text-align: left;
@@ -348,7 +317,6 @@ p {
     transition: all 0.2s;
 }
 
-/* ボタンにゲームのドットフォントを適用する */
 button,
 .action-btn,
 .start-btn,
@@ -361,17 +329,19 @@ button,
 #execute-btn {
     background-color: var(--energy-color);
     box-shadow: 0 3px #217dbb;
+    font-size: 1.0rem;
+    padding: 6px 15px;
 }
 
 #execute-btn:hover {
     background-color: #4aa3df;
-    transform: translateY(-1px);
-    box-shadow: 0 4px #217dbb;
+    box-shadow: 0 3px #327dab;
 }
 
 #execute-btn:active {
     transform: translateY(1px);
-    box-shadow: 0 2px #217dbb;
+    background-color: #4aa3df;
+    box-shadow: 0 2px #327dab;
 }
 
 #save-button {
@@ -379,15 +349,25 @@ button,
     box-shadow: 0 3px #7e4a9e;
     font-size: 1rem;
     padding: 5px 15px;
+    margin-top: -2px;
 }
-/* 戻るボタンのアイコン */
+
+#save-button:hover {
+    background-color: #a66bbe;
+    box-shadow: 0 3px #8e5aae;
+}
+
+#save-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px #8e5aae;
+}
+
 #back-to-title-button .icon-back {
     color: #ffffff;
     font-size: 1.1rem;
     line-height: 1;
 }
 
-/* 戻るボタン本体のスタイル: コントラストを高める */
 #back-to-title-button {
     background: rgba(0,0,0,0.75);
     color: #fff;
@@ -400,11 +380,11 @@ button,
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
+
 #back-to-title-button:hover {
     background: rgba(0,0,0,0.85);
 }
 
-/* 画面リーダー用の隠しテキスト */
 .visually-hidden {
     position: absolute !important;
     height: 1px; width: 1px;
@@ -439,7 +419,6 @@ button,
     color: #333;
 }
 
-/* --- フロアアクション / Floor actions --- */
 .floor-actions {
     display: flex;
     gap: 15px;
@@ -453,15 +432,36 @@ button,
 
 #next-floor-btn {
     background-color: var(--success-color);
-    box-shadow: 0 3px #3a9a5c;
+    box-shadow: 0 4px #3a9a5c;
+}
+
+#next-floor-btn:hover {
+    background-color: #6ee28a;
+    box-shadow: 0 4px #4aaa6c;
+}
+
+#next-floor-btn:active {
+    transform: translateY(1px);
+    background-color: #6ee28a;
+    box-shadow: 0 3px #4aaa6c;
 }
 
 #shop-btn {
     background-color: var(--gold-color);
-    box-shadow: 0 3px #c29d0b;
+    box-shadow: 0 4px #c29d0b;
 }
 
-/* --- モーダル (共通) / Modal (shared) --- */
+#shop-btn:hover {
+    background-color: #f7d94c;
+    box-shadow: 0 4px #d1b43b;
+}
+
+#shop-btn:active {
+    transform: translateY(1px);
+    background-color: #f7d94c;
+    box-shadow: 0 3px #d1b43b;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -498,7 +498,7 @@ button,
     margin-bottom: 0;
 }
 
-/* 重複する下線を削除: モーダル内のh2が別のボーダーを追加しないように */
+/* 重複する下線を削除 */
 .modal-header h2 {
     border-bottom: none;
     padding-bottom: 0;
@@ -512,7 +512,6 @@ button,
     cursor: pointer;
 }
 
-/* --- Sandbox UI --- */
 .sandbox-badge {
     background: linear-gradient(45deg, #ff9a00, #ff6b00);
     color: #111;
@@ -538,14 +537,12 @@ button,
     border-radius: 6px;
 }
 
-/* サンドボックスが有効なときに特定のプレイヤーUIを非表示にする */
 .sandbox-controls ~ .game-grid #inventory-panel,
 .sandbox-controls ~ .game-grid #hint-panel,
 .sandbox-controls ~ .game-grid #mission-panel {
     display: none !important;
 }
 
-/* DOM配置に依存せず body.sandbox-mode で非表示にする方が堅牢 */
 body.sandbox-mode #inventory-panel,
 body.sandbox-mode #hint-panel,
 body.sandbox-mode #quest-story,
@@ -554,7 +551,6 @@ body.sandbox-mode #save-button {
     display: none !important;
 }
 
-/* ミッションパネルとインベントリを丸ごと非表示に */
 body.sandbox-mode .quest-panel,
 body.sandbox-mode #inventory-panel {
     display: none !important;
@@ -652,7 +648,6 @@ body.sandbox-mode #inventory-panel {
     justify-content: center;
 }
 
-/* モーダルのアクションボタン (例: 購入確認) はモーダル背景で見えるように */
 .modal-actions .action-btn,
 .modal-content .action-btn {
     background-color: var(--accent-color);
@@ -666,7 +661,6 @@ body.sandbox-mode #inventory-panel {
     transform: translateY(-1px);
 }
 
-/* --- その他 / Misc --- */
 #feedback-message {
     position: absolute;
     top: 10px;
@@ -688,8 +682,7 @@ body.sandbox-mode #inventory-panel {
 }
 
 .result-message {
-    margin-bottom: 10px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
 .result-success {
@@ -721,19 +714,12 @@ body.sandbox-mode #inventory-panel {
     background-color: var(--header-bg);
 }
 
-/* 結果エリアの余白とレイアウト調整 */
 #result-area {
     padding: 12px 16px;
     box-sizing: border-box;
     text-align: left;
 }
 
-.result-message {
-    margin-bottom: 12px;
-    font-size: 1.05rem;
-}
-
-/* インベントリ/ヘルプ用のツールチップ */
 .tooltip {
     position: absolute;
     z-index: 2000;
@@ -747,5 +733,6 @@ body.sandbox-mode #inventory-panel {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
-/* Ensure header keeps space for larger settings button */
-.header h1 { margin-right: calc(var(--settings-size) + 12px); }
+.header h1 { 
+    margin-right: calc(var(--settings-size) + 12px);
+ }

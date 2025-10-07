@@ -53,10 +53,10 @@
           </select>
         </label>
         <textarea id="sql-input" style="width:100%;height:120px;margin-top:8px;font-family:monospace;">SELECT emp_name, dept_name FROM employees as e INNER JOIN departments as d ON e.dept_id = d.dept_id</textarea>
-        <div style="margin-top:8px;"><button id="run-query" class="action-btn">Run Query</button> <span class="small">or edit SQL above</span></div>
+        <div style="margin-top:8px;"><button type="button" id="run-query" class="action-btn">Run Query</button> <span class="small">or edit SQL above</span></div>
         <div style="margin-top:8px;">
-          <button id="run-test-monsters" class="btn">Run monsters COUNT test</button>
-          <button id="run-test-parent" class="btn" style="margin-left:8px;">Run parent mock DB test</button>
+          <button type="button" id="run-test-monsters" class="btn">Run monsters COUNT test</button>
+          <button type="button" id="run-test-parent" class="btn" style="margin-left:8px;">Run parent mock DB test</button>
         </div>
       </div>
 
