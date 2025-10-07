@@ -2,7 +2,7 @@ import { AbstractClause } from './abstract-clause.js';
 import { evaluateCondition } from '../util/condition-util.js';
 
 /**
- * OUTER JOIN clause (supports LEFT and RIGHT keywords via join.type)
+ * OUTER JOIN句クラス (LEFTおよびRIGHTキーワードをjoin.typeでサポート)
  * apply(table, joins, mockDatabase)
  */
 export class OuterJoinClause extends AbstractClause {
@@ -23,9 +23,7 @@ export class OuterJoinClause extends AbstractClause {
         for (const j of joins) {
             const joinTable = mockDatabase && (mockDatabase[j.table.toLowerCase()] || mockDatabase[j.table]);
             if (!Array.isArray(joinTable)) {
-                // If join table missing, behavior depends on outer/inner; for outer, keep left rows with nulls
                 if (String(j.type).toLowerCase().includes('left')) {
-                    // fill with left rows unchanged
                     continue;
                 }
                 accumulated = [];
@@ -47,7 +45,6 @@ export class OuterJoinClause extends AbstractClause {
                     }
                 }
                 if (!matched && String(j.type).toLowerCase().includes('left')) {
-                    // produce a row with right-side nulls
                     const nullRight = {};
                     const sampleRight = joinTable[0] || {};
                     for (const k in sampleRight) nullRight[`${joinName}.${k}`] = null;

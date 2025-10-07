@@ -28,6 +28,10 @@ export const parseSimpleComparison = (str) => {
     if (/^-?\d+(?:\.\d+)?$/.test(val)) {
         val = Number(val);
     }
+    // NULL リテラル扱い
+    if (typeof val === 'string' && /^null$/i.test(val)) {
+        val = null;
+    }
     return { col: m[1], op: m[2], val };
 };
 
@@ -87,12 +91,32 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
             p = p.trim();
             if (p.startsWith("'") && p.endsWith("'")) return p.slice(1, -1);
             if (/^-?\d+$/.test(p)) return Number(p);
+            if (/^null$/i.test(p)) return null;
             return p;
         });
         const set = new Set(items.map(v => (v === null || v === undefined) ? v : String(v)));
         const lhs = resolveRowValue(row, col);
         const key = lhs === null || lhs === undefined ? lhs : String(lhs);
         return set.has(key);
+    }
+
+    // NOT IN（リテラルリスト）
+    const notInMatch = s.match(/^(\w+(?:\.\w+)?)\s+not\s+in\s*\(([^)]+)\)$/i);
+    if (notInMatch) {
+        const col = notInMatch[1];
+        const inner = notInMatch[2];
+        const parts = inner.match(/('.*?'|[^,\s][^,]*[^,\s]?)/g) || [];
+        const items = parts.map(p => {
+            p = p.trim();
+            if (p.startsWith("'") && p.endsWith("'")) return p.slice(1, -1);
+            if (/^-?\d+$/.test(p)) return Number(p);
+            if (/^null$/i.test(p)) return null;
+            return p;
+        });
+        const set = new Set(items.map(v => (v === null || v === undefined) ? v : String(v)));
+        const lhs = resolveRowValue(row, col);
+        const key = lhs === null || lhs === undefined ? lhs : String(lhs);
+        return !set.has(key);
     }
 
     // 単純比較
@@ -102,6 +126,14 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
         let rhs = cmp.val;
         if (typeof rhs === 'string' && /^\w+\.\w+$/.test(rhs)) {
             rhs = resolveRowValue(row, rhs);
+        }
+        // NULL 比較の扱い: JS の比較は undefined/null に影響されるため明示的に扱う
+        if (rhs === null) {
+            switch (cmp.op) {
+                case '=': return lhs === null || lhs === undefined;
+                case '!=': case '<>': return !(lhs === null || lhs === undefined);
+                default: return false;
+            }
         }
         switch (cmp.op) {
             case '=': return lhs == rhs;

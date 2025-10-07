@@ -1,6 +1,6 @@
 {
-  "name": "SQL Dungeon",
-  "short_name": "SQLDungeon",
+  "name": "SQL Dungeons",
+  "short_name": "SQL Dungeons",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1a1a2e",

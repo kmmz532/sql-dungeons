@@ -27,7 +27,6 @@ export class DOMManager {
 
         this.setupEventListeners();
 
-        // Apply i18n-derived UI tooltips now that i18n may be available
         try { this.applyI18nToUI(); } catch(e) {}
     }
 
@@ -49,10 +48,8 @@ export class DOMManager {
         ids.forEach(id => {
             this.elements[id] = document.getElementById(id);
         });
-        // Note: we intentionally avoid setting native `title` attributes here; we use the custom .tooltip element only
     }
 
-    // Apply i18n strings to common UI elements (not only modals)
     applyI18nToUI() {
         if (!this.i18n) return;
         const t = (k, ...args) => { try { return this.i18n.t(k, ...args); } catch(e) { return null; } };
@@ -62,7 +59,7 @@ export class DOMManager {
             'execute-btn': 'ui.execute',
             'prev-floor-btn': 'ui.prev_floor',
         };
-        // add gold/energy mapping but pick the best available key (support ui.gold, ui.gold_status, status.gold)
+
         const pickKey = (candidates) => {
             for (const k of candidates) {
                 try {
@@ -84,9 +81,7 @@ export class DOMManager {
                 if (!el) return;
                 const key = map[id];
                 const txt = t(key);
-                // Only use the i18n key if a real translation exists (i18n.t sometimes returns the key)
                 if (txt && txt !== key) {
-                    // Do NOT set native title; instead store the i18n-key so the custom tooltip can use it
                     el.setAttribute('data-i18n-title', key);
                 }
             } catch (e) {}
@@ -99,13 +94,12 @@ export class DOMManager {
                 this.closeModal(document.getElementById(btn.dataset.modalId));
             });
         });
-        // グローバルなキーボード操作: ESCでモーダル閉じる / Ctrl+S (Cmd+S) でセーブ
         document.addEventListener('keydown', (ev) => {
             // 入力中はショートカットを無視（例: テキストエリアや入力フィールド）
             const active = document.activeElement;
             const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
 
-            // ESC: 開いているモーダルがあれば閉じる（設定で無効化可能）
+            // ESCでダイアログを閉じる（設定で無効化可能）
             if (ev.key === 'Escape') {
                 if (!this.settings.enableEsc) return;
                 ev.preventDefault();
@@ -114,7 +108,7 @@ export class DOMManager {
                 return;
             }
 
-            // Ctrl+S または Cmd+S: セーブをトリガー（設定で無効化可能）
+            // Ctrl+S でセーブ（設定で無効化可能）
             const isSave = (ev.key === 's' || ev.key === 'S') && (ev.ctrlKey || ev.metaKey);
             if (isSave) {
                 if (!this.settings.enableSaveShortcut) return;
@@ -458,7 +452,10 @@ export class DOMManager {
         const keys = Object.keys(data[0]);
         const simplify = (k) => {
             // テーブル名.カラム名 の形式ならカラム名だけ表示
-            if (typeof k === 'string' && k.indexOf('.') !== -1) return k.split('.').pop();
+            if (typeof k === 'string') {
+                if (k.indexOf('.') !== -1 && k.indexOf('(') === -1 && /^\w+(?:\.\w+)+$/.test(k)) return k.split('.').pop();
+                return k;
+            }
             return k;
         };
         keys.forEach(key => {

@@ -225,50 +225,91 @@ export class SQLParser {
             if (parsed.joins && parsed.joins.length) {
                 for (const j of parsed.joins) {
                     const joinTable = mockDatabase[j.table.toLowerCase()] || mockDatabase[j.table];
+                    const joinName = j.alias || j.table;
                     if (!Array.isArray(joinTable)) {
+                        // if left join and missing table, keep left rows; if right join and missing, result empty
+                        if (String(j.type).toLowerCase().includes('left')) {
+                            continue;
+                        }
                         accumulated = []; break;
                     }
-                    const joinName = j.alias || j.table;
                     const newAccum = [];
+                    const onExpr = (j.on || '').trim();
 
-                    // parse ON: prefer using centralized evaluateCondition which supports more operators
-                    const onExpr = j.on.trim();
-                    const onMatch = null;
-
-                    for (const leftRow of accumulated) {
+                    // LEFT JOIN: for each leftRow keep matches, otherwise include leftRow + nulls for right
+                    if (String(j.type).toLowerCase() === 'left') {
+                        for (const leftRow of accumulated) {
+                            let matched = false;
+                            for (const rightRow of joinTable) {
+                                const prefRight = prefixRow(rightRow, joinName);
+                                const combined = Object.assign({}, leftRow, prefRight);
+                                let onOk = true;
+                                try { onOk = evaluateCondition(combined, onExpr, { permissive: false }); } catch (e) { onOk = false; }
+                                if (onOk) { matched = true; newAccum.push(combined); }
+                            }
+                            if (!matched) {
+                                const nullRight = {};
+                                const sampleRight = joinTable[0] || {};
+                                for (const k in sampleRight) nullRight[`${joinName}.${k}`] = null;
+                                newAccum.push(Object.assign({}, leftRow, nullRight));
+                            }
+                        }
+                    } else if (String(j.type).toLowerCase() === 'right') {
+                        // RIGHT JOIN: for each rightRow, attach matching leftRows; if none, include rightRow with null-left
+                        // Reconstruct leftRows from accumulated
+                        const leftRows = accumulated.slice();
                         for (const rightRow of joinTable) {
                             const prefRight = prefixRow(rightRow, joinName);
-                            const combined = Object.assign({}, leftRow, prefRight);
-
-                            let onOk = true;
-                            try {
-                                // Use evaluateCondition to support richer ON conditions (LIKE, IN, comparisons)
-                                onOk = evaluateCondition(combined, onExpr, { permissive: false });
-                            } catch (e) {
-                                // fallback: try the simple equality parse
-                                const fallback = j.on.match(/(\w+(?:\.\w+)?)\s*=\s*(\w+(?:\.\w+)?)/);
-                                if (fallback) {
-                                    const leftKey = fallback[1];
-                                    const rightKey = fallback[2];
-                                    const getVal = (obj, key) => {
-                                        if (key in obj) return obj[key];
-                                        if (!key.includes('.')) {
-                                            const found = Object.keys(obj).find(k => k.endsWith('.' + key));
-                                            return found ? obj[found] : undefined;
-                                        }
-                                        return undefined;
-                                    };
-                                    const lv = getVal(combined, leftKey);
-                                    const rv = getVal(combined, rightKey);
-                                    onOk = (lv === rv);
-                                } else {
-                                    onOk = false;
-                                }
+                            let matched = false;
+                            for (const leftRow of leftRows) {
+                                const combined = Object.assign({}, leftRow, prefRight);
+                                let onOk = true;
+                                try { onOk = evaluateCondition(combined, onExpr, { permissive: false }); } catch (e) { onOk = false; }
+                                if (onOk) { matched = true; newAccum.push(combined); }
                             }
-
-                            if (onOk) newAccum.push(combined);
+                            if (!matched) {
+                                // build null-left based on one sample leftRow if exists
+                                const nullLeft = {};
+                                const sampleLeft = leftRows[0] || {};
+                                // Determine left alias keys by checking sampleLeft keys and stripping prefix
+                                for (const k in sampleLeft) {
+                                    // keep same key as sampleLeft but set value to null
+                                    nullLeft[k] = null;
+                                }
+                                newAccum.push(Object.assign({}, nullLeft, prefRight));
+                            }
+                        }
+                    } else {
+                        // inner/default join
+                        for (const leftRow of accumulated) {
+                            for (const rightRow of joinTable) {
+                                const prefRight = prefixRow(rightRow, joinName);
+                                const combined = Object.assign({}, leftRow, prefRight);
+                                let onOk = true;
+                                try { onOk = evaluateCondition(combined, onExpr, { permissive: false }); } catch (e) {
+                                    // fallback to simple equality
+                                    const fallback = j.on ? j.on.match(/(\w+(?:\.\w+)?)\s*=\s*(\w+(?:\.\w+)?)/) : null;
+                                    if (fallback) {
+                                        const leftKey = fallback[1];
+                                        const rightKey = fallback[2];
+                                        const getVal = (obj, key) => {
+                                            if (key in obj) return obj[key];
+                                            if (!key.includes('.')) {
+                                                const found = Object.keys(obj).find(k => k.endsWith('.' + key));
+                                                return found ? obj[found] : undefined;
+                                            }
+                                            return undefined;
+                                        };
+                                        const lv = getVal(combined, leftKey);
+                                        const rv = getVal(combined, rightKey);
+                                        onOk = (lv === rv);
+                                    } else { onOk = false; }
+                                }
+                                if (onOk) newAccum.push(combined);
+                            }
                         }
                     }
+
                     accumulated = newAccum;
                     if (SQLParser.DEBUG) {
                         try { console.debug('[SQLParser] after join', j.table, 'accumulated=', accumulated.length); } catch(e){console.error(e);}
@@ -306,6 +347,59 @@ export class SQLParser {
                     }
                 }
             } catch (e) { if (SQLParser.DEBUG) console.error('Error preprocessing IN(subquery):', e); }
+
+            // Preprocess EXISTS and NOT EXISTS in WHERE: support correlated subqueries by per-row evaluation
+            try {
+                if (parsed.where) {
+                    const existsGlobalMatch = parsed.where.match(/\b(not\s+)?exists\s*\((\s*select[\s\S]+)\)\b/i);
+                    if (existsGlobalMatch) {
+                        const isNot = !!existsGlobalMatch[1];
+                        const sub = existsGlobalMatch[2];
+                        if (SQLParser.DEBUG) console.debug('[SQLParser] preprocessing EXISTS subquery (may be correlated)=', sub);
+                        // If subquery references outer alias like table.col, do per-row evaluation
+                        // Detect a pattern of alias.column where alias matches base alias
+                        const baseAlias = baseName;
+                        // detect baseAlias.column or equality patterns like oi.dept_id = o.dept_id
+                        const aliasRefRe = new RegExp(`\\b(?:${baseAlias}\\.\\w+|\\w+\\.\\w+\\s*=\\s*${baseAlias}\\.\\w+)\\b`, 'i');
+                        if (aliasRefRe.test(sub)) {
+                            // We'll filter resultTable by evaluating the subquery for each outer row,
+                            // replacing occurrences of alias.col with literal values.
+                            const newFiltered = [];
+                            for (const outerRow of resultTable) {
+                                // Build subqueryWithLiterals by replacing alias.column with literal from outerRow
+                                let sq = sub;
+                                // Replace all occurrences of baseAlias.col with literal
+                                sq = sq.replace(new RegExp(`${baseAlias}\\.(\\w+)`, 'gi'), (m, colName) => {
+                                    // find value in outerRow keys (might be alias.col or just col)
+                                    const fullKey = Object.keys(outerRow).find(k => k.toLowerCase().endsWith('.' + colName.toLowerCase())) || Object.keys(outerRow).find(k => k.toLowerCase() === colName.toLowerCase());
+                                    const v = fullKey ? outerRow[fullKey] : undefined;
+                                    if (v === null || v === undefined) return 'NULL';
+                                    if (typeof v === 'number') return String(v);
+                                    return `'${String(v).replace(/'/g, "''")}'`;
+                                });
+                                // Evaluate subquery
+                                const subRows = this.emulate(sq, currentFloor, mockDatabase) || [];
+                                const has = Array.isArray(subRows) && subRows.length > 0;
+                                const keep = isNot ? !has : has;
+                                if (SQLParser.DEBUG) {
+                                    try { console.debug('[SQLParser] EXISTS per-row check, outerRow sample=', Object.keys(outerRow).slice(0,4).reduce((o,k)=>{o[k]=outerRow[k];return o},{}) , 'sq=', sq, 'subRows=', subRows.length); } catch(e){}
+                                }
+                                if (keep) newFiltered.push(outerRow);
+                            }
+                            // Replace resultTable with filtered rows and clear parsed.where to avoid double-filtering
+                            resultTable = newFiltered;
+                            parsed.where = null;
+                            if (SQLParser.DEBUG) console.debug('[SQLParser] EXISTS per-row filtered, remaining=', resultTable.length);
+                        } else {
+                            // Non-correlated: evaluate once globally
+                            const subRows = this.emulate(sub, currentFloor, mockDatabase) || [];
+                            const has = (Array.isArray(subRows) && subRows.length > 0);
+                            parsed.where = (isNot ? (!has ? 'true' : 'false') : (has ? 'true' : 'false'));
+                            if (SQLParser.DEBUG) console.debug('[SQLParser] EXISTS replaced with=', parsed.where);
+                        }
+                    }
+                }
+            } catch (e) { if (SQLParser.DEBUG) console.error('Error preprocessing EXISTS:', e); }
 
             // Additionally handle equality to subquery: col = (SELECT ...)
             try {
@@ -516,8 +610,8 @@ export class SQLParser {
     const groupByMatch = query.match(/group by\s+([\w\., ]+)/i);
     const orderByMatch = query.match(/order by\s+([\w\.\s,]+)(asc|desc)?/i);
 
-    // JOIN セグメントを反復で取得
-    const joinSegmentRegex = /\b(?:inner|left|right)?\s*join\s+(\w+)(?:\s+(?:as\s+)?(\w+))?\s+on\s+(.+?)(?=\s+(?:inner|left|right)?\s*join\b|\s+where\b|\s+group by\b|\s+order by\b|$)/ig;
+    // JOIN セグメントを反復で取得（left/right/inner をキャプチャ）
+    const joinSegmentRegex = /\b((?:inner|left|right)?)\s*join\s+(\w+)(?:\s+(?:as\s+)?(\w+))?\s+on\s+(.+?)(?=\s+(?:inner|left|right)?\s*join\b|\s+where\b|\s+group by\b|\s+order by\b|$)/ig;
 
         let orderBy = null;
         if (orderByMatch) {
@@ -534,8 +628,42 @@ export class SQLParser {
         if (!selectMatch || !fromMatch) return null;
 
         const rawSelect = selectMatch[2];
+        // helper: split on top-level commas (ignore commas inside parentheses)
+        const splitTopLevel = (s) => {
+            const parts = [];
+            let buf = '';
+            let depth = 0;
+            let inSingle = false;
+            let inDouble = false;
+            for (let i = 0; i < s.length; i++) {
+                const ch = s[i];
+                if (ch === "'" && !inDouble) { inSingle = !inSingle; buf += ch; continue; }
+                if (ch === '"' && !inSingle) { inDouble = !inDouble; buf += ch; continue; }
+                if (!inSingle && !inDouble) {
+                    if (ch === '(') { depth++; buf += ch; continue; }
+                    if (ch === ')') { depth = Math.max(0, depth - 1); buf += ch; continue; }
+                    if (ch === ',' && depth === 0) { parts.push(buf.trim()); buf = ''; continue; }
+                }
+                buf += ch;
+            }
+            if (buf.trim()) parts.push(buf.trim());
+            // If any part has unbalanced parentheses, attempt to merge forward until balanced
+            const balanced = [];
+            for (let i = 0; i < parts.length; i++) {
+                let p = parts[i];
+                let open = (p.match(/\(/g) || []).length;
+                let close = (p.match(/\)/g) || []).length;
+                while (open > close && i + 1 < parts.length) {
+                    p = p + ', ' + parts[++i];
+                    open = (p.match(/\(/g) || []).length;
+                    close = (p.match(/\)/g) || []).length;
+                }
+                balanced.push(p);
+            }
+            return balanced;
+        };
         const parsed = {
-            select: rawSelect.split(',').map(s => s.trim()),
+                select: splitTopLevel(rawSelect),
             distinct: !!(selectMatch[1] && /distinct/i.test(selectMatch[1])),
             from: { table: fromMatch ? fromMatch[1] : null, alias: fromMatch ? (fromMatch[2] || null) : null },
             where: whereMatch ? whereMatch[1].trim() : null,
@@ -583,8 +711,9 @@ export class SQLParser {
 
         let jm;
         while ((jm = joinSegmentRegex.exec(query)) !== null) {
-            // jm[1]=table, jm[2]=alias?, jm[3]=onExpr
-            parsed.joins.push({ table: jm[1], alias: jm[2] || null, on: jm[3].trim(), type: 'inner' });
+            // jm[1]=type?, jm[2]=table, jm[3]=alias?, jm[4]=onExpr
+            const typ = jm[1] && jm[1].trim() ? jm[1].trim().toLowerCase() : 'inner';
+            parsed.joins.push({ table: jm[2], alias: jm[3] || null, on: jm[4].trim(), type: typ });
         }
 
         // Extract aggregate functions from SELECT list (SUM/COUNT/AVG) and support DISTINCT
