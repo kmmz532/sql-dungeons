@@ -42,6 +42,167 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
     const s = condStr.trim();
     if (!s) return opts.permissive;
 
+    try {
+        const tokens = [];
+        const isWordChar = (ch) => /[A-Za-z0-9_\.]/.test(ch);
+        let i = 0;
+        while (i < s.length) {
+            const ch = s[i];
+            if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') { i++; continue; }
+            if (ch === '(' || ch === ')' || ch === ',' ) { tokens.push({ type: ch, value: ch }); i++; continue; }
+            if (ch === '<' || ch === '>' || ch === '=' || ch === '!') {
+                // 演算子: <=, >=, <>, !=, =, <, >
+                let op = ch; i++;
+                if (i < s.length && (s[i] === '=' || (ch === '<' && s[i] === '>'))) { op += s[i]; i++; }
+                tokens.push({ type: 'OP', value: op });
+                continue;
+            }
+            if (ch === '\'' || ch === '"') {
+                const quote = ch; let j = i+1; let buf = '';
+                while (j < s.length) {
+                    if (s[j] === quote) {
+                        if (j+1 < s.length && s[j+1] === quote) { buf += quote; j += 2; continue; }
+                        break;
+                    }
+                    buf += s[j++];
+                }
+                tokens.push({ type: 'STRING', value: buf });
+                i = j+1; continue;
+            }
+            if (/[0-9]/.test(ch)) {
+                let j = i; let num = '';
+                while (j < s.length && /[0-9\.]/.test(s[j])) { num += s[j++]; }
+                tokens.push({ type: 'NUMBER', value: Number(num) });
+                i = j; continue;
+            }
+
+            if (isWordChar(ch)) {
+                let j = i; let w = '';
+                while (j < s.length && isWordChar(s[j])) { w += s[j++]; }
+                const upper = w.toUpperCase();
+                if (['AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL'].includes(upper)) tokens.push({ type: upper, value: upper });
+                else tokens.push({ type: 'IDENT', value: w });
+                i = j; continue;
+            }
+
+            tokens.push({ type: ch, value: ch }); i++;
+        }
+
+        let pos = 0;
+        const peek = () => tokens[pos] || null;
+        const consume = (t) => { const tk = tokens[pos]; if (tk && (!t || tk.type === t || tk.value === t)) { pos++; return tk; } return null; };
+
+        const parsePrimary = () => {
+            const tk = peek();
+            if (!tk) return opts.permissive;
+            if (tk.type === 'NOT') { consume('NOT'); const v = parsePrimary(); return !v; }
+            if (tk.type === '(') { consume('('); const v = parseExpr(); consume(')'); return v; }
+            // カラム名 BETWEEN a AND b
+            if (tk.type === 'IDENT') {
+                const leftIdent = consume('IDENT').value;
+                const next = peek();
+                if (next && next.type === 'BETWEEN') {
+                    consume('BETWEEN');
+                    const low = parseValueToken();
+                    consume('AND');
+                    const high = parseValueToken();
+
+                    const lhs = resolveRowValue(row, leftIdent);
+                    if (lhs === undefined || lhs === null || low === undefined || low === null || high === undefined || high === null) return !!(opts && opts.permissive);
+                    let a = lhs, b = low, c = high;
+                    if (typeof a === 'number' || (typeof b === 'number' && typeof c === 'number')) { a = Number(a); b = Number(b); c = Number(c); } else { a = String(a); b = String(b); c = String(c); }
+                    if (b > c) { const tmp = b; b = c; c = tmp; }
+                    return (a >= b && a <= c);
+                }
+                // IN
+                if (peek() && peek().type === 'IN') {
+                    consume('IN'); consume('(');
+                    const items = [];
+                    while (peek() && peek().type !== ')') {
+                        const v = parseValueToken(); items.push(v); if (peek() && peek().type === ',') consume(','); else break;
+                    }
+                    consume(')');
+                    const lhs = resolveRowValue(row, leftIdent);
+                    const set = new Set(items.map(v => (v === null || v === undefined) ? v : String(v)));
+                    const key = lhs === null || lhs === undefined ? lhs : String(lhs);
+                    return set.has(key);
+                }
+                // LIKE
+                if (peek() && peek().type === 'LIKE') {
+                    consume('LIKE'); const patToken = consume('STRING') || consume('IDENT');
+                    const pat = patToken ? (patToken.type === 'STRING' ? patToken.value : patToken.value) : '';
+                    const v = resolveRowValue(row, leftIdent);
+                    if (v === null || v === undefined) return false;
+                    const re = likePatternToRegex(pat);
+                    return re.test(String(v));
+                }
+                // IS NULL / IS NOT NULL
+                if (peek() && peek().type === 'IS') {
+                    consume('IS'); let neg = false; if (peek() && peek().type === 'NOT') { neg = true; consume('NOT'); }
+                    consume('NULL'); const v = resolveRowValue(row, leftIdent); const res = (v === null || v === undefined); return neg ? !res : res;
+                }
+
+                if (peek() && peek().type === 'OP') {
+                    const op = consume('OP').value;
+                    const rhs = parseValueToken();
+                    const lhs = resolveRowValue(row, leftIdent);
+                    if (rhs === null) {
+                        switch (op) { case '=': return lhs === null || lhs === undefined; case '!=': case '<>': return !(lhs === null || lhs === undefined); default: return false; }
+                    }
+                    switch (op) {
+                        case '=': return lhs == rhs;
+                        case '!=': case '<>': return lhs != rhs;
+                        case '>=': return lhs >= rhs;
+                        case '<=': return lhs <= rhs;
+                        case '>': return lhs > rhs;
+                        case '<': return lhs < rhs;
+                        default: return false;
+                    }
+                }
+
+                const v = resolveRowValue(row, leftIdent);
+                return !!v;
+            }
+
+            if (tk.type === 'STRING' || tk.type === 'NUMBER') { const v = consume(tk.type).value; return !!v; }
+            if (tk.type === 'NULL') { consume('NULL'); return false; }
+            return opts.permissive;
+        };
+
+        const parseValueToken = () => {
+            const tk = peek();
+            if (!tk) return undefined;
+            if (tk.type === 'STRING') { consume('STRING'); return tk.value; }
+            if (tk.type === 'NUMBER') { consume('NUMBER'); return tk.value; }
+            if (tk.type === 'IDENT') {
+                const id = consume('IDENT').value; return resolveRowValue(row, id);
+            }
+            if (tk.type === 'NULL') { consume('NULL'); return null; }
+            return undefined;
+        };
+
+        const parseFactor = () => {
+            return parsePrimary();
+        };
+
+        const parseTerm = () => {
+            let v = parseFactor();
+            while (peek() && peek().type === 'AND') { consume('AND'); const r = parseFactor(); v = v && r; }
+            return v;
+        };
+
+        const parseExpr = () => {
+            let v = parseTerm();
+            while (peek() && peek().type === 'OR') { consume('OR'); const r = parseTerm(); v = v || r; }
+            return v;
+        };
+
+        const res = parseExpr();
+        return !!res;
+    } catch (e) {
+        console.error('evaluateCondition error:', e);
+    }
+
     // リテラルの TRUE/FALSE を扱う（parseSQL が LIKE を置換した際に使用）
     if (/^true$/i.test(s)) return true;
     if (/^false$/i.test(s)) return false;
@@ -119,6 +280,66 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
         return !set.has(key);
     }
 
+    // BETWEEN / NOT BETWEEN
+    const betweenMatch = s.match(/^(\w+(?:\.\w+)?)\s+(not\s+)?between\s+('.*?'|".*?"|[^\s]+)\s+and\s+('.*?'|".*?"|[^\s]+)$/i);
+    if (betweenMatch) {
+        const col = betweenMatch[1];
+        const isNot = !!betweenMatch[2];
+        const rawLow = betweenMatch[3];
+        const rawHigh = betweenMatch[4];
+
+        const parseVal = (tok) => {
+            if (!tok) return undefined;
+            const t = String(tok).trim();
+            if ((t.startsWith("'") && t.endsWith("'")) || (t.startsWith('"') && t.endsWith('"'))) return t.slice(1, -1);
+            if (/^-?\d+(?:\.\d+)?$/.test(t)) return Number(t);
+            if (/^null$/i.test(t)) return null;
+
+            try { const v = resolveRowValue ? resolveRowValue(arguments.calleeRow || {}, t) : undefined; } catch(e){}
+            return t;
+        };
+
+        const resolveToken = (tok) => {
+            if (!tok) return undefined;
+            const t = String(tok).trim();
+            if ((t.startsWith("'") && t.endsWith("'")) || (t.startsWith('"') && t.endsWith('"'))) return t.slice(1, -1);
+            if (/^-?\d+(?:\.\d+)?$/.test(t)) return Number(t);
+            if (/^null$/i.test(t)) return null;
+
+            const v = resolveRowValue(row, t);
+            return v;
+        };
+
+        const lhs = resolveRowValue(row, col);
+        const low = resolveToken(rawLow);
+        const high = resolveToken(rawHigh);
+
+        if (lhs === undefined || lhs === null || low === undefined || low === null || high === undefined || high === null) {
+            return !!(opts && opts.permissive) && !isNot;
+        }
+
+        let a = lhs;
+        let b = low;
+        let c = high;
+
+        if (typeof a === 'number' || (typeof b === 'number' && typeof c === 'number')) {
+            a = Number(a);
+            b = Number(b);
+            c = Number(c);
+        } else {
+            a = String(a);
+            b = String(b);
+            c = String(c);
+        }
+
+        if (b > c) {
+            const tmp = b; b = c; c = tmp;
+        }
+
+        const inRange = (a >= b && a <= c);
+        return isNot ? !inRange : inRange;
+    }
+
     // 単純比較
     const cmp = parseSimpleComparison(s);
     if (cmp) {
@@ -147,7 +368,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
         }
     }
 
-    // フォールバック: 条件が解釈できない場合は permissive オプションを返す
+    // 条件が解釈できない場合は permissive オプションを返す
     return !!(opts && opts.permissive);
 };
 
