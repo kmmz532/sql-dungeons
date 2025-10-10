@@ -732,10 +732,12 @@ export class SQLParser {
 
         // Extract aggregate functions from SELECT list (SUM/COUNT/AVG) and support DISTINCT
         // Support forms: COUNT(*), COUNT(1), COUNT(col), COUNT(DISTINCT col)
-        const aggReSingle = /(SUM|COUNT|AVG|MAX|MIN)\s*\(\s*(?:DISTINCT\s+)?(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
+    const aggReSingle = /(SUM|COUNT|AVG|MAX|MIN)\s*\(\s*(?:DISTINCT\s+)?(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
         const aggDistinctRe = /(SUM|COUNT|AVG|MAX|MIN)\s*\(\s*DISTINCT\s+(\*|\d+|(?:\w+(?:\.\w+)?))\s*\)/i;
         for (const s of parsed.select) {
             // capture DISTINCT separately
+            // skip window functions like SUM(...) OVER (...) — these are per-row/window, not global aggregates
+            if (/\bOVER\b/i.test(s)) continue;
             const md = s.match(aggDistinctRe);
             if (md) {
                 parsed.aggregateFns.push({ fn: md[1].toUpperCase(), column: md[2], distinct: true });

@@ -1,5 +1,6 @@
 import { AbstractClause } from './abstract-clause.js';
 import { evaluateCondition, resolveRowValue } from '../util/condition-util.js';
+import { buildWindowPrecomputed } from './partitionby-clause.js';
 
 /**
  * SELECT句クラス
@@ -55,23 +56,28 @@ export class SelectClause extends AbstractClause {
             return qual ? row[qual] : undefined;
         };
 
-        const alnum = s => String(s || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
-        // Precompute window functions: support ROW_NUMBER() and RANK() with OVER (PARTITION BY ... ORDER BY ...)
-        const precomputed = Array.from({ length: table.length }, () => ({}));
+    const alnum = s => String(s || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+    // ウィンドウ関数の事前計算（パーティションごとのランクや集約値）
+    // 実際の計算は partitionby-clause.js に委譲する
+    const precomputed = Array.from({ length: table.length }, () => ({}));
 
         const parseWindow = (s) => {
-            // match ROW_NUMBER() OVER (PARTITION BY a, b ORDER BY c DESC, d)
-            const m = s.match(/^(ROW_NUMBER|RANK)\s*\(\s*\)\s*OVER\s*\(([^)]*)\)$/i);
+            // match patterns like:
+            // ROW_NUMBER() OVER (PARTITION BY a, b ORDER BY c DESC, d)
+            // RANK() OVER (...)
+            // SUM(price) OVER (PARTITION BY color)
+            const m = s.match(/^(\w+)\s*\(\s*([^)]*?)\s*\)\s*OVER\s*\(([^)]*)\)$/i);
             if (!m) return null;
             const fn = m[1].toUpperCase();
-            const inner = (m[2] || '').trim();
+            const arg = (m[2] || '').trim();
+            const inner = (m[3] || '').trim();
             let part = null;
             let order = null;
             const partMatch = inner.match(/partition\s+by\s+([^;]+?)(?=(order\s+by|$))/i);
             if (partMatch) part = partMatch[1].trim();
             const orderMatch = inner.match(/order\s+by\s+(.+)$/i);
             if (orderMatch) order = orderMatch[1].trim();
-            return { fn, partitionBy: part, orderBy: order };
+            return { fn, arg, partitionBy: part, orderBy: order };
         };
 
         const parseOrderItems = (s) => {
@@ -105,61 +111,10 @@ export class SelectClause extends AbstractClause {
         }
 
         if (windowSpecs.length > 0) {
-            for (const w of windowSpecs) {
-                const partBy = w.spec.partitionBy;
-                const orderBy = parseOrderItems(w.spec.orderBy);
-
-                const groups = new Map();
-                table.forEach((r, idx) => {
-                    const key = getPartitionKey(r, partBy);
-                    if (!groups.has(key)) groups.set(key, []);
-                    groups.get(key).push({ idx, row: r });
-                });
-
-                for (const [key, items] of groups.entries()) {
-                    if (orderBy.length > 0) {
-                        items.sort((a, b) => {
-                            for (const ob of orderBy) {
-                                const va = (resolve(a.row, ob.expr) !== undefined) ? resolve(a.row, ob.expr) : (resolveRowValue ? resolveRowValue(a.row, ob.expr) : undefined);
-                                const vb = (resolve(b.row, ob.expr) !== undefined) ? resolve(b.row, ob.expr) : (resolveRowValue ? resolveRowValue(b.row, ob.expr) : undefined);
-                                if (va == null && vb == null) continue;
-                                if (va == null) return ob.dir === 'ASC' ? -1 : 1;
-                                if (vb == null) return ob.dir === 'ASC' ? 1 : -1;
-                                if (va < vb) return ob.dir === 'ASC' ? -1 : 1;
-                                if (va > vb) return ob.dir === 'ASC' ? 1 : -1;
-                            }
-                            return 0;
-                        });
-                    }
-
-                    if (w.spec.fn === 'ROW_NUMBER') {
-                        let rn = 1;
-                        for (const it of items) {
-                            precomputed[it.idx][w.keyName] = rn++;
-                        }
-                    } else if (w.spec.fn === 'RANK') {
-                        let rank = 1;
-                        let i = 0;
-                        while (i < items.length) {
-                            let j = i + 1;
-                            while (j < items.length) {
-                                let equal = true;
-                                for (const ob of orderBy) {
-                                    const va = (resolve(items[i].row, ob.expr) !== undefined) ? resolve(items[i].row, ob.expr) : (resolveRowValue ? resolveRowValue(items[i].row, ob.expr) : undefined);
-                                    const vb = (resolve(items[j].row, ob.expr) !== undefined) ? resolve(items[j].row, ob.expr) : (resolveRowValue ? resolveRowValue(items[j].row, ob.expr) : undefined);
-                                    if (va !== vb) { equal = false; break; }
-                                }
-                                if (!equal) break;
-                                j++;
-                            }
-                            for (let k = i; k < j; k++) {
-                                precomputed[items[k].idx][w.keyName] = rank;
-                            }
-                            rank += (j - i);
-                            i = j;
-                        }
-                    }
-                }
+            // partitionby-clause.js に計算を委譲する
+            const built = buildWindowPrecomputed(table, windowSpecs, resolve);
+            for (let i = 0; i < built.length; i++) {
+                precomputed[i] = Object.assign(precomputed[i] || {}, built[i] || {});
             }
         }
 
