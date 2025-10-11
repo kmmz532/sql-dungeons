@@ -212,6 +212,44 @@ export class DOMManager {
             if (modal) this.closeModal(modal);
         });
 
+        // PWA: clear cache button (only shown when service worker is registered)
+        try {
+            const clearCacheBtn = document.getElementById('settings-clear-cache');
+            if (clearCacheBtn) {
+                // hide by default; visibility will be toggled if a service worker is active
+                clearCacheBtn.classList.add('hidden');
+                clearCacheBtn.addEventListener('click', async () => {
+                    try {
+                        // clear CacheStorage entries
+                        if ('caches' in window) {
+                            const keys = await caches.keys();
+                            await Promise.all(keys.map(k => caches.delete(k)));
+                        }
+                        // unregister service workers
+                        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                            const regs = await navigator.serviceWorker.getRegistrations();
+                            await Promise.all(regs.map(r => r.unregister()));
+                        }
+                        this.showFeedback('PWAキャッシュを消去しました');
+                    } catch (e) {
+                        console.warn('Failed to clear PWA caches', e);
+                        this.showFeedback('PWAキャッシュの消去に失敗しました');
+                    }
+                });
+
+                // If a service worker is registered, show the button
+                try {
+                    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                        navigator.serviceWorker.getRegistrations().then(regs => {
+                            if (Array.isArray(regs) && regs.length > 0) {
+                                clearCacheBtn.classList.remove('hidden');
+                            }
+                        }).catch(() => {});
+                    }
+                } catch (e) {}
+            }
+        } catch (e) {}
+
         try {
             const exclude = new Set(['start-button','load-button','sandbox-button']);
             const candidates = ['back-to-title-button','retry-button','save-button','execute-btn','hint-btn','ku-next-btn','shop-btn','next-floor-btn','next-dungeon-btn','settings-button','prev-floor-btn','gold-status','energy-status'];

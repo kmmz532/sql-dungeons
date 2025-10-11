@@ -87,10 +87,6 @@ export class Floor {
                 hint = i18n.t(pdKey);
                 if (hint && hint.startsWith('dungeon.')) hint = null;
             }
-            if (!hint) {
-                const key = `dungeon.floor${this.floor}.hint`;
-                hint = i18n.t(key);
-            }
             if (locale && locale !== prev) i18n.locale = prev;
             if (hint && !hint.startsWith('dungeon.')) return hint;
         }
@@ -105,13 +101,15 @@ export class Floor {
         const i18n = options.i18n || window.i18n;
         const locale = options.locale || (i18n && i18n.locale);
         const mockDatabase = options.mockDatabase || null;
-        // Prefer programmatic schema from mock database __schema metadata when available.
-        if (Array.isArray(this.tables) && this.tables.length > 0 && mockDatabase && mockDatabase.__schema) {
+        const selectedTables = Array.isArray(options.selectedTables) && options.selectedTables.length ? options.selectedTables : null;
+        const availableTablesList = Array.isArray(this.tables) && this.tables.length > 0 ? this.tables : [];
+        const tnamesToUse = selectedTables || availableTablesList;
+        if (tnamesToUse.length > 0 && mockDatabase && mockDatabase.__schema) {
             const meta = mockDatabase.__schema || {};
 
             const parts = [];
 
-            const tnames = this.tables;
+            const tnames = tnamesToUse;
             for (const t of tnames) {
                 const tmeta = meta[t] || meta[t.toLowerCase()];
                 // gather columns order
@@ -182,10 +180,10 @@ export class Floor {
             if (schema && !schema.startsWith('dungeon.')) return schema;
         }
 
-        if (Array.isArray(this.tables) && this.tables.length > 0 && mockDatabase) {
+        if (tnamesToUse.length > 0 && mockDatabase) {
             // build a map of table -> columns and sample values
             const tableCols = {};
-            for (const t of this.tables) {
+            for (const t of tnamesToUse) {
                 const rows = mockDatabase[t] || mockDatabase[t.toLowerCase()] || [];
                 tableCols[t] = {
                     cols: (Array.isArray(rows) && rows.length > 0) ? Object.keys(rows[0]) : [],
@@ -210,8 +208,8 @@ export class Floor {
                 if (pk) pks[t] = pk;
             }
 
-            for (const t of this.tables) {
-                const info = tableCols[t];
+            for (const t of tnamesToUse) {
+                const info = tableCols[t] || { cols: [], sampleRows: [] };
                 const cols = info.cols || [];
                 parts.push(`${t} (${cols.join(', ')})`);
 

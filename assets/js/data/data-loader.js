@@ -1,4 +1,27 @@
 // データローダー: ゲームデータのfetch・パース
+
+// Convert $_NULL_$ strings to null in mock database
+function convertNullStrings(obj) {
+    if (obj === null || obj === undefined) return obj;
+    if (obj === '$_NULL_$') return null;
+    
+    if (Array.isArray(obj)) {
+        return obj.map(item => convertNullStrings(item));
+    }
+    
+    if (typeof obj === 'object') {
+        const result = {};
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                result[key] = convertNullStrings(obj[key]);
+            }
+        }
+        return result;
+    }
+    
+    return obj;
+}
+
 export async function loadGameData() {
     const shopRes = await fetch('./assets/data/shop-items.json');
 
@@ -16,7 +39,7 @@ export async function loadGameData() {
                     if (res && res.ok) {
                         const json = await res.json();
                         const key = String(fname).replace(/\.json$/i, '');
-                        mockDatabases[key] = json;
+                        mockDatabases[key] = convertNullStrings(json);
                         if (!mockDatabaseKey) mockDatabaseKey = key;
                     }
                 } catch (e) {
@@ -42,7 +65,7 @@ export async function loadGameData() {
             const mockDbRes = await fetch('./assets/data/mock-database.json');
             if (mockDbRes && mockDbRes.ok) {
                 const md = await mockDbRes.json();
-                mockDatabases.default = md;
+                mockDatabases.default = convertNullStrings(md);
                 mockDatabaseKey = 'default';
             }
         } catch (e) {
