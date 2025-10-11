@@ -21,6 +21,95 @@
         { "id": 9, "name": "Blueberry", "color": "Blue", "price": 400 },
         { "id": 10, "name": "Lemon", "color": "Yellow", "price": 120 }
     ],
+    "colors": [
+        { "id": 1, "name": "Red" , "hex": "#FF0000", "translation": "赤" },
+        { "id": 2, "name": "Green", "hex": "#00FF00", "translation": "緑" },
+        { "id": 3, "name": "Blue", "hex": "#0000FF", "translation": "青" },
+        { "id": 4, "name": "Yellow", "hex": "#FFFF00", "translation": "黄" },
+        { "id": 5, "name": "Purple", "hex": "#800080", "translation": "紫" },
+        { "id": 6, "name": "Orange", "hex": "#FFA500", "translation": "橙" },
+        { "id": 7, "name": "Pink", "hex": "#FFC0CB", "translation": "桃" },
+        { "id": 8, "name": "Brown", "hex": "#A52A2A", "translation": "茶" },
+        { "id": 9, "name": "Black", "hex": "#000000", "translation": "黒" },
+        { "id": 10, "name": "White", "hex": "#FFFFFF", "translation": "白" },
+        { "id": 11, "name": "Gray", "hex": "#808080", "translation": "灰" },
+        { "id": 12, "name": "Cyan", "hex": "#00FFFF", "translation": "水" },
+        { "id": 13, "name": "Magenta", "hex": "#FF00FF", "translation": "赤紫" },
+        { "id": 14, "name": "Lime", "hex": "#00FF00", "translation": "黄緑" },
+        { "id": 15, "name": "Maroon", "hex": "#800000", "translation": "栗" }
+    ],
+    "gems": [
+        { "id": 1, "name": "ルビー", "color_id": 1, "price": 5000 },
+        { "id": 2, "name": "エメラルド", "color_id": 2, "price": 7000 },
+        { "id": 3, "name": "サファイア", "color_id": 3, "price": 6000 },
+        { "id": 4, "name": "トパーズ", "color_id": 4, "price": 4000 },
+        { "id": 5, "name": "アメジスト", "color_id": 5, "price": 4500 },
+        { "id": 6, "name": "オレンジガーネット", "color_id": 6, "price": 3000 },
+        { "id": 7, "name": "ピンクダイヤモンド", "color_id": 7, "price": 10000 },
+        { "id": 8, "name": "ブラウンシトリン", "color_id": 8, "price": 3500 },
+        { "id": 9, "name": "ブラックオニキス", "color_id": 9, "price": 2500 },
+        { "id": 10, "name": "ホワイトトパーズ", "color_id": 10, "price": 2000 }
+    ],
+    "fruits2": [
+        { "id": 1, "name": "Apple", "color_id": 1, "price": 100, "translation": "りんご" },
+        { "id": 2, "name": "Banana", "color_id": 4, "price": 80, "translation": "バナナ" },
+        { "id": 3, "name": "Grape", "color_id": 5, "price": 200, "translation": "ぶどう" },
+        { "id": 4, "name": "Orange", "color_id": 4, "price": 90, "translation": "オレンジ" },
+        { "id": 5, "name": "Kiwi", "color_id": 2, "price": 150, "translation": "キウイ" },
+        { "id": 6, "name": "Pineapple", "color_id": 4, "price": 300, "translation": "パイナップル" },
+        { "id": 7, "name": "Melon", "color_id": 2, "price": 500, "translation": "メロン" },
+        { "id": 8, "name": "Cherry", "color_id": 1, "price": 250, "translation": "さくらんぼ" },
+        { "id": 9, "name": "Blueberry", "color_id": 3, "price": 400, "translation": "ブルーベリー" },
+        { "id": 10, "name": "Lemon", "color_id": 4, "price": 120, "translation": "レモン" }
+    ],
+    "flowers": [
+        { "id": 1, "name": "Rose", "color_id": 1, "price": 300, "translation": "バラ" },
+        { "id": 2, "name": "Tulip", "color_id": 4, "price": 200, "translation": "チューリップ" },
+        { "id": 3, "name": "Violet", "color_id": 5, "price": 250, "translation": "スミレ" },
+        { "id": 4, "name": "Daffodil", "color_id": 4, "price": 180, "translation": "スイセン" },
+        { "id": 5, "name": "Lily", "color_id": 10, "price": 350, "translation": "ユリ" },
+        { "id": 6, "name": "Sunflower", "color_id": 4, "price": 220, "translation": "ヒマワリ" },
+        { "id": 7, "name": "Carnation", "color_id": 7, "price": 280, "translation": "カーネーション" },
+        { "id": 8, "name": "Chrysanthemum", "color_id": 11, "price": 320, "translation": "キク" },
+        { "id": 9, "name": "Hydrangea", "color_id": 3, "price": 400, "translation": "アジサイ" },
+        { "id": 10, "name": "Iris", "color_id": 3, "price": 260, "translation": "アヤメ" }
+    ],
+    "users": [
+        { "id": 1, "name": "山田太郎", "email": "taroyamada@example.com", "age": 30, "hashed_password": "3df5e4c8e8b9c6f1e2d3c4b5a6f7e8d9", "created_at": "2025-05-21T13:12:51Z", "type": "standard" },
+        { "id": 2, "name": "鈴木花子", "email": "suzuhana@example.com", "age": 25, "hashed_password": "4e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h", "created_at": "2025-06-11T09:45:30Z", "type": "vip" },
+        { "id": 3, "name": "佐藤次郎", "email": "jirosato@example.com", "age": 28, "hashed_password": "5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u", "created_at": "2025-07-01T15:30:00Z", "type": "standard" },
+        { "id": 4, "name": "田中美咲", "email": "tanaka.misaki@example.com", "age": 26, "hashed_password": "6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u", "created_at": "2025-07-15T10:00:00Z", "type": "vip" },
+        { "id": 5, "name": "高橋健一", "email": "tkenichi@example.com", "age": 32, "hashed_password": "7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u", "created_at": "2025-08-01T12:00:00Z", "type": "standard" },
+        { "id": 6, "name": "伊藤彩", "email": "aito@example.com", "age": 29, "hashed_password": "8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u", "created_at": "2025-08-15T14:00:00Z", "type": "standard" },
+        { "id": 7, "name": "渡辺翔太", "email": "wshota@example.com", "age": 27, "hashed_password": "9f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4u", "created_at": "2025-08-30T16:00:00Z", "type": "standard" },
+        { "id": 8, "name": "中村真由美", "email": "nkmr123@example.com", "age": 31, "hashed_password": "0f1g2h3i4j5k6l7m8n9o0p1q2r3s4t5u", "created_at": "2025-09-10T10:00:00Z", "type": "standard" }
+    ],
+    "users2": [
+        { "id": 1, "name": "山田太郎", "email": "taroyamada@example.com", "age": 30, "hashed_password": "3df5e4c8e8b9c6f1e2d3c4b5a6f7e8d9", "created_at": "2025-05-21T13:12:51Z", "type_id": "$_NULL_$" },
+        { "id": 2, "name": "鈴木花子", "email": "suzuhana@example.com", "age": 25, "hashed_password": "4e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h", "created_at": "2025-06-11T09:45:30Z", "type_id": 1 },
+        { "id": 3, "name": "佐藤次郎", "email": "jirosato@example.com", "age": 28, "hashed_password": "5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u", "created_at": "2025-07-01T15:30:00Z", "type_id": "$_NULL_$" },
+        { "id": 4, "name": "田中美咲", "email": "tanaka.misaki@example.com", "age": 26, "hashed_password": "6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u", "created_at": "2025-07-15T10:00:00Z", "type_id": 1 },
+        { "id": 5, "name": "高橋健一", "email": "tkenichi@example.com", "age": 32, "hashed_password": "7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u", "created_at": "2025-08-01T12:00:00Z", "type_id": "$_NULL_$" },
+        { "id": 6, "name": "伊藤彩", "email": "aito@example.com", "age": 29, "hashed_password": "8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u", "created_at": "2025-08-15T14:00:00Z", "type_id": "$_NULL_$" },
+        { "id": 7, "name": "渡辺翔太", "email": "wshota@example.com", "age": 27, "hashed_password": "9f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4u", "created_at": "2025-08-30T16:00:00Z", "type_id": "$_NULL_$" },
+        { "id": 8, "name": "中村真由美", "email": "nkmr123@example.com", "age": 31, "hashed_password": "0f1g2h3i4j5k6l7m8n9o0p1q2r3s4t5u", "created_at": "2025-09-10T10:00:00Z", "type_id": "$_NULL_$" }
+    ],
+    "_$comment001": [
+        "↑いちおう、TODOのメモ",
+        "もしmock-database.json からmock-database/ に分割して移行した場合は、users2とusertypesをuser.jsonとし、users2はusers、usertypesはtypesとなる"
+    ],
+    "usertypes": [
+        { "type_id": 0, "type_name": "standard", "description": "通常ユーザは基本的なサービスを受けられます。" },
+        { "type_id": 1, "type_name": "vip", "description": "VIPユーザは特別なサービスを受けられます。" },
+        { "type_id": 2, "type_name": "staff", "description": "スタッフは管理機能を利用できます。" }
+    ],
+    "player": [
+        { "id": 1, "name": "ゆうき", "level": 5, "experience": 1200, "gold": 300, "energy": 10, "max_energy": 10 },
+        { "id": 2, "name": "たけし", "level": 3, "experience": 800, "gold": 150, "energy": 8, "max_energy": 8 },
+        { "id": 3, "name": "ひろと", "level": 4, "experience": 950, "gold": 200, "energy": 9, "max_energy": 9 },
+        { "id": 4, "name": "しゅん", "level": 2, "experience": 500, "gold": 100, "energy": 7, "max_energy": 7 },
+        { "id": 5, "name": "まさる", "level": 3, "experience": 750, "gold": 180, "energy": 8, "max_energy": 8 }
+    ],
     "products": [
         { "product_id": 1, "name": "薬草", "category": "回復", "price": 50 },
         { "product_id": 2, "name": "鋼の剣", "category": "武器", "price": 1500 },
