@@ -1,7 +1,32 @@
 // データローダー: ゲームデータのfetch・パース
 export async function loadGameData() {
     const shopRes = await fetch('./assets/data/shop-items.json');
-    const mockDbRes = await fetch('./assets/data/mock-database.json');
+
+    let mockDatabases = {};
+    let mockDatabaseKey = null;
+    try {
+        const manifestRes = await fetch('./assets/data/mock-databases/manifest.json');
+        if (manifestRes && manifestRes.ok) {
+            const manifestJson = await manifestRes.json();
+
+            const entries = Array.isArray(manifestJson) ? manifestJson : Object.values(manifestJson || {});
+            for (const fname of entries) {
+                try {
+                    const res = await fetch(`./assets/data/mock-databases/${fname}`);
+                    if (res && res.ok) {
+                        const json = await res.json();
+                        const key = String(fname).replace(/\.json$/i, '');
+                        mockDatabases[key] = json;
+                        if (!mockDatabaseKey) mockDatabaseKey = key;
+                    }
+                } catch (e) {
+                    console.warn('Failed to load mock-database entry', fname, e);
+                }
+            }
+        }
+    } catch (e) {
+
+    }
 
     let manifest = null;
     try {
@@ -12,7 +37,18 @@ export async function loadGameData() {
     }
 
     const shopItems = await shopRes.json();
-    const mockDatabase = await mockDbRes.json();
+    if (!mockDatabaseKey) {
+        try {
+            const mockDbRes = await fetch('./assets/data/mock-database.json');
+            if (mockDbRes && mockDbRes.ok) {
+                const md = await mockDbRes.json();
+                mockDatabases.default = md;
+                mockDatabaseKey = 'default';
+            }
+        } catch (e) {
+            console.warn('Failed to load fallback mock-database.json', e);
+        }
+    }
     const dungeons = {};
 
     if (manifest && Object.keys(manifest).length > 0) {
@@ -45,22 +81,20 @@ export async function loadGameData() {
 
         if (tutorial) dungeons.tutorial = tutorial;
         if (beginner) dungeons.beginner = beginner;
-        // keep fallback as unnamed default
+
         if (fallback && !dungeons.tutorial) dungeons.fallback = fallback;
     }
 
-    // Determine primary dungeonData: prefer the first entry in manifest, else tutorial, else fallback
     let dungeonData = { floors: [] };
     const dungeonNames = Object.keys(dungeons);
     if (dungeonNames.length > 0) {
         dungeonData = dungeons[dungeonNames[0]] || { floors: [] };
     } else {
-        // last-resort: try to load legacy dungeon-data.json
         try {
             const legacyRes = await fetch('./assets/data/dungeon-data.json');
             if (legacyRes && legacyRes.ok) dungeonData = await legacyRes.json();
         } catch (e) {
-            // keep empty
+
         }
     }
 
@@ -68,6 +102,8 @@ export async function loadGameData() {
         dungeonData,
         dungeons,
         shopItems,
-        mockDatabase
+        mockDatabases,
+        mockDatabaseKey,
+        mockDatabase: mockDatabases && mockDatabaseKey ? mockDatabases[mockDatabaseKey] : null
     };
 }

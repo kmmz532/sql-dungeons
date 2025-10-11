@@ -610,15 +610,36 @@ export class SQLParser {
         // SELECT ... FROM ... [WHERE ...] [GROUP BY ...] [ORDER BY ...]
     // capture optional DISTINCT after SELECT
     const selectMatch = query.match(/select\s+(distinct\s+)?(.+?)\s+from\s+/i);
-    // FROM と alias (例: from employees as e)
-    // Use the first occurrence of 'from' to avoid accidentally matching nested or later FROMs
+    // FROM と alias (例: from employees as e) を堅牢に抽出
+    // まず最初の 'from' の位置を探し、そこから次の句(WHERE/GROUP/HAVING/ORDER/JOIN)までのセグメントを切り出す
     const fromPos = query.search(/\bfrom\b/i);
     let fromMatch = null;
     if (fromPos !== -1) {
+        // tail: 'from table [as] alias ...'
         const tail = query.slice(fromPos);
-        // Do not treat SQL keywords that follow the table name (like INNER/LEFT/RIGHT/JOIN/WHERE/GROUP/ORDER)
-        // as the table alias. Use negative lookahead to avoid capturing them as alias.
-        fromMatch = tail.match(/from\s+(\w+)(?:\s+(?:as\s+)?(?!inner\b|left\b|right\b|join\b|where\b|group\b|order\b)(\w+))?/i);
+        // 切り出し先は次の主要句の位置（where|group by|having|order by|join）
+        const endMatch = tail.match(/\b(where|group\s+by|having|order\s+by|(?:inner|left|right)\s+join)\b/i);
+        const seg = endMatch ? tail.slice(0, endMatch.index) : tail;
+        // seg の形式は 'from table [as] alias' になるはずなのでトークン分割する
+        const tokens = seg.trim().split(/\s+/);
+        // tokens[0] === 'from'
+        if (tokens.length >= 2) {
+            // トークンに余分な記号が付いている場合があるので除去する
+            const sanitize = s => String(s || '').replace(/[^\w\.]/g, '');
+            const table = sanitize(tokens[1]);
+            let alias = null;
+            if (tokens.length >= 3) {
+                if (/^as$/i.test(tokens[2]) && tokens.length >= 4) {
+                    alias = sanitize(tokens[3]);
+                } else if (!/^as$/i.test(tokens[2])) {
+                    const kw = tokens[2].toLowerCase().replace(/[^a-z]/g, '');
+                    if (!['inner','left','right','join','where','group','order','having'].includes(kw)) {
+                        alias = sanitize(tokens[2]);
+                    }
+                }
+            }
+            fromMatch = [seg, table, alias];
+        }
     }
     const whereMatch = query.match(/where\s+(.+?)(group by|having|order by|$)/i);
     const groupByMatch = query.match(/group by\s+([\w\., ]+)/i);

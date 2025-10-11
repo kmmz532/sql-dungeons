@@ -1,5 +1,6 @@
 import { AbstractClause } from './abstract-clause.js';
 import { evaluateCondition, resolveRowValue } from '../util/condition-util.js';
+import { resolveColumn } from '../util/column-resolver.js';
 import { buildWindowPrecomputed } from './partitionby-clause.js';
 
 /**
@@ -41,20 +42,8 @@ export class SelectClause extends AbstractClause {
             }
             selectCols = merged;
         }
-        const resolve = (row, key) => {
-            if (!key) return undefined;
-            if (key in row) return row[key];
-            const lowerKey = key.toLowerCase();
-            const exact = Object.keys(row).find(k => k.toLowerCase() === lowerKey);
-            if (exact) return row[exact];
-            if (!key.includes('.')) {
-                const found = Object.keys(row).find(k => k.toLowerCase().endsWith('.' + lowerKey));
-                return found ? row[found] : undefined;
-            }
-
-            const qual = Object.keys(row).find(k => k.toLowerCase() === lowerKey);
-            return qual ? row[qual] : undefined;
-        };
+        // 共通の列解決ユーティリティを使用
+        const resolve = resolveColumn;
 
     const alnum = s => String(s || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
     // ウィンドウ関数の事前計算（パーティションごとのランクや集約値）

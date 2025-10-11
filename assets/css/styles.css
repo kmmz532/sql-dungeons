@@ -436,14 +436,23 @@ button,
 }
 
 #prev-floor-btn {
-    background-color: #6c7a89; /* muted blue-gray */
+    background-color: #6c7a89;
     color: white;
-    box-shadow: 0 4px #55606a;
+    box-shadow: 0 3px #55606a;
+    font-size: 1rem;
+    padding: 5px 15px;
+    margin-top: -2px;
 }
 
 #prev-floor-btn:hover {
     background-color: #85a0b9;
-    box-shadow: 0 4px #5b6f7f;
+    box-shadow: 0 3px #5b6f7f;
+}
+
+#prev-floor-btn:active {
+    transform: translateY(1px);
+    background-color: #85a0b9;
+    box-shadow: 0 2px #5b6f7f;
 }
 
 #next-floor-btn:hover {

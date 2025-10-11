@@ -1,4 +1,5 @@
 import { AbstractClause } from './abstract-clause.js';
+import { resolveColumn } from '../util/column-resolver.js';
 
 /**
  * ORDER BY句クラス
@@ -17,19 +18,10 @@ export class OrderByClause extends AbstractClause {
     static apply(table, orderBy) {
         if (!orderBy || !orderBy.length) return table;
 
-        const resolve = (row, key) => {
-            if (key in row) return row[key];
-            if (!key.includes('.')) {
-                const found = Object.keys(row).find(k => k.endsWith('.' + key));
-                return found ? row[found] : undefined;
-            }
-            return undefined;
-        };
-
         return [...table].sort((a, b) => {
             for (const { column, direction } of orderBy) {
-                const av = resolve(a, column);
-                const bv = resolve(b, column);
+                const av = resolveColumn(a, column);
+                const bv = resolveColumn(b, column);
                 if (av < bv) return direction === 'DESC' ? 1 : -1;
                 if (av > bv) return direction === 'DESC' ? -1 : 1;
             }

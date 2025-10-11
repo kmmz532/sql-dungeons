@@ -176,6 +176,8 @@ export class GameCore {
                 const select = document.createElement('select');
                 select.className = 'sandbox-select';
 
+                // (no datasetSelect) we'll offer table multi-select only
+
                 const opts = [];
                 if (this.gameData && this.gameData.dungeons) {
                     Object.keys(this.gameData.dungeons).forEach(dkey => {
@@ -196,6 +198,35 @@ export class GameCore {
                 }
 
                 if (select.options.length > 0) select.value = select.options[0].value;
+                // ensure mockDatabase is set from loader (fallback sets mockDatabaseKey/default earlier)
+                try { if (!this.gameData.mockDatabase && this.gameData.mockDatabases && this.gameData.mockDatabaseKey) this.gameData.mockDatabase = this.gameData.mockDatabases[this.gameData.mockDatabaseKey]; } catch(e) {}
+                // Table multi-select: allow choosing one or more tables from the active mockDatabase
+                const tableMulti = document.createElement('div');
+                tableMulti.className = 'sandbox-table-multi';
+                try {
+                    const activeDb = this.gameData?.mockDatabase || (this.gameData?.mockDatabases && this.gameData.mockDatabases[this.gameData.mockDatabaseKey]) || {};
+                    const tableKeys = Object.keys(activeDb || {}).filter(k => !k.startsWith('__'));
+                    const initiallySelected = [];
+                    if (tableKeys.length > 0) {
+                        tableKeys.forEach(tk => {
+                            const cb = document.createElement('label');
+                            cb.className = 'sandbox-table-item';
+                            const input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.value = tk;
+                            input.checked = true; // default: all selected
+                            cb.appendChild(input);
+                            const span = document.createElement('span');
+                            span.textContent = tk;
+                            cb.appendChild(span);
+                            tableMulti.appendChild(cb);
+                            initiallySelected.push(tk);
+                        });
+                    }
+                    // set initial selection on game instance for UI handlers to consume
+                    try { this.sandboxSelectedTables = initiallySelected; } catch(e) {}
+                } catch (e) { console.error('Failed to initialize table multi-select', e); }
+                controls.appendChild(tableMulti);
                 select.addEventListener('change', (ev) => {
                     const raw = ev.target.value || '';
                     const parts = String(raw).split(':');
@@ -224,6 +255,24 @@ export class GameCore {
                     } catch (e) { console.error('Error updating hint button in sandbox selector', e); }
                 });
                 controls.appendChild(select);
+                // when any table checkbox changes, update game.sandboxSelectedTables and re-render schema
+                tableMulti.addEventListener('change', (ev) => {
+                    try {
+                        const checks = Array.from(tableMulti.querySelectorAll('input[type=checkbox]'));
+                        const selected = checks.filter(c => c.checked).map(c => c.value);
+                        // expose on game for UI handlers to use
+                        try { this.sandboxSelectedTables = selected; } catch(e){}
+                        // refresh schema for current floor (so schema view can reflect only selected tables if desired)
+                        const fr = this.gameData.dungeons?.[this.currentDungeon]?.floors?.[this.currentFloor];
+                        if (fr) {
+                            const fd = new Floor(fr, this.i18n);
+                            if (this.dom.elements['quest-schema']) {
+                                const schemaText = fd.getSchema ? fd.getSchema({ i18n: this.i18n, mockDatabase: this.gameData?.mockDatabase, selectedTables: selected }) : fd.schema || '';
+                                this.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
+                            }
+                        }
+                    } catch (e) { console.error('Failed to handle table multi change', e); }
+                });
                 headerEl.appendChild(controls);
 
                 try {
@@ -234,6 +283,21 @@ export class GameCore {
                         const label = document.createElement('label');
                         label.textContent = this.i18n.t('message.dataset_label') + ' ';
                         label.appendChild(select.cloneNode(true));
+                        label.appendChild(document.createTextNode(' '));
+                        // clone dataset select (if header has one)
+                        try {
+                            const clonedDataset = datasetSelect.cloneNode(true);
+                            label.appendChild(clonedDataset);
+                            // when local cloned dataset changes, update header datasetSelect and propagate
+                            clonedDataset.addEventListener('change', (ev) => {
+                                try {
+                                    datasetSelect.value = ev.target.value;
+                                    datasetSelect.dispatchEvent(new Event('change'));
+                                } catch (e) { console.error('Failed to propagate local dataset change', e); }
+                            });
+                        } catch (e) {
+                            // if datasetSelect is not defined in this scope, ignore
+                        }
                         localWrapper.appendChild(label);
                         schemaContainer.parentNode.insertBefore(localWrapper, schemaContainer);
                         
