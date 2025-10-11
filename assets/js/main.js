@@ -72,6 +72,42 @@ export async function startApp(i18n) {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 console.log('Service worker registered', reg.scope);
+                try {
+                    (async () => {
+                        try {
+                            const remote = await fetch('./version.json', { cache: 'no-store' });
+                            if (remote && remote.ok) {
+                                const remoteJson = await remote.json();
+
+                                let localJson = null;
+                                try {
+                                    const resp = await fetch('./version.json');
+                                    if (resp && resp.ok) localJson = await resp.json();
+                                } catch (e) { localJson = null; }
+
+                                const remoteAt = remoteJson && remoteJson.updateAt ? new Date(remoteJson.updateAt).getTime() : 0;
+                                const localAt = localJson && localJson.updateAt ? new Date(localJson.updateAt).getTime() : 0;
+                                if (remoteAt > localAt && navigator.onLine) {
+                                    const proceed = confirm('アップデートが利用可能です。更新しますか？');
+                                    if (proceed) {
+                                        try {
+                                            if ('caches' in window) {
+                                                const keys = await caches.keys();
+                                                await Promise.all(keys.map(k => caches.delete(k)));
+                                            }
+
+                                            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                                                const regs = await navigator.serviceWorker.getRegistrations();
+                                                await Promise.all(regs.map(r => r.unregister()));
+                                            }
+                                            location.reload(true);
+                                        } catch (e) { console.warn('Update flow failed', e); }
+                                    }
+                                }
+                            }
+                        } catch (e) { /* ignore */ }
+                    })();
+                } catch (e) {}
             }).catch(err => {
                 console.warn('Service worker registration failed', err);
             });
