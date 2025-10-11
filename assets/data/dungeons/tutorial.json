@@ -2,6 +2,7 @@
   "floors": [
     {
       "floor": 1,
+      "databases": ["tutorial"],
       "tables": ["table001"],
       "solutionPatterns": ["SELECT\\s+\\*\\s+FROM\\s+table001"],
       "answer": "SELECT * FROM table001",
@@ -10,6 +11,7 @@
     },
     {
       "floor": 2,
+      "databases": ["tutorial"],
       "tables": ["table002"],
       "solutionPatterns": ["SELECT\\s+message\\s+FROM\\s+table002"],
       "answer": "SELECT message FROM table002",
@@ -18,6 +20,7 @@
     },
     {
       "floor": 3,
+      "databases": ["fruit"],
       "tables": ["fruits"],
       "solutionPatterns": ["SELECT\\s+name,\\s*color\\s+FROM\\s+fruits\\s+WHERE\\s*color\\s*=\\s*'Red'"],
       "answer": "SELECT name, color FROM fruits WHERE color = 'Red'",
@@ -26,6 +29,7 @@
     },
     {
       "floor": 4,
+      "databases": ["fruit"],
       "tables": ["fruits"],
       "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+fruits\\s+ORDER\\s+BY\\s*price"],
       "answer": "SELECT name, price FROM fruits ORDER BY price",
@@ -34,6 +38,7 @@
     },
     {
       "floor": 5,
+      "databases": ["fruit"],
       "tables": ["fruits"],
       "solutionPatterns": ["SELECT\\s+color,\\s*COUNT\\(\\s*(?:\\*|id)\\s*\\)\\s+FROM\\s+fruits\\s+GROUP\\s+BY\\s+color"],
       "answer": "SELECT color, COUNT(*) FROM fruits GROUP BY color",
@@ -42,6 +47,7 @@
     },
     {
       "floor": 6,
+      "databases": ["fruit"],
       "tables": ["fruits"],
       "solutionPatterns": ["SELECT\\s+name\\s+FROM\\s+fruits\\s+WHERE\\s+name\\s+LIKE\\s+'%e%'"] ,
       "answer": "SELECT name FROM fruits WHERE name LIKE '%e%'",
@@ -50,14 +56,16 @@
     },
     {
       "floor": 7,
-      "tables": ["users2"],
-      "solutionPatterns": ["SELECT\\s+name\\s*,\\s*COALESCE\\(\\s*type_id\\s*,\\s*0\\s*\\)\\s+FROM\\s+users2"],
-      "answer": "SELECT name, COALESCE(type_id, 0) FROM users2",
+      "databases": ["user"],
+      "tables": ["users"],
+      "solutionPatterns": ["SELECT\\s+name\\s*,\\s*COALESCE\\(\\s*type_id\\s*,\\s*0\\s*\\)\\s+FROM\\s+users"],
+      "answer": "SELECT name, COALESCE(type_id, 0) FROM users",
       "borrowed": ["COALESCE"],
       "reward": { "gold": 15, "energy": 1, "items": [] }
     },
     {
       "floor": 8,
+      "databases": ["company"],
       "tables": ["employees", "departments"],
       "solutionPatterns": ["SELECT\\s+emp_name\\s*,\\s*dept_name\\s+FROM\\s+employees\\s+(?:INNER\\s+)?JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id"],
       "answer": "SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id",
@@ -66,14 +74,16 @@
     },
     {
       "floor": 9,
-      "tables": ["users2", "usertypes"],
-      "solutionPatterns": ["SELECT\\s+users2\\.name\\s*,\\s*usertypes\\.type_name\\s+FROM\\s+users2\\s+LEFT\\s+JOIN\\s+usertypes\\s+ON\\s+users2\\.type_id\\s*=\\s*usertypes\\.type_id"],
-      "answer": "SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id",
+      "databases": ["user"],
+      "tables": ["users", "types"],
+      "solutionPatterns": ["SELECT\\s+users\\.name\\s*,\\s*types\\.type_name\\s+FROM\\s+users\\s+LEFT\\s+JOIN\\s+types\\s+ON\\s+users\\.type_id\\s*=\\s*types\\.type_id"],
+      "answer": "SELECT users.name, types.type_name FROM users LEFT JOIN types ON users.type_id = types.type_id",
       "borrowed": ["LEFT JOIN", "ON"],
       "reward": { "gold": 20, "energy": 2, "items": [] }
     },
     {
       "floor": 10,
+      "databases": ["fruit"],
       "tables": ["fruits2", "colors"],
       "solutionPatterns": ["SELECT\\s+colors\\.name\\s*,\\s*fruits2\\.name\\s+FROM\\s+fruits2\\s+RIGHT\\s+JOIN\\s+colors\\s+ON\\s+fruits2\\.color_id\\s*=\\s*colors\\.id"],
       "answer": "SELECT colors.name, fruits2.name FROM fruits2 RIGHT JOIN colors ON fruits2.color_id = colors.id",

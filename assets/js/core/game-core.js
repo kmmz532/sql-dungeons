@@ -64,8 +64,8 @@ export class GameCore {
     }
 
     /**
-     * 現在のダンジョン設定に基づいてモックデータベースを取得
-     * ダンジョンのdatabasesフィールドが指定されていればそれらを統合、なければデフォルトを使用
+     * 現在のフロア設定に基づいてモックデータベースを取得
+     * フロアのdatabasesフィールドが指定されていればそれらを統合、なければデフォルトを使用
      * @returns {Object} 使用するモックデータベース
      */
     getCurrentMockDatabase() {
@@ -75,11 +75,11 @@ export class GameCore {
                 return this.gameData?.mergedMockDatabase || this.gameData?.mockDatabase || {};
             }
 
-            // 通常モード：ダンジョンのdatabasesフィールドをチェック
-            const dungeonData = this.gameData?.dungeonData;
-            if (dungeonData && Array.isArray(dungeonData.databases) && dungeonData.databases.length > 0) {
-                console.debug('[GameCore] Using dungeon databases:', dungeonData.databases);
-                return mergeDatabases(this.gameData.mockDatabases, dungeonData.databases);
+            // 通常モード：現在のフロアのdatabasesフィールドをチェック
+            const floorData = this.gameData?.dungeonData?.floors?.[this.currentFloor];
+            if (floorData && Array.isArray(floorData.databases) && floorData.databases.length > 0) {
+                console.debug('[GameCore] Using floor databases:', floorData.databases);
+                return mergeDatabases(this.gameData.mockDatabases, floorData.databases);
             }
 
             // フォールバック：デフォルトのmockDatabaseを使用

@@ -147,7 +147,7 @@
     "dungeon.tutorial.floor2.hint": "",
 
     "dungeon.tutorial.floor3.title": "WHERE",
-    "dungeon.tutorial.floor3.story": "SELECT ... FROM ... WHERE (条件式) で特定の条件に合う行だけを絞り込める。フルーツ(fruits)テーブルから、色(color)が 'Red' のフルーツの名前(name)と色(color)を表示してみよう。",
+    "dungeon.tutorial.floor3.story": "SELECT ... FROM ... WHERE (条件式) で特定の条件に合う行だけを絞り込める。フルーツ(fruits)テーブルから、色(color)が 'Red' のフルーツの名前(name)と色(color)を表示してみよう。条件式は WHERE カラム名 = '値' の形で書く。数値であれば、''で囲む必要はない。",
     "dungeon.tutorial.floor3.hint": "",
 
     "dungeon.tutorial.floor4.title": "ORDER BY",
@@ -155,7 +155,7 @@
     "dungeon.tutorial.floor4.hint": "",
 
     "dungeon.tutorial.floor5.title": "GROUP BY",
-    "dungeon.tutorial.floor5.story": "SELECT ... FROM ... GROUP BY (カラム名) で指定した列によってグループ化できる。フルーツ(fruits)テーブルから、色(color)ごとにフルーツの数を数えてみよう。",
+    "dungeon.tutorial.floor5.story": "SELECT ... FROM ... GROUP BY (カラム名) で指定した列によってグループ化できる。フルーツ(fruits)テーブルから、色(color)ごとにフルーツの数を数えてみよう。SELECT color, COUNT(*) のように選択する。",
     "dungeon.tutorial.floor5.hint": "",
     "dungeon.tutorial.floor6.title": "LIKEでパターン一致",
     "dungeon.tutorial.floor6.story": "LIKE 演算子でパターンマッチができる。% は 0文字以上の任意の文字列を表す。例: `SELECT name FROM fruits WHERE name LIKE '%e%'` は名前に 'e' を含む行を見つける。",

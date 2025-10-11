@@ -2,6 +2,7 @@
   "floors": [
     {
       "floor": 1,
+      "databases": ["game"],
       "tables": ["products"],
       "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+products\\s+WHERE\\s*price\\s*>=\\s*1000"],
       "answer": "SELECT name, price FROM products WHERE price >= 1000",
@@ -11,6 +12,7 @@
     },
     {
       "floor": 2,
+      "databases": ["game"],
       "tables": ["monsters"],
       "solutionPatterns": ["SELECT\\s+species,\\s*COUNT\\(\\s*(?:\\*|monster_id)\\s*\\)\\s+FROM\\s+monsters\\s+GROUP\\s+BY\\s+species"],
       "answer": "SELECT species, COUNT(*) FROM monsters GROUP BY species",
@@ -20,6 +22,7 @@
     },
     {
       "floor": 3,
+      "databases": ["company"],
       "tables": ["employees", "departments"],
       "specialValidation": true,
       "answer": "SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id",
@@ -30,6 +33,7 @@
     },
     {
       "floor": 4,
+      "databases": ["fruit"],
       "tables": ["fruits"],
       "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+fruits\\s+WHERE\\s*price\\s*<\\s*150"],
       "answer": "SELECT name, price FROM fruits WHERE price < 150",
@@ -38,6 +42,7 @@
     },
     {
       "floor": 5,
+      "databases": ["tutorial"],
       "tables": ["table001"],
       "solutionPatterns": ["SELECT\\s+message\\s+FROM\\s+table001\\s+WHERE\\s*id\\s*=\\s*2"],
       "answer": "SELECT message FROM table001 WHERE id = 2",
@@ -47,6 +52,7 @@
     },
     {
       "floor": 6,
+      "databases": ["game"],
       "tables": ["products"],
       "solutionPatterns": ["SELECT\\s+name,\\s*price\\s+FROM\\s+products\\s+WHERE\\s*category\\s*=\\s*'武器'"],
       "answer": "SELECT name, price FROM products WHERE category = '武器'",
@@ -55,6 +61,7 @@
     },
     {
       "floor": 7,
+      "databases": ["game"],
       "tables": ["monsters"],
       "solutionPatterns": ["SELECT\\s+name,\\s*hp\\s+FROM\\s+monsters\\s+WHERE\\s*hp\\s*>\\s*20"],
       "answer": "SELECT name, hp FROM monsters WHERE hp > 20",
@@ -63,6 +70,7 @@
     },
     {
       "floor": 8,
+      "databases": ["company"],
       "tables": ["employees", "departments"],
       "solutionPatterns": ["SELECT\\s+emp_name,\\s*dept_name\\s+FROM\\s+employees\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+WHERE\\s+departments\\.dept_name\\s*=\\s*'開発部'"],
       "answer": "SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE departments.dept_name = '開発部'",
@@ -71,6 +79,7 @@
     },
     {
       "floor": 9,
+      "databases": ["fruit"],
       "tables": ["fruits"],
       "solutionPatterns": ["SELECT\\s+color,\\s*COUNT\\(\\s*\\*\\s*\\)\\s+FROM\\s+fruits\\s+GROUP\\s+BY\\s+color\\s+HAVING\\s+COUNT\\(\\s*\\*\\s*\\)\\s*>\\s*1"],
       "answer": "SELECT color, COUNT(*) FROM fruits GROUP BY color HAVING COUNT(*) > 1",
@@ -79,6 +88,7 @@
     },
     {
       "floor": 10,
+      "databases": ["company"],
       "tables": ["sales", "employees", "departments"],
       "solutionPatterns": ["SELECT\\s+SUM\\(quantity\\)\\s+FROM\\s+sales\\s+WHERE\\s+emp_id\\s+IN\\s*\\(\\s*SELECT\\s+emp_id\\s+FROM\\s+employees\\s+WHERE\\s+dept_id\\s*=\\s*\\(\\s*SELECT\\s+dept_id\\s+FROM\\s+departments\\s+WHERE\\s+dept_name\\s*=\\s*'開発部'\\s*\\)\\s*\\)"],
       "answer": "SELECT SUM(quantity) FROM sales WHERE emp_id IN (SELECT emp_id FROM employees WHERE dept_id = (SELECT dept_id FROM departments WHERE dept_name = '開発部'))",
@@ -89,6 +99,7 @@
     },
     {
       "floor": 11,
+      "databases": ["company"],
       "tables": ["sales", "employees"],
       "solutionPatterns": ["SELECT\\s+emp_name\\s+FROM\\s+employees\\s+WHERE\\s+emp_id\\s+IN\\s*\\(\\s*SELECT\\s+emp_id\\s+FROM\\s+sales\\s+WHERE\\s+quantity\\s*>\\s*5\\s*\\)"],
       "answer": "SELECT emp_name FROM employees WHERE emp_id IN (SELECT emp_id FROM sales WHERE quantity > 5)",
@@ -97,6 +108,7 @@
     },
     {
       "floor": 12,
+      "databases": ["company"],
       "tables": ["sales", "employees", "departments"],
       "solutionPatterns": ["SELECT\\s+dept_name,\\s*SUM\\(quantity\\)\\s+FROM\\s+sales\\s+INNER\\s+JOIN\\s+employees\\s+ON\\s+sales\\.emp_id\\s*=\\s*employees\\.emp_id\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+GROUP\\s+BY\\s+dept_name"],
       "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id GROUP BY dept_name",
@@ -105,6 +117,7 @@
     },
     {
       "floor": 13,
+      "databases": ["company"],
       "tables": ["sales", "employees", "departments"],
       "solutionPatterns": ["SELECT\\s+dept_name,\\s*SUM\\(quantity\\)\\s+FROM\\s+sales\\s+INNER\\s+JOIN\\s+employees\\s+ON\\s+sales\\.emp_id\\s*=\\s*employees\\.emp_id\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+WHERE\\s+sale_date\\s*<\\s*'2025-02-01'\\s+GROUP\\s+BY\\s+dept_name"],
       "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE sale_date < '2025-02-01' GROUP BY dept_name",
@@ -113,6 +126,7 @@
     },
     {
       "floor": 14,
+      "databases": ["company"],
       "tables": ["sales", "employees", "departments"],
       "solutionPatterns": ["SELECT\\s+dept_name,\\s*SUM\\(quantity\\)\\s+FROM\\s+sales\\s+INNER\\s+JOIN\\s+employees\\s+ON\\s+sales\\.emp_id\\s*=\\s*employees\\.emp_id\\s+INNER\\s+JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id\\s+WHERE\\s+sale_date\\s*>=\\s*'2025-02-01'\\s+GROUP\\s+BY\\s+dept_name\\s+HAVING\\s+SUM\\(quantity\\)\\s*>\\s*5"],
       "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE sale_date >= '2025-02-01' GROUP BY dept_name HAVING SUM(quantity) > 5",
@@ -121,6 +135,7 @@
     },
     {
       "floor": 15,
+      "databases": ["company"],
       "tables": ["sales", "employees", "departments"],
       "specialValidation": true,
       "answer": "SELECT dept_name, SUM(quantity) FROM sales INNER JOIN employees ON sales.emp_id = employees.emp_id INNER JOIN departments ON employees.dept_id = departments.dept_id WHERE sale_date >= '2025-02-01' GROUP BY dept_name HAVING SUM(quantity) >= 10",
