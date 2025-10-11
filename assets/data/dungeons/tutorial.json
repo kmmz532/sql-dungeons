@@ -39,6 +39,86 @@
       "answer": "SELECT color, COUNT(*) FROM fruits GROUP BY color",
       "borrowed": ["COUNT", "GROUP", "BY"],
       "reward": { "gold": 20, "energy": 2, "items": [] }
+    },
+    {
+      "floor": 6,
+      "tables": ["fruits"],
+      "solutionPatterns": ["SELECT\\s+name\\s+FROM\\s+fruits\\s+WHERE\\s+name\\s+LIKE\\s+'%e%'"] ,
+      "answer": "SELECT name FROM fruits WHERE name LIKE '%e%'",
+      "borrowed": ["WHERE", "LIKE"],
+      "reward": { "gold": 15, "energy": 1, "items": [] }
+    },
+    {
+      "floor": 7,
+      "tables": ["users2"],
+      "solutionPatterns": ["SELECT\\s+name\\s*,\\s*COALESCE\\(\\s*type_id\\s*,\\s*0\\s*\\)\\s+FROM\\s+users2"],
+      "answer": "SELECT name, COALESCE(type_id, 0) FROM users2",
+      "borrowed": ["COALESCE"],
+      "reward": { "gold": 15, "energy": 1, "items": [] }
+    },
+    {
+      "floor": 8,
+      "tables": ["employees", "departments"],
+      "solutionPatterns": ["SELECT\\s+emp_name\\s*,\\s*dept_name\\s+FROM\\s+employees\\s+(?:INNER\\s+)?JOIN\\s+departments\\s+ON\\s+employees\\.dept_id\\s*=\\s*departments\\.dept_id"],
+      "answer": "SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id",
+      "borrowed": ["JOIN", "ON"],
+      "reward": { "gold": 20, "energy": 2, "items": [] }
+    },
+    {
+      "floor": 9,
+      "tables": ["users2", "usertypes"],
+      "solutionPatterns": ["SELECT\\s+users2\\.name\\s*,\\s*usertypes\\.type_name\\s+FROM\\s+users2\\s+LEFT\\s+JOIN\\s+usertypes\\s+ON\\s+users2\\.type_id\\s*=\\s*usertypes\\.type_id"],
+      "answer": "SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id",
+      "borrowed": ["LEFT JOIN", "ON"],
+      "reward": { "gold": 20, "energy": 2, "items": [] }
+    },
+    {
+      "floor": 10,
+      "tables": ["fruits2", "colors"],
+      "solutionPatterns": ["SELECT\\s+colors\\.name\\s*,\\s*fruits2\\.name\\s+FROM\\s+fruits2\\s+RIGHT\\s+JOIN\\s+colors\\s+ON\\s+fruits2\\.color_id\\s*=\\s*colors\\.id"],
+      "answer": "SELECT colors.name, fruits2.name FROM fruits2 RIGHT JOIN colors ON fruits2.color_id = colors.id",
+      "borrowed": ["RIGHT JOIN", "ON"],
+      "reward": { "gold": 20, "energy": 2, "items": [] }
+    },
+    {
+      "floor": 11,
+      "tables": ["fruits", "fruits2"],
+      "solutionPatterns": ["SELECT\\s+name\\s+FROM\\s+fruits\\s+UNION\\s+SELECT\\s+name\\s+FROM\\s+fruits2"],
+      "answer": "SELECT name FROM fruits UNION SELECT name FROM fruits2",
+      "borrowed": ["UNION"],
+      "reward": { "gold": 25, "energy": 2, "items": [] }
+    },
+    {
+      "floor": 12,
+      "tables": ["fruits", "fruits2"],
+      "solutionPatterns": ["SELECT\\s+name\\s+FROM\\s+fruits\\s+UNION\\s+ALL\\s+SELECT\\s+name\\s+FROM\\s+fruits2"],
+      "answer": "SELECT name FROM fruits UNION ALL SELECT name FROM fruits2",
+      "borrowed": ["UNION"],
+      "reward": { "gold": 25, "energy": 2, "items": [] }
+    },
+    {
+      "floor": 13,
+      "tables": ["users2", "usertypes"],
+      "solutionPatterns": ["SELECT\\s+users2\\.name\\s*,\\s*COALESCE\\(\\s*usertypes\\.type_name\\s*,\\s*'(unknown)'\\s*\\)\\s+FROM\\s+users2\\s+LEFT\\s+JOIN\\s+usertypes\\s+ON\\s+users2\\.type_id\\s*=\\s*usertypes\\.type_id"],
+      "answer": "SELECT users2.name, COALESCE(usertypes.type_name, '(unknown)') FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id",
+      "borrowed": ["COALESCE", "LEFT JOIN", "ON"],
+      "reward": { "gold": 30, "energy": 2, "items": [] }
+    },
+    {
+      "floor": 14,
+      "tables": ["colors", "fruits2"],
+      "solutionPatterns": ["SELECT\\s+colors\\.name\\s*,\\s*COUNT\\(\\s*fruits2\\.id\\s*\\)\\s+FROM\\s+colors\\s+LEFT\\s+JOIN\\s+fruits2\\s+ON\\s+colors\\.id\\s*=\\s*fruits2\\.color_id\\s+GROUP\\s+BY\\s+colors\\.name"],
+      "answer": "SELECT colors.name, COUNT(fruits2.id) FROM colors LEFT JOIN fruits2 ON colors.id = fruits2.color_id GROUP BY colors.name",
+      "borrowed": ["LEFT JOIN", "ON", "GROUP", "BY", "COUNT"],
+      "reward": { "gold": 30, "energy": 3, "items": [] }
+    },
+    {
+      "floor": 15,
+      "tables": ["fruits"],
+      "solutionPatterns": ["SELECT\\s+name\\s*,\\s*price\\s+FROM\\s+fruits\\s+WHERE\\s+price\\s+BETWEEN\\s+100\\s+AND\\s+300\\s+ORDER\\s+BY\\s+price\\s+LIMIT\\s+3"],
+      "answer": "SELECT name, price FROM fruits WHERE price BETWEEN 100 AND 300 ORDER BY price LIMIT 3",
+      "borrowed": ["WHERE", "BETWEEN", "ORDER", "BY", "LIMIT"],
+      "reward": { "gold": 35, "energy": 3, "items": [] }
     }
   ]
 }

@@ -118,6 +118,7 @@
     "schema.fk": "Foreign Key (refs: %s)",
     "schema.type.integer": "Integer",
     "schema.type.date": "Date",
+    "schema.type.timestamp": "Timestamp",
     "schema.type.text": "Text",
     "schema.not_null": "NOT NULL",
 
@@ -152,6 +153,45 @@
     "dungeon.tutorial.floor5.title": "Aggregate with GROUP BY",
     "dungeon.tutorial.floor5.story": "Use `SELECT ... FROM ... GROUP BY (column)` to group rows. From `fruits`, count how many fruits there are per `color`. Aggregation functions include COUNT, SUM, AVG, MIN, MAX. `COUNT(*)` counts rows, e.g. `SELECT color, COUNT(*) FROM fruits`.",
     "dungeon.tutorial.floor5.hint": "",
+    "dungeon.tutorial.floor6.title": "Pattern match with LIKE",
+    "dungeon.tutorial.floor6.story": "Use the `LIKE` operator to match patterns. `%` is a wildcard for zero or more characters. Example: `SELECT name FROM fruits WHERE name LIKE '%e%'` finds names that contain the letter e.",
+    "dungeon.tutorial.floor6.hint": "Use % as a wildcard, e.g. '%abc%'.",
+
+    "dungeon.tutorial.floor7.title": "Handle NULL with COALESCE",
+    "dungeon.tutorial.floor7.story": "NULL represents missing data. Use `COALESCE(expr, fallback)` to substitute a fallback value when expr is NULL. Example: `SELECT name, COALESCE(type_id, 0) FROM users2`.",
+    "dungeon.tutorial.floor7.hint": "COALESCE returns the first non-NULL argument.",
+
+    "dungeon.tutorial.floor8.title": "INNER JOIN to combine tables",
+    "dungeon.tutorial.floor8.story": "Use `INNER JOIN` (or plain JOIN) to combine rows from two tables where the join condition matches. Example: `SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id`.",
+    "dungeon.tutorial.floor8.hint": "INNER JOIN returns rows that match in both tables.",
+
+    "dungeon.tutorial.floor9.title": "LEFT JOIN keeps all left rows",
+    "dungeon.tutorial.floor9.story": "LEFT JOIN returns all rows from the left table and matching rows from the right; non-matching right rows are NULL. Example: `SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id`.",
+    "dungeon.tutorial.floor9.hint": "Use LEFT JOIN when you want to keep every row from the left table.",
+
+    "dungeon.tutorial.floor10.title": "RIGHT JOIN keeps all right rows",
+    "dungeon.tutorial.floor10.story": "RIGHT JOIN returns all rows from the right table and matching rows from the left; non-matching left rows are NULL. Example: `SELECT colors.name, fruits2.name FROM fruits2 RIGHT JOIN colors ON fruits2.color_id = colors.id`.",
+    "dungeon.tutorial.floor10.hint": "RIGHT JOIN is symmetric to LEFT JOIN with table order swapped.",
+
+    "dungeon.tutorial.floor11.title": "UNION combines distinct rows",
+    "dungeon.tutorial.floor11.story": "UNION combines results of two SELECTs and removes duplicate rows. Example: `SELECT name FROM fruits UNION SELECT name FROM fruits2`.",
+    "dungeon.tutorial.floor11.hint": "Use UNION to merge two result sets and remove duplicates.",
+
+    "dungeon.tutorial.floor12.title": "UNION ALL keeps duplicates",
+    "dungeon.tutorial.floor12.story": "UNION ALL combines results of two SELECTs without removing duplicates. Use it when you want to keep all rows from both queries.",
+    "dungeon.tutorial.floor12.hint": "UNION ALL is faster and preserves duplicates.",
+
+    "dungeon.tutorial.floor13.title": "COALESCE with joins",
+    "dungeon.tutorial.floor13.story": "When joining optional data, some columns may be NULL. Use COALESCE to replace NULLs with a friendly value, e.g. `COALESCE(usertypes.type_name, '(unknown)')`.",
+    "dungeon.tutorial.floor13.hint": "COALESCE helps show readable values even when joined data is missing.",
+
+    "dungeon.tutorial.floor14.title": "Aggregate after a LEFT JOIN",
+    "dungeon.tutorial.floor14.story": "LEFT JOIN colors and fruits2 to count fruits per color. NULLs for missing fruits are ignored by COUNT(col) but visible in COALESCE.",
+    "dungeon.tutorial.floor14.hint": "Use GROUP BY after a LEFT JOIN to aggregate per left row.",
+
+    "dungeon.tutorial.floor15.title": "Range and limit results",
+    "dungeon.tutorial.floor15.story": "Use BETWEEN to filter a numeric range, ORDER BY to sort, and LIMIT to cap rows. Example: `SELECT name, price FROM fruits WHERE price BETWEEN 100 AND 300 ORDER BY price LIMIT 3`.",
+    "dungeon.tutorial.floor15.hint": "BETWEEN is inclusive: BETWEEN low AND high includes the endpoints.",
 
     "dungeon.beginner.floor1.title": "Beginner SELECT",
     "dungeon.beginner.floor2.title": "GROUP BY Challenge",

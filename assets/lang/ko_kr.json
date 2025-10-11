@@ -119,6 +119,7 @@
     "schema.fk": "외래 키 (참조: %s)",
     "schema.type.integer": "정수",
     "schema.type.date": "날짜",
+    "schema.type.timestamp": "타임스탬프",
     "schema.type.text": "텍스트",
     "schema.not_null": "NOT NULL",
 
@@ -152,6 +153,45 @@
     "dungeon.tutorial.floor5.title": "튜토리얼5: GROUP BY로 집계",
     "dungeon.tutorial.floor5.story": "`SELECT ... FROM ... GROUP BY (column)` 으로 그룹화할 수 있습니다. `fruits`에서 `color`별로 개수를 세어보세요.",
     "dungeon.tutorial.floor5.hint": "",
+    "dungeon.tutorial.floor6.title": "LIKE로 패턴 매칭",
+    "dungeon.tutorial.floor6.story": "LIKE 연산자를 사용해 패턴 매칭을 할 수 있습니다. % 는 0개 이상 임의의 문자열을 의미합니다. 예: `SELECT name FROM fruits WHERE name LIKE '%e%'` 는 이름에 'e'를 포함하는 행을 찾습니다.",
+    "dungeon.tutorial.floor6.hint": "% 를 와일드카드로 사용하세요 (예: '%abc%').",
+
+    "dungeon.tutorial.floor7.title": "NULL 처리와 COALESCE",
+    "dungeon.tutorial.floor7.story": "NULL은 데이터가 없음을 의미합니다. `COALESCE(expr, fallback)` 를 사용하면 expr이 NULL일 때 대체값을 반환할 수 있습니다. 예: `SELECT name, COALESCE(type_id, 0) FROM users2`.",
+    "dungeon.tutorial.floor7.hint": "COALESCE는 왼쪽부터 첫 번째 비NULL 값을 반환합니다.",
+
+    "dungeon.tutorial.floor8.title": "INNER JOIN으로 결합",
+    "dungeon.tutorial.floor8.story": "INNER JOIN(또는 JOIN)은 결합 조건이 일치하는 행만 반환합니다. 예: `SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id`.",
+    "dungeon.tutorial.floor8.hint": "INNER JOIN은 양쪽 테이블에 모두 일치하는 행만 반환합니다.",
+
+    "dungeon.tutorial.floor9.title": "LEFT JOIN으로 왼쪽 행 모두 유지",
+    "dungeon.tutorial.floor9.story": "LEFT JOIN은 왼쪽 테이블의 모든 행을 반환하며 오른쪽에 일치하는 행이 없으면 NULL이 들어갑니다. 예: `SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id`.",
+    "dungeon.tutorial.floor9.hint": "왼쪽 테이블의 모든 행을 유지하려면 LEFT JOIN을 사용하세요.",
+
+    "dungeon.tutorial.floor10.title": "RIGHT JOIN으로 오른쪽 행 모두 유지",
+    "dungeon.tutorial.floor10.story": "RIGHT JOIN은 오른쪽 테이블의 모든 행을 반환하며 왼쪽에 일치하는 행이 없으면 NULL이 들어갑니다. 예: `SELECT colors.name, fruits2.name FROM fruits2 RIGHT JOIN colors ON fruits2.color_id = colors.id`.",
+    "dungeon.tutorial.floor10.hint": "RIGHT JOIN은 테이블 순서를 바꾼 LEFT JOIN과 동등합니다.",
+
+    "dungeon.tutorial.floor11.title": "UNION으로 중복 제거 후 결합",
+    "dungeon.tutorial.floor11.story": "UNION은 두 SELECT 결과를 결합하고 중복을 제거합니다. 예: `SELECT name FROM fruits UNION SELECT name FROM fruits2`.",
+    "dungeon.tutorial.floor11.hint": "UNION은 중복을 제거합니다.",
+
+    "dungeon.tutorial.floor12.title": "UNION ALL은 중복을 유지",
+    "dungeon.tutorial.floor12.story": "UNION ALL은 두 SELECT 결과를 결합하되 중복을 제거하지 않습니다. 모든 행을 보존하려면 사용하세요.",
+    "dungeon.tutorial.floor12.hint": "UNION ALL은 빠르며 중복을 유지합니다.",
+
+    "dungeon.tutorial.floor13.title": "조인 후 NULL을 COALESCE로 처리",
+    "dungeon.tutorial.floor13.story": "옵셔널 데이터가 없는 경우 조인된 컬럼은 NULL이 됩니다. COALESCE로 NULL을 읽기 쉬운 값으로 대체하세요 (예: `COALESCE(usertypes.type_name, '(unknown)')`).",
+    "dungeon.tutorial.floor13.hint": "COALESCE는 결합된 데이터가 없을 때 유용합니다.",
+
+    "dungeon.tutorial.floor14.title": "LEFT JOIN 후에 집계하기",
+    "dungeon.tutorial.floor14.story": "LEFT JOIN으로 colors와 fruits2를 결합해 색상별 과일 수를 세어보세요。COUNT(col)은 NULL을 무시합니다.",
+    "dungeon.tutorial.floor14.hint": "LEFT JOIN 후 GROUP BY로 집계를 수행하세요.",
+
+    "dungeon.tutorial.floor15.title": "범위 지정과 결과 제한",
+    "dungeon.tutorial.floor15.story": "BETWEEN으로 수치 범위를 지정하고 ORDER BY로 정렬, LIMIT로 행 수를 제한하세요. 예: `SELECT name, price FROM fruits WHERE price BETWEEN 100 AND 300 ORDER BY price LIMIT 3`.",
+    "dungeon.tutorial.floor15.hint": "BETWEEN은 양 끝 값을 포함합니다.",
 
     "dungeon.beginner.floor1.title": "초급 SELECT",
     "dungeon.beginner.floor1.story": "던전 입구입니다. `products`에서 `price >= 1000` 인 아이템의 `name`과 `price`를 모두 찾아보세요.",
@@ -198,20 +238,20 @@
     "dungeon.beginner.floor11.hint": "IN과 서브쿼리를 사용해 관련 행을 가져오세요.",
 
     "dungeon.beginner.floor12.title": "부서별 판매 합계",
-        "dungeon.beginner.floor12.story": "sales와 employees, departments를 JOIN하여 dept_name별로 SUM(quantity)를 표시하세요.",
-        "dungeon.beginner.floor12.hint": "JOIN과 GROUP BY를 결합해 부서별 집계를 수행하세요.",
+    "dungeon.beginner.floor12.story": "sales와 employees, departments를 JOIN하여 dept_name별로 SUM(quantity)를 표시하세요.",
+    "dungeon.beginner.floor12.hint": "JOIN과 GROUP BY를 결합해 부서별 집계를 수행하세요.",
 
     "dungeon.beginner.floor13.title": "날짜로 필터한 집계",
     "dungeon.beginner.floor13.story": "sale_date < '2025-02-01' 인 판매에 대해 dept_name 별로 SUM(quantity) 를 표시한다.",
-        "dungeon.beginner.floor13.hint": "날짜 비교 시 포맷에 주의하세요.",
+    "dungeon.beginner.floor13.hint": "날짜 비교 시 포맷에 주의하세요.",
 
     "dungeon.beginner.floor14.title": "HAVING 으로 추가 필터링",
     "dungeon.beginner.floor14.story": "2025‑02‑01 이후 판매를 부서별로 집계하고、SUM(quantity) > 5 인 부서만 표시한다.",
-        "dungeon.beginner.floor14.hint": "HAVING은 GROUP BY 결과에 대한 조건입니다.",
+    "dungeon.beginner.floor14.hint": "HAVING은 GROUP BY 결과에 대한 조건입니다.",
 
     "dungeon.beginner.floor15.title": "최종 시련: 부서별 판매 필터",
-        "dungeon.beginner.floor15.story": "세 개의 테이블을 JOIN하고, 2025-02-01 이후의 판매를 부서별로 집계한 뒤 SUM(quantity) ≥ 10인 부서를 표시하세요.",
-        "dungeon.beginner.floor15.hint": "JOIN과 WHERE, GROUP BY와 HAVING을 조합해 사용하세요.",
+    "dungeon.beginner.floor15.story": "세 개의 테이블을 JOIN하고, 2025-02-01 이후의 판매를 부서별로 집계한 뒤 SUM(quantity) ≥ 10인 부서를 표시하세요.",
+    "dungeon.beginner.floor15.hint": "JOIN과 WHERE, GROUP BY와 HAVING을 조합해 사용하세요.",
     
     "sql.keyword.select.desc": "테이블에서 열을 선택하는 기본 SQL 구문.",
     "sql.keyword.from.desc": "데이터를 가져올 테이블을 지정.",

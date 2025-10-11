@@ -167,6 +167,88 @@
             },
             "candidateKeys": [["id"]]
         },
+        "colors": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "hex": { "type": "text", "notNull": true },
+                "translation": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"], ["name"], ["hex"]]
+        },
+        "gems": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "price": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "fruits2": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "price": { "type": "integer", "notNull": true },
+                "translation": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "flowers": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "price": { "type": "integer", "notNull": true },
+                "translation": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "users": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "email": { "type": "text", "notNull": true },
+                "age": { "type": "integer", "notNull": true },
+                "hashed_password": { "type": "text", "notNull": true },
+                "created_at": { "type": "timestamp", "notNull": true },
+                "type": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"], ["email"]]
+        },
+        "users2": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "email": { "type": "text", "notNull": true },
+                "age": { "type": "integer", "notNull": true },
+                "hashed_password": { "type": "text", "notNull": true },
+                "created_at": { "type": "timestamp", "notNull": true },
+                "type_id": { "type": "integer", "fk": { "table": "usertypes", "column": "type_id" } }
+            },
+            "candidateKeys": [["id"], ["email"]]
+        },
+        "usertypes": {
+            "columns": {
+                "type_id": { "type": "integer", "pk": true, "notNull": true },
+                "type_name": { "type": "text", "notNull": true },
+                "description": { "type": "text" }
+            },
+            "candidateKeys": [["type_id"], ["type_name"]]
+        },
+        "player": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "level": { "type": "integer", "notNull": true },
+                "experience": { "type": "integer", "notNull": true },
+                "gold": { "type": "integer", "notNull": true },
+                "energy": { "type": "integer", "notNull": true },
+                "max_energy": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
         "products": {
             "columns": {
                 "product_id": { "type": "integer", "pk": true, "notNull": true },

@@ -123,6 +123,7 @@
     "schema.fk": "外部キー (参照: %s)",
     "schema.type.integer": "整数",
     "schema.type.date": "日付",
+    "schema.type.timestamp": "日時",
     "schema.type.text": "テキスト",
     "schema.not_null": "NOT NULL",
 
@@ -156,6 +157,45 @@
     "dungeon.tutorial.floor5.title": "GROUP BY",
     "dungeon.tutorial.floor5.story": "SELECT ... FROM ... GROUP BY (カラム名) で指定した列によってグループ化できる。フルーツ(fruits)テーブルから、色(color)ごとにフルーツの数を数えてみよう。",
     "dungeon.tutorial.floor5.hint": "",
+    "dungeon.tutorial.floor6.title": "LIKEでパターン一致",
+    "dungeon.tutorial.floor6.story": "LIKE 演算子でパターンマッチができる。% は 0文字以上の任意の文字列を表す。例: `SELECT name FROM fruits WHERE name LIKE '%e%'` は名前に 'e' を含む行を見つける。",
+    "dungeon.tutorial.floor6.hint": "% をワイルドカードとして使える（例: '%abc%'）。",
+
+    "dungeon.tutorial.floor7.title": "NULLを扱う（COALESCE）",
+    "dungeon.tutorial.floor7.story": "NULL は「値が存在しない」ことを表す。`COALESCE(expr, fallback)` を使うと NULL のときに代替値を返せる。例: `SELECT name, COALESCE(type_id, 0) FROM users2`。",
+    "dungeon.tutorial.floor7.hint": "COALESCE は左から非NULLの値を返す。",
+
+    "dungeon.tutorial.floor8.title": "INNER JOIN で結合する",
+    "dungeon.tutorial.floor8.story": "INNER JOIN（または JOIN）は結合条件が一致する行のみを返す。例: `SELECT emp_name, dept_name FROM employees INNER JOIN departments ON employees.dept_id = departments.dept_id`。",
+    "dungeon.tutorial.floor8.hint": "INNER JOIN は両方のテーブルで条件に一致する行だけを返す。",
+
+    "dungeon.tutorial.floor9.title": "LEFT JOIN で左側の全行を保持",
+    "dungeon.tutorial.floor9.story": "LEFT JOIN は左テーブルの全行を返し、右テーブルに一致する行がなければ NULL が入る。例: `SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id`。",
+    "dungeon.tutorial.floor9.hint": "左テーブルの全行を保持したいときに LEFT JOIN を使う。",
+
+    "dungeon.tutorial.floor10.title": "RIGHT JOIN で右側の全行を保持",
+    "dungeon.tutorial.floor10.story": "RIGHT JOIN は右テーブルの全行を返し、左テーブルに一致する行がなければ NULL が入る。例: `SELECT colors.name, fruits2.name FROM fruits2 RIGHT JOIN colors ON fruits2.color_id = colors.id`。",
+    "dungeon.tutorial.floor10.hint": "RIGHT JOIN はテーブルの順序を入れ替えた LEFT JOIN と同等。",
+
+    "dungeon.tutorial.floor11.title": "UNION で重複を除いて結合",
+    "dungeon.tutorial.floor11.story": "UNION は2つの SELECT の結果を結合し、重複行を取り除く。例: `SELECT name FROM fruits UNION SELECT name FROM fruits2`。",
+    "dungeon.tutorial.floor11.hint": "UNION は重複を取り除く。",
+
+    "dungeon.tutorial.floor12.title": "UNION ALL は重複を残す",
+    "dungeon.tutorial.floor12.story": "UNION ALL は2つの SELECT を結合し、重複を取り除かない。すべての行を保持したいときに使う。",
+    "dungeon.tutorial.floor12.hint": "UNION ALL は速く、重複をそのままにする。",
+
+    "dungeon.tutorial.floor13.title": "結合後のNULLをCOALESCEで処理",
+    "dungeon.tutorial.floor13.story": "結合でオプショナルなデータが存在しない場合、カラム値は NULL になる。COALESCE を使って見やすい値に置き換えよう（例: `COALESCE(usertypes.type_name, '(unknown)')`）。",
+    "dungeon.tutorial.floor13.hint": "COALESCE は NULL を読みやすい値に置き換えるのに便利。",
+
+    "dungeon.tutorial.floor14.title": "LEFT JOIN の後に集計する",
+    "dungeon.tutorial.floor14.story": "LEFT JOIN で colors と fruits2 を結合し、色ごとに果物の数を数える。COUNT(col) は NULL を無視する点に注意。",
+    "dungeon.tutorial.floor14.hint": "LEFT JOIN の後に GROUP BY して集計を行う。",
+
+    "dungeon.tutorial.floor15.title": "範囲指定と結果制限",
+    "dungeon.tutorial.floor15.story": "BETWEEN で数値の範囲を指定し、ORDER BY で並べ替え、LIMIT で行数を制限する。例: `SELECT name, price FROM fruits WHERE price BETWEEN 100 AND 300 ORDER BY price LIMIT 3`。",
+    "dungeon.tutorial.floor15.hint": "BETWEEN は両端を含む（inclusive）ことに注意。",
 
     "dungeon.beginner.floor1.title": "駆け出しのSELECT文",
     "dungeon.beginner.floor1.story": "ダンジョンの入口だ。まずは商品(products)テーブルから、価格(price)が1000ゴールド以上のアイテムの名前(name)と価格(price)をすべて探し出せ。",
