@@ -1,0 +1,116 @@
+{
+    "fruits": [
+        { "id": 1, "name": "Apple", "color": "Red", "price": 100 },
+        { "id": 2, "name": "Banana", "color": "Yellow", "price": 80 },
+        { "id": 3, "name": "Grape", "color": "Purple", "price": 200 },
+        { "id": 4, "name": "Orange", "color": "Orange", "price": 90 },
+        { "id": 5, "name": "Kiwi", "color": "Green", "price": 150 },
+        { "id": 6, "name": "Pineapple", "color": "Yellow", "price": 300 },
+        { "id": 7, "name": "Melon", "color": "Green", "price": 500 },
+        { "id": 8, "name": "Cherry", "color": "Red", "price": 250 },
+        { "id": 9, "name": "Blueberry", "color": "Blue", "price": 400 },
+        { "id": 10, "name": "Lemon", "color": "Yellow", "price": 120 }
+    ],
+    "colors": [
+        { "id": 1, "name": "Red" , "hex": "#FF0000", "translation": "赤" },
+        { "id": 2, "name": "Green", "hex": "#00FF00", "translation": "緑" },
+        { "id": 3, "name": "Blue", "hex": "#0000FF", "translation": "青" },
+        { "id": 4, "name": "Yellow", "hex": "#FFFF00", "translation": "黄" },
+        { "id": 5, "name": "Purple", "hex": "#800080", "translation": "紫" },
+        { "id": 6, "name": "Orange", "hex": "#FFA500", "translation": "橙" },
+        { "id": 7, "name": "Pink", "hex": "#FFC0CB", "translation": "桃" },
+        { "id": 8, "name": "Brown", "hex": "#A52A2A", "translation": "茶" },
+        { "id": 9, "name": "Black", "hex": "#000000", "translation": "黒" },
+        { "id": 10, "name": "White", "hex": "#FFFFFF", "translation": "白" },
+        { "id": 11, "name": "Gray", "hex": "#808080", "translation": "灰" },
+        { "id": 12, "name": "Cyan", "hex": "#00FFFF", "translation": "水" },
+        { "id": 13, "name": "Magenta", "hex": "#FF00FF", "translation": "赤紫" },
+        { "id": 14, "name": "Lime", "hex": "#00FF00", "translation": "黄緑" },
+        { "id": 15, "name": "Maroon", "hex": "#800000", "translation": "栗" }
+    ],
+    "fruits2": [
+        { "id": 1, "name": "Apple", "color_id": 1, "price": 100, "translation": "りんご" },
+        { "id": 2, "name": "Banana", "color_id": 4, "price": 80, "translation": "バナナ" },
+        { "id": 3, "name": "Grape", "color_id": 5, "price": 200, "translation": "ぶどう" },
+        { "id": 4, "name": "Orange", "color_id": 4, "price": 90, "translation": "オレンジ" },
+        { "id": 5, "name": "Kiwi", "color_id": 2, "price": 150, "translation": "キウイ" },
+        { "id": 6, "name": "Pineapple", "color_id": 4, "price": 300, "translation": "パイナップル" },
+        { "id": 7, "name": "Melon", "color_id": 2, "price": 500, "translation": "メロン" },
+        { "id": 8, "name": "Cherry", "color_id": 1, "price": 250, "translation": "さくらんぼ" },
+        { "id": 9, "name": "Blueberry", "color_id": 3, "price": 400, "translation": "ブルーベリー" },
+        { "id": 10, "name": "Lemon", "color_id": 4, "price": 120, "translation": "レモン" }
+    ],
+    "gems": [
+        { "id": 1, "name": "ルビー", "color_id": 1, "price": 5000 },
+        { "id": 2, "name": "エメラルド", "color_id": 2, "price": 7000 },
+        { "id": 3, "name": "サファイア", "color_id": 3, "price": 6000 },
+        { "id": 4, "name": "トパーズ", "color_id": 4, "price": 4000 },
+        { "id": 5, "name": "アメジスト", "color_id": 5, "price": 4500 },
+        { "id": 6, "name": "オレンジガーネット", "color_id": 6, "price": 3000 },
+        { "id": 7, "name": "ピンクダイヤモンド", "color_id": 7, "price": 10000 },
+        { "id": 8, "name": "ブラウンシトリン", "color_id": 8, "price": 3500 },
+        { "id": 9, "name": "ブラックオニキス", "color_id": 9, "price": 2500 },
+        { "id": 10, "name": "ホワイトトパーズ", "color_id": 10, "price": 2000 }
+    ],
+    "flowers": [
+        { "id": 1, "name": "Rose", "color_id": 1, "price": 300, "translation": "バラ" },
+        { "id": 2, "name": "Tulip", "color_id": 4, "price": 200, "translation": "チューリップ" },
+        { "id": 3, "name": "Violet", "color_id": 5, "price": 250, "translation": "スミレ" },
+        { "id": 4, "name": "Daffodil", "color_id": 4, "price": 180, "translation": "スイセン" },
+        { "id": 5, "name": "Lily", "color_id": 10, "price": 350, "translation": "ユリ" },
+        { "id": 6, "name": "Sunflower", "color_id": 4, "price": 220, "translation": "ヒマワリ" },
+        { "id": 7, "name": "Carnation", "color_id": 7, "price": 280, "translation": "カーネーション" },
+        { "id": 8, "name": "Chrysanthemum", "color_id": 11, "price": 320, "translation": "キク" },
+        { "id": 9, "name": "Hydrangea", "color_id": 3, "price": 400, "translation": "アジサイ" },
+        { "id": 10, "name": "Iris", "color_id": 3, "price": 260, "translation": "アヤメ" }
+    ],
+    "__schema": {
+        "fruits": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color": { "type": "text", "notNull": true },
+                "price": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "colors": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "hex": { "type": "text", "notNull": true },
+                "translation": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"], ["name"], ["hex"]]
+        },
+        "gems": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "price": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "fruits2": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "price": { "type": "integer", "notNull": true },
+                "translation": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "flowers": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "price": { "type": "integer", "notNull": true },
+                "translation": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        }
+    }
+}

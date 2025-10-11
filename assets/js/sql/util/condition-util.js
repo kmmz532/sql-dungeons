@@ -1,4 +1,14 @@
-// 行オブジェクトから値を解決し、単純な条件式を解析するユーティリティ
+/**
+ * condition-util.js
+ * 行オブジェクトから値を解決し、WHERE句などの条件式を解析・評価するユーティリティ
+ */
+
+/**
+ * 行オブジェクトからカラム値を解決
+ * @param {Object} row - 行データ
+ * @param {string} key - カラム名（テーブル接頭辞付き可能）
+ * @returns {*} 解決された値またはundefined
+ */
 export const resolveRowValue = (row, key) => {
     if (!key) return undefined;
     if (key in row) return row[key];
@@ -9,13 +19,22 @@ export const resolveRowValue = (row, key) => {
     return undefined;
 };
 
+/**
+ * LIKE パターンを正規表現に変換
+ * @param {string} pat - LIKEパターン（% と _ を含む）
+ * @returns {RegExp} 正規表現オブジェクト
+ */
 export const likePatternToRegex = (pat) => {
     const esc = String(pat).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const reg = esc.replace(/%/g, '.*').replace(/_/g, '.');
     return new RegExp('^' + reg + '$', 'i');
 };
 
-// 'a.col >= '\''foo'\'' のような非常に単純な比較式を { col, op, val } に解析する
+/**
+ * 単純な比較式を解析（例: 'a.col >= "foo"'）
+ * @param {string} str - 比較式文字列
+ * @returns {Object|null} { col, op, val } またはnull
+ */
 export const parseSimpleComparison = (str) => {
     if (!str || typeof str !== 'string') return null;
     const m = str.match(/(\w+(?:\.\w+)?)\s*(?:(!=|<>|=|>=|<=|>|<))\s*('.*?'|".*?"|[^\s]+)/);
@@ -35,8 +54,14 @@ export const parseSimpleComparison = (str) => {
     return { col: m[1], op: m[2], val };
 };
 
-// 単一の行に対して簡易な条件式を評価する
-// サポート: LIKE, IN（リテラルリスト）, 比較演算子 (=, !=, <>, >=, <=, >, <)
+/**
+ * 単一の行に対して条件式を評価
+ * サポート: LIKE, IN（リテラルリスト）, 比較演算子 (=, !=, <>, >=, <=, >, <), AND, OR, NOT
+ * @param {Object} row - 評価対象の行データ
+ * @param {string} condStr - 条件式文字列
+ * @param {Object} opts - オプション（permissive: エラー時の戻り値）
+ * @returns {boolean} 条件式の評価結果
+ */
 export const evaluateCondition = (row, condStr, opts = { permissive: true }) => {
     if (!condStr || typeof condStr !== 'string') return opts.permissive;
     const s = condStr.trim();

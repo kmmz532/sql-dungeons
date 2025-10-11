@@ -1,22 +1,28 @@
-// SQLParser: クエリのバリデーションとエミュレーションを統合
+/**
+ * SQLParser: クエリのバリデーションとエミュレーションを統合
+ * SQL文の簡易パースと模擬実行エンジン
+ * Sandbox拡張も見据えた設計
+ */
 import Registry from '../register.js';
 import { evaluateCondition } from './util/condition-util.js';
 
+/**
+ * Registryからクラスを取得するヘルパー関数
+ * @param {string} key - レジストリキー
+ * @param {string} type - クラスタイプ
+ * @returns {Class|undefined} レジストリクラスまたはundefined
+ */
 const getRegistryClass = (key, type) => {
     try {
         return Registry.get(key, type);
     } catch (e) {
-        console.error(`[SQLParser] Failed to get registry class for ${key}:`, e);
+        console.error(`[SQLParser] ${key} のレジストリクラス取得失敗:`, e);
         return undefined;
     }
 };
 
-/**
- * SQLParser: SQL文の簡易パースと模擬実行エンジン
- * 今後のSandbox拡張も見据えた設計
- */
 export class SQLParser {
-    // Toggle verbose debugging for SQL parsing/emulation
+    // SQLパース/エミュレーションの詳細デバッグ出力を有効化
     static DEBUG = true;
     /**
      * クエリが課題の条件を満たすか判定

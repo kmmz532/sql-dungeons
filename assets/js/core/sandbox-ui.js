@@ -21,7 +21,8 @@ export class SandboxUI {
             const schemaContainer = this.core.dom && this.core.dom.elements ? this.core.dom.elements['quest-schema'] : null;
             if (!schemaContainer) return;
 
-            const mockDb = this.core.gameData?.mockDatabase || {};
+            // サンドボックスモードでは統合された全データベースを使用
+            const mockDb = this.core.gameData?.mergedMockDatabase || this.core.gameData?.mockDatabase || {};
             const tables = Object.keys(mockDb).filter(k => !k.startsWith('__'));
             if (!tables || tables.length === 0) return;
 
@@ -33,16 +34,14 @@ export class SandboxUI {
 
             const label = document.createElement('label');
             label.className = 'sandbox-controls-label';
-            label.textContent = (this.core.i18n && typeof this.core.i18n.t === 'function') 
-                ? this.core.i18n.t('message.dataset_label') 
-                : 'Dataset:';
+            label.textContent = "";
             label.style.marginRight = '8px';
             controls.appendChild(label);
 
             const select = document.createElement('select');
             select.className = 'sandbox-table-select';
             select.multiple = true;
-            select.size = Math.min(6, tables.length);
+            select.size = Math.min(8, tables.length);
             select.style.minWidth = '220px';
 
             tables.forEach(tn => {

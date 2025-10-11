@@ -1,11 +1,19 @@
-// DOMManager: UI操作の責務を持つクラス
+/**
+ * DOMManager: UI操作の責務を持つクラス
+ * DOM要素の管理、画面切り替え、フィードバック表示、設定管理を統括
+ */
 import { SAVE_KEY } from '../constants.js';
 
 export class DOMManager {
+    /**
+     * コンストラクタ
+     * @param {Object} i18n - 国際化オブジェクト
+     */
     constructor(i18n) {
         this.i18n = i18n;
         this.elements = {};
         this.initializeElements();
+        
         // ユーザー設定のデフォルト（localStorageから読み込む）
         this.settings = {
             enableEsc: true,
@@ -13,10 +21,11 @@ export class DOMManager {
             language: (document.documentElement.lang && document.documentElement.lang.slice(0,2)) || 'ja'
         };
         this.loadSettings();
-        // 外部で言語変更を受け取るためのコールバックを保持できるように
+        
+        // 外部で言語変更を受け取るためのコールバックを保持
         this.onLanguageChange = null;
 
-        // ツールチップ要素はイベントリスナのセットアップ前に生成しておく
+        // ツールチップ要素をイベントリスナのセットアップ前に生成
         try {
             this.tooltipEl = document.createElement('div');
             this.tooltipEl.id = 'tooltip';

@@ -12,7 +12,7 @@
     --energy-color: #3498db;
     --save-color: #9b59b6;
     --shop-bg: #2c3e50;
-    --settings-size: 40px;
+    --settings-size: 32px;
 }
 
 /* --- 基本スタイル / Base styles --- */
@@ -68,22 +68,29 @@ body {
     justify-content: center;
     font-size: calc(var(--settings-size) * 0.85);
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     position: absolute;
     right: 7px;
-    top: 50%;
+    top: calc(50% - 2px);
     transform: translateY(-50%);
+    box-shadow: 0 3px #4b4b4b;
 }
 
 #settings-button:hover {
     background: #7d7d7d;
+    box-shadow: 0 3px #5b5b5b;
+}
+
+#settings-button:active {
+    background: #7d7d7d;
+    box-shadow: 0 2px #5b5b5b;
+    transform: translateY(-50%) translateY(1px);
 }
 
 @media (min-width: 640px) {
-    :root { --settings-size: 48px; }
+    :root { --settings-size: 40px; }
 }
 @media (min-width: 900px) {
-    :root { --settings-size: 56px; }
+    :root { --settings-size: 50px; }
 }
 
 h1 {
@@ -561,12 +568,6 @@ button,
     box-shadow: 0 2px rgba(0, 0, 0, 0.3);
 }
 
-.sandbox-controls {
-    display: inline-flex;
-    gap: 8px;
-    align-items: center;
-}
-
 .sandbox-select {
     background: #222;
     color: var(--primary-text);
@@ -613,24 +614,11 @@ body.sandbox-mode #inventory-panel {
     border: 1px solid var(--border-color);
     padding: 6px 8px;
     border-radius: 6px;
+    width: 100%;
 }
 
 .sandbox-schema-wrapper select:hover {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-
-.sandbox-select {
-    min-width: 140px;
-}
-
-.sandbox-schema-wrapper {
-    margin-bottom: 8px;
-    text-align: left;
-}
-
-.sandbox-schema-wrapper label {
-    color: var(--primary-text);
-    font-size: 0.95rem;
 }
 
 #shop-item-list {

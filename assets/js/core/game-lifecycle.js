@@ -1,7 +1,7 @@
 // ゲームライフサイクル管理（startGame, startSandbox, loadFloor等）
 
 import { Player } from '../models/player.js';
-import { loadGameData } from '../data/data-loader.js';
+import { loadGameData, filterSelectedTables } from '../data/data-loader.js';
 import { Floor } from '../models/floor.js';
 import { renderSchemaHTML } from '../ui/render-util.js';
 
@@ -214,14 +214,21 @@ export class GameLifecycle {
             } catch(e){}
             
             try {
+                const allDb = this.core.getCurrentMockDatabase();
                 const selected = Array.isArray(this.core.sandboxSelectedTables) && this.core.sandboxSelectedTables.length 
                     ? this.core.sandboxSelectedTables 
-                    : Object.keys(this.core.gameData?.mockDatabase || {}).filter(k => !k.startsWith('__'));
+                    : Object.keys(allDb).filter(k => !k.startsWith('__'));
+                
+                // 選択されたテーブルの中で重複がない場合はハイフンを除去
+                const currentDb = filterSelectedTables(allDb, selected);
+                
+                // フィルタリング後のテーブル名を取得（ハイフン除去済み）
+                const filteredTableNames = Object.keys(currentDb).filter(k => !k.startsWith('__'));
                 
                 // Use Floor.getSchema() for consistent schema generation with normal mode
                 const dummyFloor = new Floor({ 
                     floor: 0, 
-                    tables: selected,
+                    tables: filteredTableNames,
                     title: 'Sandbox',
                     story: '',
                     schema: ''
@@ -229,8 +236,8 @@ export class GameLifecycle {
                 
                 const schemaText = dummyFloor.getSchema({ 
                     i18n: this.core.i18n, 
-                    mockDatabase: this.core.gameData?.mockDatabase,
-                    selectedTables: selected
+                    mockDatabase: currentDb,
+                    selectedTables: filteredTableNames
                 });
                 
                 if (this.core.dom.elements['quest-schema']) {
@@ -244,8 +251,9 @@ export class GameLifecycle {
             this.core.dom.elements['quest-story'].innerHTML = floorData.getStory({ i18n: this.core.i18n, currentDungeon: this.core.currentDungeon });
 
             if (this.core.dom.elements['quest-schema']) {
+                const currentDb = this.core.getCurrentMockDatabase();
                 const schemaText = (typeof floorData.getSchema === 'function') 
-                    ? floorData.getSchema({ i18n: this.core.i18n, mockDatabase: this.core.gameData?.mockDatabase }) 
+                    ? floorData.getSchema({ i18n: this.core.i18n, mockDatabase: currentDb }) 
                     : floorData.schema || '';
                 this.core.dom.elements['quest-schema'].innerHTML = renderSchemaHTML(schemaText);
             }

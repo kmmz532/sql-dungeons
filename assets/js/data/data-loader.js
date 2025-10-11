@@ -90,35 +90,26 @@ export async function loadGameData() {
             }
         }
     } else {
-        const [tutorialRes, beginnerRes, fallbackRes] = await Promise.all([
+        // manifest.jsonがない場合、tutorialとbeginnerを直接読み込む
+        const [tutorialRes, beginnerRes] = await Promise.all([
             fetch('./assets/data/dungeons/tutorial.json').catch(() => null),
-            fetch('./assets/data/dungeons/beginner.json').catch(() => null),
-            fetch('./assets/data/dungeon-data.json').catch(() => null)
+            fetch('./assets/data/dungeons/beginner.json').catch(() => null)
         ]);
 
-        const [tutorial, beginner, fallback] = await Promise.all([
+        const [tutorial, beginner] = await Promise.all([
             tutorialRes ? tutorialRes.json() : Promise.resolve(null),
-            beginnerRes ? beginnerRes.json() : Promise.resolve(null),
-            fallbackRes ? fallbackRes.json() : Promise.resolve(null)
+            beginnerRes ? beginnerRes.json() : Promise.resolve(null)
         ]);
 
         if (tutorial) dungeons.tutorial = tutorial;
         if (beginner) dungeons.beginner = beginner;
-
-        if (fallback && !dungeons.tutorial) dungeons.fallback = fallback;
     }
 
+    // デフォルトのダンジョンデータを設定
     let dungeonData = { floors: [] };
     const dungeonNames = Object.keys(dungeons);
     if (dungeonNames.length > 0) {
         dungeonData = dungeons[dungeonNames[0]] || { floors: [] };
-    } else {
-        try {
-            const legacyRes = await fetch('./assets/data/dungeon-data.json');
-            if (legacyRes && legacyRes.ok) dungeonData = await legacyRes.json();
-        } catch (e) {
-
-        }
     }
 
     return {
@@ -129,4 +120,127 @@ export async function loadGameData() {
         mockDatabaseKey,
         mockDatabase: mockDatabases && mockDatabaseKey ? mockDatabases[mockDatabaseKey] : null
     };
+}
+
+/**
+ * 複数のデータベースを統合して1つのデータベースオブジェクトを生成
+ * テーブル名が重複する場合は "データベース名-テーブル名" の形式にリネーム
+ * @param {Object} mockDatabases - 全データベースオブジェクト
+ * @param {Array<string>} databaseNames - 統合するデータベース名の配列
+ * @returns {Object} 統合されたデータベースオブジェクト
+ */
+export function mergeDatabases(mockDatabases, databaseNames) {
+    if (!mockDatabases || !Array.isArray(databaseNames) || databaseNames.length === 0) {
+        return {};
+    }
+
+    const merged = {};
+    const schemaMap = {};
+    const tableOrigins = {}; // テーブル名 -> 出現したデータベース名の配列
+
+    // 最初にテーブル名の重複をチェック
+    for (const dbName of databaseNames) {
+        const db = mockDatabases[dbName];
+        if (!db) continue;
+
+        Object.keys(db).forEach(tableName => {
+            if (tableName.startsWith('_')) return; // __schema などはスキップ
+            if (!tableOrigins[tableName]) {
+                tableOrigins[tableName] = [];
+            }
+            tableOrigins[tableName].push(dbName);
+        });
+    }
+
+    // データベースを統合
+    for (const dbName of databaseNames) {
+        const db = mockDatabases[dbName];
+        if (!db) {
+            console.warn(`Database '${dbName}' not found in mockDatabases`);
+            continue;
+        }
+
+        Object.keys(db).forEach(key => {
+            if (key === '__schema') {
+                // スキーマ情報を統合
+                const dbSchema = db[key] || {};
+                Object.keys(dbSchema).forEach(tableName => {
+                    const isDuplicate = tableOrigins[tableName] && tableOrigins[tableName].length > 1;
+                    const finalTableName = isDuplicate ? `${dbName}-${tableName}` : tableName;
+                    schemaMap[finalTableName] = dbSchema[tableName];
+                });
+            } else if (!key.startsWith('_')) {
+                // テーブルデータを統合
+                const isDuplicate = tableOrigins[key] && tableOrigins[key].length > 1;
+                const finalTableName = isDuplicate ? `${dbName}-${key}` : key;
+                merged[finalTableName] = db[key];
+            }
+        });
+    }
+
+    // スキーマ情報を追加
+    if (Object.keys(schemaMap).length > 0) {
+        merged.__schema = schemaMap;
+    }
+
+    return merged;
+}
+
+/**
+ * 全データベースを統合（サンドボックスモード用）
+ * @param {Object} mockDatabases - 全データベースオブジェクト
+ * @returns {Object} 全データベースが統合されたオブジェクト
+ */
+export function mergeAllDatabases(mockDatabases) {
+    if (!mockDatabases) return {};
+    const allDbNames = Object.keys(mockDatabases);
+    return mergeDatabases(mockDatabases, allDbNames);
+}
+
+/**
+ * 統合されたデータベースから選択されたテーブルのみをフィルタリング
+ * 選択されたテーブルの中で重複がない場合はハイフンを除去
+ * @param {Object} mergedDatabase - 統合されたデータベース（ハイフン付きテーブル名を含む）
+ * @param {Array<string>} selectedTables - 選択されたテーブル名の配列（ハイフン付き可能性あり）
+ * @returns {Object} フィルタリング後のデータベースオブジェクト
+ */
+export function filterSelectedTables(mergedDatabase, selectedTables) {
+    if (!mergedDatabase || !Array.isArray(selectedTables) || selectedTables.length === 0) {
+        return mergedDatabase || {};
+    }
+
+    const filtered = {};
+    const schemaFiltered = {};
+    
+    // 選択されたテーブルから実際のテーブル名（ハイフン除去後）を抽出
+    const tableNameCounts = {}; // テーブル名 -> 出現回数
+    selectedTables.forEach(fullName => {
+        // "db-tablename" から "tablename" を抽出
+        const baseName = fullName.includes('-') ? fullName.split('-').pop() : fullName;
+        tableNameCounts[baseName] = (tableNameCounts[baseName] || 0) + 1;
+    });
+
+    // 選択されたテーブルをフィルタリング
+    selectedTables.forEach(fullName => {
+        if (!mergedDatabase[fullName]) return;
+        
+        const baseName = fullName.includes('-') ? fullName.split('-').pop() : fullName;
+        const isDuplicate = tableNameCounts[baseName] > 1;
+        
+        // 重複していない場合はハイフンを除去したテーブル名を使用
+        const finalName = isDuplicate ? fullName : baseName;
+        filtered[finalName] = mergedDatabase[fullName];
+        
+        // スキーマ情報もコピー
+        if (mergedDatabase.__schema && mergedDatabase.__schema[fullName]) {
+            schemaFiltered[finalName] = mergedDatabase.__schema[fullName];
+        }
+    });
+
+    // スキーマ情報を追加
+    if (Object.keys(schemaFiltered).length > 0) {
+        filtered.__schema = schemaFiltered;
+    }
+
+    return filtered;
 }

@@ -1,0 +1,28 @@
+{
+    "table001": [
+        { "id": 1, "message": "Hello World!!" },
+        { "id": 2, "message": "'SELECT * FROM (テーブル名);' はテーブルの全行を取得するSQL文です。'*' はワイルドカードと呼び、全ての列を選択します。" },
+        { "id": 3, "message": "「次のフロアへ進む」から次へ進みましょう！" }
+    ],
+    "table002": [
+        { "id": 1, "message": "'SELECT (カラム名1), (カラム名2) FROM (テーブル名);' は特定の列を選択するSQL文です。" },
+        { "id": 2, "message": "複数の列を選択する場合、カラム名はカンマで区切ります。" },
+        { "id": 3, "message": "ここでカラムとはcolumnのことで日本語で列という意味です。" }
+    ],
+    "__schema": {
+        "table001": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "message": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "table002": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "message": { "type": "text", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        }
+    }
+}

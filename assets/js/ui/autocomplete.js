@@ -62,10 +62,10 @@ export function setupAutocomplete(editor, game) {
     };
 
     const getCandidates = () => {
-        const db = (game.gameData && game.gameData.mockDatabase) ? game.gameData.mockDatabase : {};
+        const db = game.getCurrentMockDatabase ? game.getCurrentMockDatabase() : (game.gameData?.mockDatabase || {});
         const isSandbox = !game.player;
         
-        // determine candidate tables: in sandbox use selectedTables, otherwise use floor's tables
+        // テーブル候補を決定：サンドボックスではselectedTables、通常モードではフロアのtables
         let tables = [];
         try {
             if (isSandbox) {

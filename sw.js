@@ -6,8 +6,12 @@ const ASSETS = [
   './assets/data/dungeons/beginner.json',
   './assets/data/dungeons/tutorial.json',
   './assets/data/mock-database.json',
-  // './assets/data/mock-database/user.json',
-  // './assets/data/mock-database/manifest.json',
+  './assets/data/mock-databases/company.json',
+  './assets/data/mock-databases/fruits.json',
+  './assets/data/mock-databases/game.json',
+  './assets/data/mock-databases/tutorial.json', 
+  './assets/data/mock-databases/user.json',
+  './assets/data/mock-databases/user2.json',
   './assets/data/shop-items.json',
   './assets/lang/en_us.json',
   './assets/lang/ja_jp.json',
@@ -61,6 +65,7 @@ const ASSETS = [
   './assets/js/sql/clause/manifest.json',
   './assets/js/sql/aggregate/manifest.json',
   './assets/data/dungeons/manifest.json',
+  './assets/data/mock-databases/manifest.json',
   './assets/lang/manifest.json',
 ];
 

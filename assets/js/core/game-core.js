@@ -1,5 +1,5 @@
 // Game進行、状態管理、セーブ/ロードなどの本体
-import { loadGameData } from '../data/data-loader.js';
+import { loadGameData, mergeDatabases, mergeAllDatabases, filterSelectedTables } from '../data/data-loader.js';
 import { setupUIHandlers } from '../ui/ui-handlers.js';
 import { GameState } from './game-state.js';
 import { GameLifecycle } from './game-lifecycle.js';
@@ -33,8 +33,18 @@ export class GameCore {
             console.warn('Failed to load game data in initialize', e);
         }
 
+        // サンドボックスモード用：全データベースを統合
         try {
-            const mockDb = this.gameData?.mockDatabase || {};
+            if (this.gameData && this.gameData.mockDatabases) {
+                this.gameData.mergedMockDatabase = mergeAllDatabases(this.gameData.mockDatabases);
+                console.debug('[GameCore] Merged all databases for sandbox:', Object.keys(this.gameData.mergedMockDatabase).filter(k => !k.startsWith('__')));
+            }
+        } catch (e) {
+            console.error('Failed to merge databases for sandbox', e);
+        }
+
+        try {
+            const mockDb = this.gameData?.mergedMockDatabase || this.gameData?.mockDatabase || {};
             const tables = Object.keys(mockDb).filter(k => !k.startsWith('__'));
             if (!Array.isArray(this.sandboxSelectedTables) || this.sandboxSelectedTables.length === 0) {
                 if (tables.includes('table001')) this.sandboxSelectedTables = ['table001'];
@@ -51,6 +61,33 @@ export class GameCore {
         }
 
         try { this.state.checkForSaveData(); } catch (e) {}
+    }
+
+    /**
+     * 現在のダンジョン設定に基づいてモックデータベースを取得
+     * ダンジョンのdatabasesフィールドが指定されていればそれらを統合、なければデフォルトを使用
+     * @returns {Object} 使用するモックデータベース
+     */
+    getCurrentMockDatabase() {
+        try {
+            // サンドボックスモードでは統合されたデータベースを使用
+            if (this.isSandbox) {
+                return this.gameData?.mergedMockDatabase || this.gameData?.mockDatabase || {};
+            }
+
+            // 通常モード：ダンジョンのdatabasesフィールドをチェック
+            const dungeonData = this.gameData?.dungeonData;
+            if (dungeonData && Array.isArray(dungeonData.databases) && dungeonData.databases.length > 0) {
+                console.debug('[GameCore] Using dungeon databases:', dungeonData.databases);
+                return mergeDatabases(this.gameData.mockDatabases, dungeonData.databases);
+            }
+
+            // フォールバック：デフォルトのmockDatabaseを使用
+            return this.gameData?.mockDatabase || {};
+        } catch (e) {
+            console.error('Failed to get current mock database', e);
+            return this.gameData?.mockDatabase || {};
+        }
     }
 
     async startGame() {

@@ -1,0 +1,56 @@
+{
+    "player": [
+        { "id": 1, "name": "ゆうき", "level": 5, "experience": 1200, "gold": 300, "energy": 10, "max_energy": 10 },
+        { "id": 2, "name": "たけし", "level": 3, "experience": 800, "gold": 150, "energy": 8, "max_energy": 8 },
+        { "id": 3, "name": "ひろと", "level": 4, "experience": 950, "gold": 200, "energy": 9, "max_energy": 9 },
+        { "id": 4, "name": "しゅん", "level": 2, "experience": 500, "gold": 100, "energy": 7, "max_energy": 7 },
+        { "id": 5, "name": "まさる", "level": 3, "experience": 750, "gold": 180, "energy": 8, "max_energy": 8 }
+    ],
+    "products": [
+        { "product_id": 1, "name": "薬草", "category": "回復", "price": 50 },
+        { "product_id": 2, "name": "鋼の剣", "category": "武器", "price": 1500 },
+        { "product_id": 3, "name": "鉄の盾", "category": "防具", "price": 1200 },
+        { "product_id": 4, "name": "魔法の鍵", "category": "重要", "price": 800 },
+        { "product_id": 5, "name": "クリスタルの杖", "category": "武器", "price": 3000 }
+    ],
+    "monsters": [
+        { "monster_id": 1, "name": "スライムA", "species": "スライム", "hp": 10 },
+        { "monster_id": 2, "name": "ゴブリンB", "species": "ゴブリン", "hp": 30 },
+        { "monster_id": 3, "name": "スライムC", "species": "スライム", "hp": 12 },
+        { "monster_id": 4, "name": "オークD", "species": "オーク", "hp": 80 },
+        { "monster_id": 5, "name": "ゴブリンE", "species": "ゴブリン", "hp": 35 },
+        { "monster_id": 6, "name": "ゴブリンF", "species": "ゴブリン", "hp": 28 }
+    ],
+    "__schema": {
+        "player": {
+            "columns": {
+                "id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "level": { "type": "integer", "notNull": true },
+                "experience": { "type": "integer", "notNull": true },
+                "gold": { "type": "integer", "notNull": true },
+                "energy": { "type": "integer", "notNull": true },
+                "max_energy": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["id"]]
+        },
+        "products": {
+            "columns": {
+                "product_id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text", "notNull": true },
+                "category": { "type": "text" },
+                "price": { "type": "integer", "notNull": true }
+            },
+            "candidateKeys": [["product_id"]]
+        },
+        "monsters": {
+            "columns": {
+                "monster_id": { "type": "integer", "pk": true, "notNull": true },
+                "name": { "type": "text" },
+                "species": { "type": "text" },
+                "hp": { "type": "integer" }
+            },
+            "candidateKeys": [["monster_id"]]
+        }
+    }
+}

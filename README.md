@@ -48,16 +48,85 @@ Webブラウザで動作します。バックエンドは不要です。
 assets/js/
   constants.js         # 定数
   main.js              # エントリポイント
-  core/                # ゲーム、状態管理（GameCoreなど）
-  models/              # ドメインモデル（Item, Player, Floorなど）
+  register.js          # レジストリ（SQL句、集約関数の動的ロード）
+  core/                # ゲームコア、状態管理
+    game-core.js       # GameCoreクラス
+    game-state.js      # セーブ/ロード、dirty管理
+    game-lifecycle.js  # モード遷移、フロア管理
+    sandbox-ui.js      # サンドボックスUI制御
+  models/              # ドメインモデル
+    item.js            # Item, ShopItemクラス
+    player.js          # Playerクラス
+    floor.js           # Floorクラス（i18n対応スキーマ生成）
   sql/                 # SQL関係
+    sql-parser.js      # SQLParser（パース、検証、エミュレーション）
+    clause/            # SQL句（SELECT, WHERE, ORDER BY等）
+    aggregate/         # 集約関数（COUNT, SUM, AVG等）
+    util/              # ユーティリティ（条件評価、カラム解決等）
   ui/                  # UI操作・UIイベント・UI部品
-  data/                # データローダーなど
+    dom-manager.js     # DOMManager（画面制御、設定管理）
+    event-bindings.js  # UIイベントハンドラのバインディング
+    query-executor.js  # クエリ実行、検証、正解判定
+    autocomplete.js    # SQLエディタのオートコンプリート
+    render-util.js     # スキーマHTMLレンダリング
+    hint.js            # ヒント表示
+    shop.js            # ショップ機能
+  data/                # データローダー
+    data-loader.js     # ゲームデータ、モックDB、ダンジョンの読み込み
   lang/                # i18n関係
-assets/lang/           # 言語ファイル（ja_jp.json, en_us.jsonなど）
-assets/data/           # ゲームデータ（dungeon-data.json, shop-items.jsonなど）
+    i18n.js            # I18nクラス
+    i18n-init.js       # i18n初期化
+
+assets/lang/           # 言語ファイル
+  ja_jp.json           # 日本語
+  en_us.json           # 英語
+  ko_kr.json           # 韓国語
+  zh_cn.json           # 中国語（簡体字）
+
+assets/data/
+  dungeons/            # ダンジョンデータ（フロア定義）
+    manifest.json      # ダンジョンファイル一覧
+    tutorial.json      # チュートリアルダンジョン
+    beginner.json      # 初級ダンジョン
+  mock-databases/      # モックデータベース（分割管理）
+    manifest.json      # モックDBファイル一覧
+    tutorial.json      # チュートリアル用テーブル
+    fruit.json         # フルーツ、カラー、宝石、花
+    user.json          # ユーザー（NULL対応版）
+    users.json         # ユーザー（通常版）
+    game.json          # プレイヤー、商品、モンスター
+    company.json       # 従業員、部署、販売データ
+  shop-items.json      # ショップアイテム定義
 ```
 
+## データベース統合機能
+
+### 複数データベースの統合
+- ダンジョンのJSONに `databases` フィールドを追加することで、使用するデータベースを指定可能
+- 例: `"databases": ["tutorial", "fruit"]`
+- 複数データベースが指定されている場合、自動的に統合される
+
+### テーブル名の重複処理
+- テーブル名が重複する場合、`データベース名-テーブル名` の形式に自動リネーム
+- 例: `user.json` の `users` と `users.json` の `users` → `user-users`, `users-users`
+- スキーマ情報（`__schema`）も適切にマージされる
+
+### サンドボックスモード
+- 全データベースのテーブルを統合して表示
+- コンボボックスから自由にテーブルを選択可能
+- テーブル名の重複は自動的に処理される
+
+### 通常モード（ダンジョン）
+- ダンジョンの `databases` フィールドに指定されたデータベースを使用
+- 指定がない場合はデフォルトのデータベースを使用
+- データベース統合は `game.getCurrentMockDatabase()` で自動処理
+
 ## 開発方針
-- 原則、直書きメッセージをせず、assets/lang/*.jsonの言語をi18n経由で取得すること
+- **コメントは原則日本語で記述**すること
+- **直書きメッセージをせず**、assets/lang/*.jsonの言語をi18n経由で取得すること
+- **共通処理は関数化・クラス化**し、保守性と拡張性を高めること
+- **ファイル分割**：500行を超えるファイルは適切に分割を検討
+- **命名規則**：クラスはPascalCase、関数/変数はcamelCase、ファイルはkebab-case
+- **NULL値の扱い**：モックデータベースで `"$_NULL_$"` 文字列は自動的に `null` に変換される
+- **データベース管理**：モックデータベースはテーマ別に分割し、manifest.jsonで管理
 

@@ -3,6 +3,7 @@
 import { SQLParser } from '../sql/sql-parser.js';
 import { EXECUTE_COST } from '../constants.js';
 import Register from '../register.js';
+import { filterSelectedTables } from '../data/data-loader.js';
 
 const sqlParser = new SQLParser();
 const EMULATE_AUTO_ACCEPT = false;
@@ -83,21 +84,16 @@ export function executeQuery(game) {
             }
         }
         
-        let sandboxDb = game.gameData.mockDatabase;
+        // サンドボックスモードでは統合データベースから選択されたテーブルのみを使用
+        // 選択されたテーブルの中で重複がない場合はハイフンを除去
+        let sandboxDb = game.getCurrentMockDatabase();
         try {
             const sel = Array.isArray(game.sandboxSelectedTables) ? game.sandboxSelectedTables : null;
-            if (sel && sel.length > 0 && game.gameData && game.gameData.mockDatabase) {
-                sandboxDb = {};
-                sel.forEach(k => {
-                    try { 
-                        if (k && game.gameData.mockDatabase[k]) {
-                            sandboxDb[k] = game.gameData.mockDatabase[k]; 
-                        }
-                    } catch(e) {}
-                });
+            if (sel && sel.length > 0) {
+                sandboxDb = filterSelectedTables(sandboxDb, sel);
             }
         } catch (e) { 
-            sandboxDb = game.gameData.mockDatabase; 
+            console.error('Failed to filter sandbox database', e);
         }
 
         const results = sqlParser.emulate(query, game.currentFloor, sandboxDb) || [];
@@ -116,22 +112,8 @@ export function executeQuery(game) {
     if (!validateQuery(game, query, false)) return;
 
     // フロアの模範解答と照合
-    let validationDb = game.gameData.mockDatabase;
-    try {
-        const sel = Array.isArray(game.sandboxSelectedTables) ? game.sandboxSelectedTables : null;
-        if (sel && sel.length > 0 && game.gameData && game.gameData.mockDatabase) {
-            validationDb = {};
-            sel.forEach(k => { 
-                try { 
-                    if (k && game.gameData.mockDatabase[k]) {
-                        validationDb[k] = game.gameData.mockDatabase[k]; 
-                    }
-                } catch(e){} 
-            });
-        }
-    } catch (e) { 
-        validationDb = game.gameData.mockDatabase; 
-    }
+    // 通常モードでは現在のダンジョン設定に基づいたデータベースを使用
+    const validationDb = game.getCurrentMockDatabase();
 
     const isCorrect = sqlParser.validate(query, floorData, validationDb);
 
@@ -376,7 +358,7 @@ export function handleCorrectAnswer(game, floorData, query) {
     }
     
     dom.showResult(game.i18n.t('message.correct_result'), 'success');
-    dom.displayTable(sqlParser.emulate(query, game.currentFloor, game.gameData.mockDatabase));
+    dom.displayTable(sqlParser.emulate(query, game.currentFloor, game.getCurrentMockDatabase()));
     dom.elements['floor-actions-container'].classList.remove('hidden');
     
     if (game.currentFloor < game.gameData.dungeonData.floors.length - 1) {
@@ -512,7 +494,8 @@ function determineNextClause(game, query, lastWord) {
         allowed = null;
     }
 
-    if (Object.keys(game.gameData.mockDatabase).includes(lastWord.toLowerCase())) {
+    const currentDb = game.getCurrentMockDatabase();
+    if (Object.keys(currentDb).filter(k => !k.startsWith('__')).includes(lastWord.toLowerCase())) {
         const defaultSet = ['WHERE', 'JOIN', 'GROUP BY'];
         const candidates = allowed ? defaultSet.filter(w => {
             if (w === 'GROUP BY') {
