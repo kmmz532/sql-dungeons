@@ -41,11 +41,6 @@ export class GameState {
         this.core.player = Player.fromJSON(loadedData);
         this.core.isSandbox = false;
         
-        // Reset UI handlers bound flag to allow re-binding
-        if (this.core.dom) {
-            this.core.dom.__uiHandlersBound = false;
-        }
-        
         // If any clearedFloors used legacy 'floor:N' format, ensure save is normalized by re-saving
         try {
             const orig = Array.isArray(loadedData.clearedFloors) ? loadedData.clearedFloors : [];
@@ -68,14 +63,6 @@ export class GameState {
         this.core.sandboxUI.cleanup();
         
         this.core.dom.showScreen('game');
-        
-        // Re-bind UI handlers
-        try { 
-            const { setupUIHandlers } = await import('../ui/ui-handlers.js');
-            setupUIHandlers(this.core); 
-        } catch (e) { 
-            console.error('Failed to bind UI handlers in loadGame', e); 
-        }
         
         this.core.lifecycle.loadFloor(this.core.currentFloor);
         

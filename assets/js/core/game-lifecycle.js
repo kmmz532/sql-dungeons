@@ -29,11 +29,6 @@ export class GameLifecycle {
             this.core.isSandbox = false;
             this.core.currentFloor = 0;
             
-            // Reset UI handlers bound flag to allow re-binding
-            if (this.core.dom) {
-                this.core.dom.__uiHandlersBound = false;
-            }
-            
             // hide load button when starting new game
             try { 
                 if (this.core.dom && this.core.dom.elements && this.core.dom.elements['load-button']) {
@@ -56,14 +51,6 @@ export class GameLifecycle {
             this.core.sandboxUI.cleanup();
             
             this.core.dom.showScreen('game');
-            
-            // Re-bind UI handlers after cleanup
-            try { 
-                const { setupUIHandlers } = await import('../ui/ui-handlers.js');
-                setupUIHandlers(this.core); 
-            } catch (e) { 
-                console.error('Failed to bind UI handlers in startGame', e); 
-            }
             
             this.loadFloor(this.core.currentFloor);
             
@@ -95,11 +82,6 @@ export class GameLifecycle {
             // Clean up any existing sandbox artifacts
             this.core.sandboxUI.cleanup();
             
-            // Reset UI handlers bound flag to allow re-binding
-            if (this.core.dom) {
-                this.core.dom.__uiHandlersBound = false;
-            }
-            
             try { document.body.classList.add('sandbox-mode'); } catch(e){}
             
             this.core.dom.showScreen('game');
@@ -115,14 +97,6 @@ export class GameLifecycle {
             
             // Recreate sandbox controls
             this.core.sandboxUI.createControls();
-            
-            // Re-bind UI handlers after sandbox controls are created
-            try { 
-                const { setupUIHandlers } = await import('../ui/ui-handlers.js');
-                setupUIHandlers(this.core); 
-            } catch (e) { 
-                console.error('Failed to bind UI handlers in startSandbox', e); 
-            }
             
             // ensure schema and controls are present for sandbox
             try { this.loadFloor(0); } catch(e) {}
