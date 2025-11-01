@@ -47,8 +47,6 @@
     "message.invalid_query": "無効なクエリです。",
     "message.no_energy": "エネルギーが足りません！",
     "message.unknown_spell": "まだ覚えていない呪文「%s」が含まれています。",
-    "message.incorrect": "不正解です。もう一度挑戦してください。",
-    "message.correct": "正解！クエリの実行結果:",
     "message.clear": "クリア！",
     "message.clear_all": "全てのフロアを攻略しました！",
     "message.next_spell": "賢者の声: 「次に続くのはおそらく... %s 句じゃな。」",

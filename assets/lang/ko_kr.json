@@ -47,8 +47,6 @@
     "message.invalid_query": "잘못된 쿼리입니다.",
     "message.no_energy": "에너지가 부족합니다!",
     "message.unknown_spell": "아직 배우지 않은 마법 '%s'이(가) 포함되어 있습니다.",
-    "message.incorrect": "오답입니다. 다시 도전하세요.",
-    "message.correct": "정답! 쿼리 결과:",
     "message.clear": "클리어!",
     "message.clear_all": "모든 층을 클리어했습니다!",
     "message.next_spell": "현자의 목소리: \"다음은 아마... %s 구문일 것이다.\"",

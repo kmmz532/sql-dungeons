@@ -476,22 +476,60 @@ export class DOMManager {
     }
 
     showResult(message, type, keepTable = false) {
+        console.log('[showResult] called with message:', message, 'type:', type, 'keepTable:', keepTable);
+        console.log('[showResult] result-area children BEFORE:', this.elements['result-area'].children.length);
+        
         const messageEl = document.createElement('p');
         messageEl.className = 'result-message';
         messageEl.innerHTML = message.replace(/\n/g, '<br>');
-        const table = this.elements['result-area'].querySelector('#result-table');
-        this.elements['result-area'].innerHTML = '';
-        this.elements['result-area'].appendChild(messageEl);
-        if (keepTable && table) {
-            this.elements['result-area'].appendChild(table);
+        
+        if (keepTable) {
+            // テーブルを保持する場合
+            const table = this.elements['result-area'].querySelector('#result-table');
+            console.log('[showResult] keepTable=true, table exists:', !!table);
+            
+            // 既存のメッセージを削除
+            const existingMessages = this.elements['result-area'].querySelectorAll('.result-message');
+            console.log('[showResult] removing', existingMessages.length, 'existing messages');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // メッセージを先頭に追加（テーブルの前）
+            if (table) {
+                this.elements['result-area'].insertBefore(messageEl, table);
+                console.log('[showResult] message inserted before table');
+            } else {
+                this.elements['result-area'].appendChild(messageEl);
+                console.log('[showResult] message appended (no table found)');
+            }
+        } else {
+            // テーブルを保持しない場合は、全てクリアしてメッセージのみ追加
+            this.elements['result-area'].innerHTML = '';
+            this.elements['result-area'].appendChild(messageEl);
+            console.log('[showResult] keepTable=false, cleared and added message');
         }
+        
+        // CSSクラスを設定
         this.elements['result-area'].className = `result-${type}`;
+        console.log('[showResult] result-area children AFTER:', this.elements['result-area'].children.length);
     }
 
     displayTable(data) {
+        console.log('[displayTable] called with data:', data ? data.length : 0, 'rows');
+        
+        // 既存のテーブルを削除
         const existingTable = this.elements['result-area'].querySelector('#result-table');
-        if (existingTable) existingTable.remove();
-        if (!data || data.length === 0) return;
+        if (existingTable) {
+            console.log('[displayTable] removing existing table');
+            existingTable.remove();
+        }
+        
+        // データがない場合は何もしない
+        if (!data || data.length === 0) {
+            console.log('[displayTable] no data, returning');
+            return;
+        }
+        
+        // 新しいテーブルを作成
         const table = document.createElement('table');
         table.id = 'result-table';
         const thead = table.createTHead();
@@ -520,7 +558,10 @@ export class DOMManager {
                 cell.textContent = (v === undefined || v === null) ? '' : v;
             });
         });
+        
+        // テーブルをresult-areaに追加
         this.elements['result-area'].appendChild(table);
+        console.log('[displayTable] table added, result-area children:', this.elements['result-area'].children.length);
     }
 
     updateStats(player) {

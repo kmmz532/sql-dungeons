@@ -1,5 +1,4 @@
-// クエリ実行・検証ロジック
-
+// クエリ実行
 import { SQLParser } from '../sql/sql-parser.js';
 import { EXECUTE_COST } from '../constants.js';
 import Register from '../register.js';
@@ -8,6 +7,10 @@ import { filterSelectedTables } from '../data/data-loader.js';
 const sqlParser = new SQLParser();
 const EMULATE_AUTO_ACCEPT = false;
 
+/**
+ * クエリの実行
+ * @param GameCore game コアのデータ
+ */
 export function executeQuery(game) {
     const dom = game.dom;
     const isSandbox = !game.player;
@@ -84,8 +87,6 @@ export function executeQuery(game) {
             }
         }
         
-        // サンドボックスモードでは統合データベースから選択されたテーブルのみを使用
-        // 選択されたテーブルの中で重複がない場合はハイフンを除去
         let sandboxDb = game.getCurrentMockDatabase();
         try {
             const sel = Array.isArray(game.sandboxSelectedTables) ? game.sandboxSelectedTables : null;
@@ -108,11 +109,8 @@ export function executeQuery(game) {
         return;
     }
 
-    // クエリに必要な呪文を所持しているかチェック
     if (!validateQuery(game, query, false)) return;
 
-    // フロアの模範解答と照合
-    // 通常モードでは現在のダンジョン設定に基づいたデータベースを使用
     const validationDb = game.getCurrentMockDatabase();
 
     const isCorrect = sqlParser.validate(query, floorData, validationDb);
@@ -357,8 +355,9 @@ export function handleCorrectAnswer(game, floorData, query) {
         console.error('Failed to apply/mark floor reward', e); 
     }
     
-    dom.showResult(game.i18n.t('message.correct_result'), 'success');
+    // まず結果テーブルを表示してから、成功メッセージを表示（テーブルを保持）
     dom.displayTable(sqlParser.emulate(query, game.currentFloor, game.getCurrentMockDatabase()));
+    dom.showResult(game.i18n.t('message.correct_result'), 'success', true);
     dom.elements['floor-actions-container'].classList.remove('hidden');
     
     if (game.currentFloor < game.gameData.dungeonData.floors.length - 1) {

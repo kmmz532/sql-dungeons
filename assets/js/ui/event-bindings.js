@@ -19,9 +19,19 @@ export function setupUIHandlers(game) {
     console.debug('[setupUIHandlers] Binding UI handlers');
     
     // メインボタンのバインディング
-    dom.elements['start-button'].addEventListener('click', () => game.startGame());
-    dom.elements['load-button'].addEventListener('click', () => game.loadGame());
+    dom.elements['start-button'].addEventListener('click', () => {
+        // 新しいゲームを開始するときは、未保存警告フラグをリセット
+        dom.__unsavedWarningShown = false;
+        game.startGame();
+    });
+    dom.elements['load-button'].addEventListener('click', () => {
+        // ゲームをロードするときも、未保存警告フラグをリセット
+        dom.__unsavedWarningShown = false;
+        game.loadGame();
+    });
     dom.elements['sandbox-button'].addEventListener('click', () => {
+        // サンドボックスモードを開始するときも、未保存警告フラグをリセット
+        dom.__unsavedWarningShown = false;
         game.startSandbox();
         try { 
             history.pushState({ mode: 'sandbox' }, '', '?mode=sandbox'); 
@@ -56,14 +66,19 @@ export function setupUIHandlers(game) {
                     } catch(e) { console.error(e); }
                 };
 
-                if (game && typeof game.isDirty === 'function' && game.isDirty() && !game.isSandbox) {
+                // 未保存の変更がある場合、一度だけダイアログを表示
+                // フラグはdom.__unsavedWarningShownに保存（セッション全体で共有）
+                if (game && typeof game.isDirty === 'function' && game.isDirty() && !game.isSandbox && !dom.__unsavedWarningShown) {
                     const msg = game.i18n 
                         ? game.i18n.t('confirm.unsaved_changes') 
                         : 'セーブしていません。タイトルに戻りますか？';
                     if (confirm(msg)) {
+                        // OKを押したら、次回からはダイアログを表示しない
+                        dom.__unsavedWarningShown = true;
                         proceed();
                     }
                 } else {
+                    // ダイアログが既に表示済み、またはサンドボックスモード、または保存済みの場合は直接実行
                     proceed();
                 }
             } catch (e) { 

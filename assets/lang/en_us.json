@@ -47,8 +47,6 @@
     "message.invalid_query": "Invalid query.",
     "message.no_energy": "Not enough energy!",
     "message.unknown_spell": "You haven't learned the spell '%s' yet.",
-    "message.incorrect": "Incorrect. Try again.",
-    "message.correct": "Correct! Query result:",
     "message.clear": "Clear!",
     "message.clear_all": "You've cleared all floors!",
     "message.next_spell": "Sage's Voice: \"The next clause should be... %s.\"",

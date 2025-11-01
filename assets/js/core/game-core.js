@@ -4,6 +4,7 @@ import { setupUIHandlers } from '../ui/ui-handlers.js';
 import { GameState } from './game-state.js';
 import { GameLifecycle } from './game-lifecycle.js';
 import { SandboxUI } from './sandbox-ui.js';
+import Register from '../register.js';
 
 export class GameCore {
     constructor(dom, i18n) {
@@ -27,6 +28,19 @@ export class GameCore {
     }
 
     async initialize() {
+        // レジストリの初期化（SQL句と集約関数）
+        try {
+            console.log('[GameCore] Initializing registries...');
+            await Register.init('./assets/js/sql/clause/manifest.json', 'clause');
+            await Register.init('./assets/js/sql/aggregate/manifest.json', 'aggregate');
+            console.log('[GameCore] Registries initialized:', {
+                clause: Object.keys(Register.getAll('clause')),
+                aggregate: Object.keys(Register.getAll('aggregate'))
+            });
+        } catch (e) {
+            console.error('Failed to initialize registries', e);
+        }
+
         try {
             if (!this.gameData) this.gameData = await loadGameData();
         } catch (e) {

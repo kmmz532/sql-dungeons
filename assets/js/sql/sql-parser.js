@@ -461,7 +461,13 @@ export class SQLParser {
             // getAll returns an object of { KEY: ctor }
             const runtimeKeys = Object.keys(registered || {});
             if (SQLParser.DEBUG) {
-                try { console.debug('[SQLParser] runtimeKeys=', runtimeKeys); } catch(e){}
+                try { 
+                    console.debug('[SQLParser] registered object=', registered);
+                    console.debug('[SQLParser] runtimeKeys=', runtimeKeys);
+                    console.debug('[SQLParser] Registry.get(SELECT)=', Registry.get ? Registry.get('SELECT', 'clause') : 'N/A');
+                } catch(e){
+                    console.error('[SQLParser] Error checking registry:', e);
+                }
             }
 
             // fallback manifest keys (from static export) if registry is empty
@@ -469,7 +475,8 @@ export class SQLParser {
             const fallbackKeys = Object.keys(fallbackManifest || {});
 
             // Decide keys to consider, prefer runtimeKeys if present else fallbackKeys
-            let keys = runtimeKeys.length ? runtimeKeys : fallbackKeys;
+            // If both are empty, use basic clause list to ensure SELECT at minimum works
+            let keys = runtimeKeys.length ? runtimeKeys : (fallbackKeys.length ? fallbackKeys : ['SELECT']);
 
             // Ensure deterministic ordering: we'll execute WHERE before GROUP BY before HAVING before ORDER BY before SELECT
             const orderPreference = ['WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'SELECT'];
@@ -491,8 +498,17 @@ export class SQLParser {
 
             for (const key of keys) {
                 const phase = key.toUpperCase();
+                if (SQLParser.DEBUG) {
+                    console.debug('[SQLParser] Processing phase:', phase);
+                }
                 const Cls = getRegistryClass(phase, 'clause');
-                if (!Cls) continue;
+                if (SQLParser.DEBUG) {
+                    console.debug('[SQLParser] Class for', phase, ':', Cls ? 'Found' : 'Not found');
+                }
+                if (!Cls) {
+                    if (SQLParser.DEBUG) console.debug('[SQLParser] Skipping phase', phase, '(no class)');
+                    continue;
+                }
 
                 let prop = null;
                 if (phase === 'WHERE') prop = 'where';
@@ -577,8 +593,16 @@ export class SQLParser {
                         }
                         return finalRes;
                     }
-                    return [];
+                    // フォールバック: Clsが見つからない場合、基本的なSELECT処理を実行
+                    if (SQLParser.DEBUG) console.debug('[SQLParser] SELECT class not found, using fallback');
+                    return this._fallbackSelect(resultTable, parsed.select, !!parsed.distinct);
                 }
+            }
+
+            // ループが終わってもSELECTが見つからなかった場合のフォールバック
+            if (parsed.select) {
+                if (SQLParser.DEBUG) console.debug('[SQLParser] No SELECT in keys, using fallback');
+                return this._fallbackSelect(resultTable, parsed.select, !!parsed.distinct);
             }
 
             return [];
@@ -586,6 +610,123 @@ export class SQLParser {
             console.error('SQLParser emulate error:', e);
             return [];
         }
+    }
+
+    /**
+     * フォールバック: レジストリにSELECT句がない場合の基本的な射影処理
+     */
+    _fallbackSelect(rows, selectCols, distinct = false) {
+        if (SQLParser.DEBUG) {
+            console.debug('[_fallbackSelect] called with', rows.length, 'rows, selectCols:', selectCols);
+        }
+        
+        if (!Array.isArray(rows) || rows.length === 0) return [];
+        
+        // SELECT * の場合
+        if (selectCols.length === 1 && selectCols[0] === '*') {
+            if (SQLParser.DEBUG) console.debug('[_fallbackSelect] SELECT *, returning all columns');
+            
+            // テーブル名プレフィックスを削除して、シンプルなカラム名に変換
+            const cleaned = rows.map(row => {
+                const newRow = {};
+                for (const key in row) {
+                    // 'table.col' → 'col' に変換
+                    const cleanKey = key.includes('.') ? key.split('.').pop() : key;
+                    newRow[cleanKey] = row[key];
+                }
+                return newRow;
+            });
+            
+            return distinct ? this._removeDuplicates(cleaned) : cleaned;
+        }
+        
+        // 特定のカラムを選択
+        const result = rows.map(row => {
+            const newRow = {};
+            for (const col of selectCols) {
+                const trimmed = col.trim();
+                // エイリアス対応: "col AS alias" → alias
+                const asMatch = trimmed.match(/^(.+?)\s+as\s+(\w+)$/i);
+                if (asMatch) {
+                    const srcCol = asMatch[1].trim();
+                    const alias = asMatch[2];
+                    // ソースカラムの値を取得（テーブル名プレフィックス対応）
+                    const val = this._getColumnValue(row, srcCol);
+                    newRow[alias] = val;
+                } else {
+                    // 通常のカラム: テーブル名プレフィックスなしのキー名を使用
+                    const val = this._getColumnValue(row, trimmed);
+                    // キー名からもテーブル名プレフィックスを削除
+                    const cleanKey = trimmed.includes('.') ? trimmed.split('.').pop() : trimmed;
+                    newRow[cleanKey] = val;
+                }
+            }
+            return newRow;
+        });
+        
+        if (SQLParser.DEBUG) {
+            console.debug('[_fallbackSelect] result sample:', result[0]);
+        }
+        
+        return distinct ? this._removeDuplicates(result) : result;
+    }
+    
+    /**
+     * 行からカラム値を取得（テーブル名プレフィックス対応）
+     */
+    _getColumnValue(row, col) {
+        if (SQLParser.DEBUG) {
+            console.debug('[_getColumnValue] Looking for column:', col, 'in row keys:', Object.keys(row));
+        }
+        
+        // 直接マッチ（完全一致）
+        if (col in row) {
+            if (SQLParser.DEBUG) console.debug('[_getColumnValue] Direct match found:', row[col]);
+            return row[col];
+        }
+        
+        // テーブル名.カラム名 形式の場合
+        if (col.includes('.')) {
+            const shortCol = col.split('.').pop();
+            // 完全一致を探す
+            for (const key in row) {
+                if (key === col || key.endsWith('.' + shortCol)) {
+                    if (SQLParser.DEBUG) console.debug('[_getColumnValue] Prefixed match found:', row[key]);
+                    return row[key];
+                }
+            }
+        } else {
+            // カラム名のみの場合、テーブル名プレフィックス付きのキーでも検索
+            // 例: col='id' で row={'table001.id': 1} の場合にマッチ
+            for (const key in row) {
+                // key が 'table.col' の形式で、col部分が一致するか
+                if (key === col) {
+                    if (SQLParser.DEBUG) console.debug('[_getColumnValue] Exact match found:', row[key]);
+                    return row[key];
+                }
+                // 'sometable.col' の形式で末尾が '.col' と一致
+                if (key.includes('.') && key.split('.').pop() === col) {
+                    if (SQLParser.DEBUG) console.debug('[_getColumnValue] Suffix match found:', row[key], 'for key:', key);
+                    return row[key];
+                }
+            }
+        }
+        
+        if (SQLParser.DEBUG) console.debug('[_getColumnValue] No match found for column:', col);
+        return undefined;
+    }
+    
+    /**
+     * 重複行を削除
+     */
+    _removeDuplicates(rows) {
+        const seen = new Set();
+        return rows.filter(row => {
+            const key = JSON.stringify(row);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
     }
 
     /**
