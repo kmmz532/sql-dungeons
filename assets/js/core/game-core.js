@@ -7,6 +7,9 @@ import { SandboxUI } from './sandbox-ui.js';
 import Register from '../register.js';
 
 export class GameCore {
+
+    dom; // DOM操作用ユーティリティ
+
     constructor(dom, i18n) {
         this.dom = dom;
         this.i18n = i18n;
@@ -47,7 +50,7 @@ export class GameCore {
             console.warn('Failed to load game data in initialize', e);
         }
 
-        // サンドボックスモード用：全データベースを統合
+        // サンドボックスモードでは全データベースを統合
         try {
             if (this.gameData && this.gameData.mockDatabases) {
                 this.gameData.mergedMockDatabase = mergeAllDatabases(this.gameData.mockDatabases);
@@ -64,7 +67,7 @@ export class GameCore {
                 if (tables.includes('table001')) this.sandboxSelectedTables = ['table001'];
                 else this.sandboxSelectedTables = tables.slice();
             }
-        } catch (e) { /* non-fatal */ }
+        } catch (e) { console.error('Failed to initialize sandbox selected tables', e); }
 
         try { this.sandboxUI.createControls(); } catch (e) {
             console.error('Failed to render sandbox controls', e);
@@ -84,19 +87,19 @@ export class GameCore {
      */
     getCurrentMockDatabase() {
         try {
-            // サンドボックスモードでは統合されたデータベースを使用
+            // サンドボックスモードでは統合されたデータベース
             if (this.isSandbox) {
                 return this.gameData?.mergedMockDatabase || this.gameData?.mockDatabase || {};
             }
 
-            // 通常モード：現在のフロアのdatabasesフィールドをチェック
+            // 通常モードでは現在のフロアのdatabases
             const floorData = this.gameData?.dungeonData?.floors?.[this.currentFloor];
             if (floorData && Array.isArray(floorData.databases) && floorData.databases.length > 0) {
                 console.debug('[GameCore] Using floor databases:', floorData.databases);
                 return mergeDatabases(this.gameData.mockDatabases, floorData.databases);
             }
 
-            // フォールバック：デフォルトのmockDatabaseを使用
+            // デフォルトのmockDatabase
             return this.gameData?.mockDatabase || {};
         } catch (e) {
             console.error('Failed to get current mock database', e);

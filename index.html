@@ -14,11 +14,11 @@
         <meta name="theme-color" content="#1a1a2e">
     </head>
     <body>
-        <div class="container" role="application" aria-label="SQLダンジョンゲーム">
+        <div class="container" role="application">
             <div id="feedback-message"></div>
             <div id="start-screen">
                 <div class="header">
-                    <h1 data-i18n="app.title.beginner">SQLダンジョン - 初級 -</h1>
+                    <h1 data-i18n="app.title.beginner">SQLダンジョン</h1>
                     <button type="button" id="settings-button" class="action-btn" aria-label="設定">⚙</button>
                 </div>
                 <div class="content" role="main">
@@ -42,7 +42,7 @@
                         <span class="icon-back">↶</span>
                         <span class="visually-hidden" data-i18n="button.back_to_title">タイトルに戻る</span>
                     </button>
-                    <!-- 前フロアへ戻るボタン -->
+
                     <button type="button" id="prev-floor-btn" class="action-btn" aria-label="前のフロアへ戻る">
                         <span class="icon-prev">←</span>
                         <span class="visually-hidden" data-i18n="button.prev_floor">前のフロアへ</span>
@@ -90,7 +90,6 @@
                 </div>
             </div>
 
-            <!-- モーダルウィンドウ群 -->
             <div id="shop-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="shop-title">
                 <div class="modal-content" role="document">
                     <div class="modal-header">
@@ -112,7 +111,7 @@
                     </div>
                 </div>
             </div>
-            <!-- 設定モーダル -->
+            
             <div id="settings-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
                 <div class="modal-content" role="document">
                     <div class="modal-header">
@@ -154,7 +153,6 @@
             </div>
         </div>
 
-        <!-- i18n適用は外部jsで管理し、HTML内は最小限に -->
         <script type="module" src="./assets/js/lang/i18n-init.js"></script>
         <script type="module" src="./assets/js/main.js"></script>
     </body>

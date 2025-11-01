@@ -1,6 +1,15 @@
 import { DOMManager } from './ui/dom-manager.js';
 import { GameCore } from './core/game-core.js';
 import { applyI18n } from './lang/i18n.js';
+import { initI18n } from './lang/i18n-init.js';
+
+/**
+ * 全体の初期化
+ */
+async function init() {
+    let i18n = await initI18n();
+    startApp(i18n);
+}
 
 export async function startApp(i18n) {
     const run = async () => {
@@ -120,3 +129,5 @@ export async function startApp(i18n) {
         await run();
     }
 }
+
+init();

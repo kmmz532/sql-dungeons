@@ -39,7 +39,11 @@ function localeFromSavedSettings() {
     }
 }
 
-async function initI18n() {
+/**
+ * i18nの初期化を行う
+ * @returns {Promise<I18n>} - 初期化されたI18nインスタンス
+ */
+export async function initI18n() {
     let manifest = null;
     try {
         const res = await fetch('./assets/lang/manifest.json');
@@ -64,10 +68,5 @@ async function initI18n() {
 
     try { window.availableLocales = i18n.getAvailableLocales(); } catch (e) { window.availableLocales = null; }
 
-    // i18n初期化後にmain.jsのエントリポイントを呼ぶ
-    import('../main.js').then(module => {
-        if (module && typeof module.startApp === 'function') module.startApp(i18n);
-    });
+    return i18n;
 }
-
-initI18n();
