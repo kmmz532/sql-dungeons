@@ -46,3 +46,46 @@ export const migrateFloorKeys = (keys, dungeonKey) => {
     }
     return out;
 };
+
+// セーブデータのバージョン。2: ダンジョン再編（旧チュートリアル6〜15階→初級、旧初級→中級）
+export const SAVE_VERSION = 2;
+
+const SPLIT_OFFSET = 5; // 旧チュートリアルのうち、1〜5階が新チュートリアル、6階以降が初級へ移った
+const SPLIT_FLOOR_COUNT = { tutorial: 5, beginner: 10 };
+
+const remapFloorKey = (key) => {
+    const m = /^([^:]+):(\d+)$/.exec(key);
+    if (!m) return key;
+    const n = Number(m[2]);
+    if (m[1] === 'beginner') return `intermediate:${n}`;
+    if (m[1] === 'tutorial' && n > SPLIT_OFFSET) return `beginner:${n - SPLIT_OFFSET}`;
+    return key;
+};
+
+/**
+ * v1 のセーブをダンジョン再編後の構成に変換する（プレイヤーのクリア記録を書き換え、現在位置を返す）
+ * @param {Player} player
+ * @param {string|null} currentDungeon
+ * @param {number} currentFloor - ダンジョン内の配列インデックス
+ * @returns {{currentDungeon: string|null, currentFloor: number}}
+ */
+export const migrateDungeonSplit = (player, currentDungeon, currentFloor) => {
+    player.clearedFloors = new Set([...player.clearedFloors].map(remapFloorKey));
+    player.purchasedHints = new Set([...player.purchasedHints].map(remapFloorKey));
+    player.clearedDungeons = new Set([...player.clearedDungeons].map(d => (d === 'beginner' ? 'intermediate' : d)));
+
+    // 全フロアをクリア済みのダンジョンはクリア済みとして扱う
+    for (const [dungeon, count] of Object.entries(SPLIT_FLOOR_COUNT)) {
+        let all = true;
+        for (let n = 1; n <= count; n++) {
+            if (!player.clearedFloors.has(makeFloorKey(dungeon, n))) { all = false; break; }
+        }
+        if (all) player.clearedDungeons.add(dungeon);
+    }
+
+    if (currentDungeon === 'beginner') return { currentDungeon: 'intermediate', currentFloor };
+    if (currentDungeon === 'tutorial' && currentFloor >= SPLIT_OFFSET) {
+        return { currentDungeon: 'beginner', currentFloor: currentFloor - SPLIT_OFFSET };
+    }
+    return { currentDungeon, currentFloor };
+};

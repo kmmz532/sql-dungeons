@@ -75,20 +75,6 @@ export async function loadGameData() {
                 console.warn('Failed to load dungeon file', filename, e);
             }
         }
-    } else {
-        // manifest.jsonがない場合、tutorialとbeginnerを直接読み込む
-        const [tutorialRes, beginnerRes] = await Promise.all([
-            fetch('./assets/data/dungeons/tutorial.json').catch(() => null),
-            fetch('./assets/data/dungeons/beginner.json').catch(() => null)
-        ]);
-
-        const [tutorial, beginner] = await Promise.all([
-            tutorialRes ? tutorialRes.json() : Promise.resolve(null),
-            beginnerRes ? beginnerRes.json() : Promise.resolve(null)
-        ]);
-
-        if (tutorial) dungeons.tutorial = tutorial;
-        if (beginner) dungeons.beginner = beginner;
     }
 
     // デフォルトのダンジョンデータを設定

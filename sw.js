@@ -4,6 +4,7 @@ const ASSETS = [
   './index.html',
   './assets/css/styles.css',
   './assets/data/dungeons/beginner.json',
+  './assets/data/dungeons/intermediate.json',
   './assets/data/dungeons/tutorial.json',
   './assets/data/dungeons/manifest.json',
   './assets/data/mock-databases/company.json',

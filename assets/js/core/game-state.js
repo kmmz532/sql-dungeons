@@ -1,7 +1,7 @@
 // ゲーム状態管理（セーブ/ロード、dirty フラグ等）
 import { Player } from '../models/player.js';
 import { SAVE_KEY } from '../constants.js';
-import { DEFAULT_DUNGEON, migrateFloorKeys } from './floor-key.js';
+import { DEFAULT_DUNGEON, SAVE_VERSION, migrateFloorKeys, migrateDungeonSplit } from './floor-key.js';
 
 export class GameState {
     constructor(gameCore) {
@@ -26,7 +26,8 @@ export class GameState {
             ...this.core.player.toJSON(),
             currentFloor: this.core.currentFloor,
             currentDungeon: this.core.currentDungeon || null,
-            atStageSelect: !!this.core.atStageSelect
+            atStageSelect: !!this.core.atStageSelect,
+            saveVersion: SAVE_VERSION
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         this.core.dom.showFeedback(this.core.i18n.t('message.save_success'));
@@ -48,12 +49,18 @@ export class GameState {
         this.core.player.clearedFloors = migrateFloorKeys(loadedData.clearedFloors, saveDungeon);
         this.core.player.purchasedHints = migrateFloorKeys(loadedData.purchasedHints, saveDungeon);
 
-        this.core.currentFloor = loadedData.currentFloor;
+        // ダンジョン再編前のセーブは、クリア記録と現在位置を新しい構成に変換する
+        let { currentDungeon, currentFloor } = loadedData;
+        if ((loadedData.saveVersion || 1) < SAVE_VERSION) {
+            ({ currentDungeon, currentFloor } = migrateDungeonSplit(this.core.player, currentDungeon, currentFloor));
+        }
+
+        this.core.currentFloor = currentFloor;
         
         try {
-            if (loadedData.currentDungeon && this.core.gameData && this.core.gameData.dungeons && this.core.gameData.dungeons[loadedData.currentDungeon]) {
-                this.core.gameData.dungeonData = this.core.gameData.dungeons[loadedData.currentDungeon];
-                this.core.currentDungeon = loadedData.currentDungeon;
+            if (currentDungeon && this.core.gameData && this.core.gameData.dungeons && this.core.gameData.dungeons[currentDungeon]) {
+                this.core.gameData.dungeonData = this.core.gameData.dungeons[currentDungeon];
+                this.core.currentDungeon = currentDungeon;
             }
         } catch (e) {}
         

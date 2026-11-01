@@ -1,7 +1,6 @@
 {
     "settings.save": "保存",
     "settings.cancel": "取消",
-
     "item.sqldungeons.java_coffee": "Java咖啡",
     "item.sqldungeons.java_coffee.desc": "恢复5点能量。",
     "item.sqldungeons.postgres_ramen": "Postgres拉面",
@@ -16,7 +15,6 @@
     "item.sqldungeons.having.desc": "一次性聚合后筛选魔法。",
     "item.sqldungeons.consumable_having": "消耗型 HAVING",
     "item.sqldungeons.consumable_having.desc": "授予一次性 HAVING 使用的消耗品。",
-
     "sql.keyword.select": "SELECT",
     "sql.keyword.from": "FROM",
     "sql.keyword.group": "GROUP",
@@ -29,7 +27,6 @@
     "sql.keyword.sum": "SUM",
     "sql.keyword.count": "COUNT",
     "sql.keyword.in": "IN",
-
     "schema.pk": "主键",
     "schema.ck": "候选键",
     "schema.fk": "外键 (引用: %s)",
@@ -38,7 +35,6 @@
     "schema.type.timestamp": "时间戳",
     "schema.type.text": "文本",
     "schema.not_null": "非空",
-
     "sql.next.select": "SELECT",
     "sql.next.from": "FROM",
     "sql.next.where": "WHERE / JOIN / GROUP BY",
@@ -46,165 +42,124 @@
     "sql.next.having": "HAVING",
     "sql.next.join": "ON",
     "sql.next.unknown": "未知",
-
     "dungeon.floor1.title": "教程1：用 SELECT 查看全部",
     "dungeon.floor1.story": "在编辑器中输入 `SELECT * FROM table001` 并执行。",
-
     "dungeon.floor2.title": "教程2：选择特定列",
     "dungeon.floor2.story": "使用 `SELECT (column) FROM (table)` 来显示特定列。在概念架构中查找表名并获取 `message` 列。",
-
     "dungeon.floor3.title": "教程3：用 WHERE 过滤",
     "dungeon.floor3.story": "使用 `SELECT ... FROM ... WHERE (condition)` 来过滤行。从 `fruits` 表中显示 `color = 'Red'` 的 `name` 与 `color`。条件写作 `column = 'value'`，也可以使用 <, >, <=, >=, <>。",
-
     "dungeon.floor4.title": "教程4：用 ORDER BY 排序",
     "dungeon.floor4.story": "使用 `ORDER BY (column) [ASC|DESC]` 来排序结果。在 `fruits` 表中按 `price` 升序显示 `name` 和 `price`。`ORDER BY id` 会按 id 升序，默认是 ASC，降序请使用 DESC。",
-
     "dungeon.floor5.title": "教程5：用 GROUP BY 聚合",
     "dungeon.floor5.story": "使用 `SELECT ... FROM ... GROUP BY (column)` 来分组。在 `fruits` 中按 `color` 统计数量。聚合函数有 COUNT、SUM、AVG、MIN、MAX。`COUNT(*)` 用于计数，例如 `SELECT color, COUNT(*) FROM fruits`。",
-
     "dungeon.floor6.title": "初学者 SELECT",
     "dungeon.floor6.story": "地牢入口。从 `products` 中找出 `price >= 1000` 的商品并显示 `name` 与 `price`。",
     "dungeon.floor6.hint": "使用 `WHERE` 子句来过滤符合特定条件的行。",
-
     "dungeon.floor7.title": "GROUP BY 挑战",
     "dungeon.floor7.story": "怪物巢穴。从 `monsters` 表中按 `species` 统计怪物数量。",
     "dungeon.floor7.hint": "使用 `GROUP BY` 对每个分组进行聚合。",
-
     "dungeon.floor8.title": "INNER JOIN 法术",
     "dungeon.floor8.story": "在公会大厅中。连接 `employees` 与 `departments`，列出每位员工的 `emp_name` 与 `dept_name`。",
     "dungeon.floor8.hint": "使用 `INNER JOIN ... ON ...` 通过公共列连接表。",
-
     "dungeon.floor9.title": "子查询迷宫",
     "dungeon.floor9.story": "从 `sales` 表中计算 '開発部' 员工的 `quantity` 总和。",
     "dungeon.floor9.hint": "在 WHERE 中使用子查询可以逐步缩小条件。",
-
     "dungeon.floor10.title": "Boss 战：销售巨像",
     "dungeon.floor10.story": "Boss 战！按部门计算 2025-02 之后的 `quantity` 总和，排除总和小于 10 的部门。",
     "dungeon.floor10.hint": "连接三个表，使用 WHERE 过滤日期，GROUP BY 聚合，最后用 HAVING 筛选。",
-    
     "dungeon.floor11.title": "按商品类别筛选",
     "dungeon.floor11.story": "从 products 表中选出 category = '武器' 的商品的 name 和 price。",
     "dungeon.floor11.hint": "要只取特定类别的商品，可以写 `WHERE category = '武器'`。",
-
     "dungeon.floor12.title": "按怪物的 HP 筛选",
     "dungeon.floor12.story": "从 monsters 表中选出 hp > 20 的行的 name 和 hp。",
     "dungeon.floor12.hint": "数值比较可以使用 `>` 或 `<`。",
-
     "dungeon.floor13.title": "按部门过滤的 JOIN",
     "dungeon.floor13.story": "对 employees 和 departments 进行 INNER JOIN，显示 departments.dept_name = '开发部' 的员工 emp_name 和 dept_name。",
     "dungeon.floor13.hint": "JOIN 和 WHERE 可以结合使用，在连接后再进行条件过滤。",
-
     "dungeon.floor14.title": "按颜色分组并筛选",
     "dungeon.floor14.story": "对 fruits 表按照 color 分组，只显示 COUNT(*) > 1 的组。",
     "dungeon.floor14.hint": "可以用 GROUP BY + HAVING 来对分组后的结果再进行过滤。",
-
     "dungeon.floor15.title": "子查询迷宫",
     "dungeon.floor15.story": "在 sales（销售履历）表中，求“开发部”员工的销售数量 (quantity) 总和。",
     "dungeon.floor15.hint": "可以在 WHERE 中嵌入另一个 SELECT（子查询），逐步缩小条件。",
-
     "dungeon.floor16.title": "筛选销售多的员工",
     "dungeon.floor16.story": "从 employees 表中显示那些在 sales 表中曾经有 quantity > 5 销售记录的 emp_id 对应的 emp_name。",
     "dungeon.floor16.hint": "使用 IN 与子查询来提取相关的行。",
-
     "dungeon.floor17.title": "按部门计算销售总额",
     "dungeon.floor17.story": "将 sales、employees、departments 三表 JOIN，然后按 dept_name 对 quantity 求和显示。",
     "dungeon.floor17.hint": "结合 JOIN 和 GROUP BY 可以按部门做汇总。",
-
     "dungeon.floor18.title": "按日期筛选再汇总",
     "dungeon.floor18.story": "对 sale_date < '2025-02-01' 的销售数据，按 dept_name 显示 SUM(quantity)。",
     "dungeon.floor18.hint": "日期比较有时可以当作字符串比较，要注意格式。",
-
     "dungeon.floor19.title": "用 HAVING 进一步筛选",
     "dungeon.floor19.story": "针对 2025‑02‑01 以后（含当日）的销售，按部门汇总，然后只显示 SUM(quantity) > 5 的部门。",
     "dungeon.floor19.hint": "HAVING 用于对 GROUP BY 的结果再加条件过滤。",
-
     "dungeon.floor20.title": "终极试炼：按部门销售过滤",
     "dungeon.floor20.story": "把三张表 JOIN 后，针对 2025‑02‑01 以后（含当日）的销售按部门汇总，只显示 SUM(quantity) ≥ 10 的部门。",
     "dungeon.floor20.hint": "要把三表 JOIN，WHERE 过滤日期，GROUP BY 汇总，再用 HAVING 做最终过滤！",
-
     "dungeon.tutorial.prefix": "教程 %s",
     "dungeon.beginner.prefix": "第 %s 层",
-
+    "dungeon.intermediate.prefix": "第 %s 层",
     "dungeon.tutorial.floor1.title": "教程1：用 SELECT 查看全部",
     "dungeon.tutorial.floor1.story": "在编辑器中输入 `SELECT * FROM table001` 并执行。",
     "dungeon.tutorial.floor1.hint": "",
-
     "dungeon.tutorial.floor2.title": "教程2：选择特定列",
     "dungeon.tutorial.floor2.story": "使用 `SELECT (column) FROM (table)` 来显示特定列。在概念架构中查找表名并获取 `message` 列。",
     "dungeon.tutorial.floor2.hint": "",
-
     "dungeon.tutorial.floor3.title": "教程3：用 WHERE 过滤",
     "dungeon.tutorial.floor3.story": "使用 `SELECT ... FROM ... WHERE (condition)` 来过滤行。从 `fruits` 表中显示 `color = 'Red'` 的 `name` 与 `color`。",
     "dungeon.tutorial.floor3.hint": "",
-
     "dungeon.tutorial.floor4.title": "教程4：用 ORDER BY 排序",
     "dungeon.tutorial.floor4.story": "使用 `ORDER BY (column) [ASC|DESC]` 来排序结果。在 `fruits` 表中按 `price` 升序显示 `name` 和 `price`。",
     "dungeon.tutorial.floor4.hint": "",
-
     "dungeon.tutorial.floor5.title": "教程5：用 GROUP BY 聚合",
     "dungeon.tutorial.floor5.story": "使用 `SELECT ... FROM ... GROUP BY (column)` 来分组。在 `fruits` 中按 `color` 统计数量。",
     "dungeon.tutorial.floor5.hint": "",
-
-    "dungeon.beginner.floor1.title": "初学者 SELECT",
-    "dungeon.beginner.floor1.story": "地牢入口。从 `products` 中找出 `price >= 1000` 的商品并显示 `name` 与 `price`。",
-    "dungeon.beginner.floor1.hint": "使用 `WHERE` 子句来过滤符合特定条件的行。",
-
-    "dungeon.beginner.floor2.title": "GROUP BY 挑战",
-    "dungeon.beginner.floor2.story": "怪物巢穴。从 `monsters` 表中按 `species` 统计怪物数量。",
-    "dungeon.beginner.floor2.hint": "使用 `GROUP BY` 对每个分组进行聚合。",
-
-    "dungeon.beginner.floor3.title": "INNER JOIN 法术",
-    "dungeon.beginner.floor3.story": "在公会大厅中。连接 `employees` 与 `departments`，列出每位员工的 `emp_name` 与 `dept_name`。",
-    "dungeon.beginner.floor3.hint": "使用 `INNER JOIN ... ON ...` 通过公共列连接表。",
-
-    "dungeon.beginner.floor4.title": "子查询迷宫",
-    "dungeon.beginner.floor4.story": "从 `sales` 表中计算 '開発部' 员工的 `quantity` 总和。",
-    "dungeon.beginner.floor4.hint": "在 WHERE 中使用子查询可以逐步缩小条件。",
-
-    "dungeon.beginner.floor5.title": "Boss 战：销售巨像",
-    "dungeon.beginner.floor5.story": "Boss 战！按部门计算 2025-02 之后的 `quantity` 总和，排除总和小于 10 的部门。",
-    "dungeon.beginner.floor5.hint": "连接三个表，使用 WHERE 过滤日期，GROUP BY 聚合，最后用 HAVING 筛选。",
-
-    "dungeon.beginner.floor6.title": "按商品类别筛选",
-    "dungeon.beginner.floor6.story": "从 products 表中选出 category = '武器' 的商品的 name 和 price。",
-    "dungeon.beginner.floor6.hint": "要只取特定类别的商品，可以写 `WHERE category = '武器'`。",
-
-    "dungeon.beginner.floor7.title": "按怪物的 HP 筛选",
-    "dungeon.beginner.floor7.story": "从 monsters 表中选出 hp > 20 的行的 name 和 hp。",
-    "dungeon.beginner.floor7.hint": "数值比较可以使用 `>` 或 `<`。",
-
-    "dungeon.beginner.floor8.title": "按部门过滤的 JOIN",
-    "dungeon.beginner.floor8.story": "对 employees 和 departments 进行 INNER JOIN，显示 departments.dept_name = '开发部' 的员工 emp_name 和 dept_name。",
-    "dungeon.beginner.floor8.hint": "JOIN 和 WHERE 可以结合使用，在连接后再进行条件过滤。",
-
-    "dungeon.beginner.floor9.title": "按颜色分组并筛选",
-    "dungeon.beginner.floor9.story": "对 fruits 表按照 color 分组，只显示 COUNT(*) > 1 的组。",
-    "dungeon.beginner.floor9.hint": "可以用 GROUP BY + HAVING 来对分组后的结果再进行过滤。",
-
-    "dungeon.beginner.floor10.title": "子查询迷宫",
-    "dungeon.beginner.floor10.story": "在 sales（销售履历）表中，求“开发部”员工的销售数量 (quantity) 总和。",
-    "dungeon.beginner.floor10.hint": "可以在 WHERE 中嵌入另一个 SELECT（子查询），逐步缩小条件。",
-
-    "dungeon.beginner.floor11.title": "筛选销售多的员工",
-    "dungeon.beginner.floor11.story": "从 employees 表中显示那些在 sales 表中曾经有 quantity > 5 销售记录的 emp_id 对应的 emp_name。",
-    "dungeon.beginner.floor11.hint": "使用 IN 与子查询来提取相关的行。",
-
-    "dungeon.beginner.floor12.title": "按部门计算销售总额",
-    "dungeon.beginner.floor12.story": "将 sales、employees、departments 三表 JOIN，然后按 dept_name 对 quantity 求和显示。",
-    "dungeon.beginner.floor12.hint": "结合 JOIN 和 GROUP BY 可以按部门做汇总。",
-
-    "dungeon.beginner.floor13.title": "按日期筛选再汇总",
-    "dungeon.beginner.floor13.story": "对 sale_date < '2025-02-01' 的销售数据，按 dept_name 显示 SUM(quantity)。",
-    "dungeon.beginner.floor13.hint": "日期比较有时可以当作字符串比较，要注意格式。",
-
-    "dungeon.beginner.floor14.title": "用 HAVING 进一步筛选",
-    "dungeon.beginner.floor14.story": "针对 2025‑02‑01 以后（含当日）的销售，按部门汇总，然后只显示 SUM(quantity) > 5 的部门。",
-    "dungeon.beginner.floor14.hint": "HAVING 用于对 GROUP BY 的结果再加条件过滤。",
-
-    "dungeon.beginner.floor15.title": "终极试炼：按部门销售过滤",
-    "dungeon.beginner.floor15.story": "把三张表 JOIN 后，针对 2025‑02‑01 以后（含当日）的销售按部门汇总，只显示 SUM(quantity) ≥ 10 的部门。",
-    "dungeon.beginner.floor15.hint": "要把三表 JOIN，WHERE 过滤日期，GROUP BY 汇总，再用 HAVING 做最终过滤！",
-
+    "dungeon.intermediate.floor1.title": "初学者 SELECT",
+    "dungeon.intermediate.floor1.story": "地牢入口。从 `products` 中找出 `price >= 1000` 的商品并显示 `name` 与 `price`。",
+    "dungeon.intermediate.floor1.hint": "使用 `WHERE` 子句来过滤符合特定条件的行。",
+    "dungeon.intermediate.floor2.title": "GROUP BY 挑战",
+    "dungeon.intermediate.floor2.story": "怪物巢穴。从 `monsters` 表中按 `species` 统计怪物数量。",
+    "dungeon.intermediate.floor2.hint": "使用 `GROUP BY` 对每个分组进行聚合。",
+    "dungeon.intermediate.floor3.title": "INNER JOIN 法术",
+    "dungeon.intermediate.floor3.story": "在公会大厅中。连接 `employees` 与 `departments`，列出每位员工的 `emp_name` 与 `dept_name`。",
+    "dungeon.intermediate.floor3.hint": "使用 `INNER JOIN ... ON ...` 通过公共列连接表。",
+    "dungeon.intermediate.floor4.title": "子查询迷宫",
+    "dungeon.intermediate.floor4.story": "从 `sales` 表中计算 '開発部' 员工的 `quantity` 总和。",
+    "dungeon.intermediate.floor4.hint": "在 WHERE 中使用子查询可以逐步缩小条件。",
+    "dungeon.intermediate.floor5.title": "Boss 战：销售巨像",
+    "dungeon.intermediate.floor5.story": "Boss 战！按部门计算 2025-02 之后的 `quantity` 总和，排除总和小于 10 的部门。",
+    "dungeon.intermediate.floor5.hint": "连接三个表，使用 WHERE 过滤日期，GROUP BY 聚合，最后用 HAVING 筛选。",
+    "dungeon.intermediate.floor6.title": "按商品类别筛选",
+    "dungeon.intermediate.floor6.story": "从 products 表中选出 category = '武器' 的商品的 name 和 price。",
+    "dungeon.intermediate.floor6.hint": "要只取特定类别的商品，可以写 `WHERE category = '武器'`。",
+    "dungeon.intermediate.floor7.title": "按怪物的 HP 筛选",
+    "dungeon.intermediate.floor7.story": "从 monsters 表中选出 hp > 20 的行的 name 和 hp。",
+    "dungeon.intermediate.floor7.hint": "数值比较可以使用 `>` 或 `<`。",
+    "dungeon.intermediate.floor8.title": "按部门过滤的 JOIN",
+    "dungeon.intermediate.floor8.story": "对 employees 和 departments 进行 INNER JOIN，显示 departments.dept_name = '开发部' 的员工 emp_name 和 dept_name。",
+    "dungeon.intermediate.floor8.hint": "JOIN 和 WHERE 可以结合使用，在连接后再进行条件过滤。",
+    "dungeon.intermediate.floor9.title": "按颜色分组并筛选",
+    "dungeon.intermediate.floor9.story": "对 fruits 表按照 color 分组，只显示 COUNT(*) > 1 的组。",
+    "dungeon.intermediate.floor9.hint": "可以用 GROUP BY + HAVING 来对分组后的结果再进行过滤。",
+    "dungeon.intermediate.floor10.title": "子查询迷宫",
+    "dungeon.intermediate.floor10.story": "在 sales（销售履历）表中，求“开发部”员工的销售数量 (quantity) 总和。",
+    "dungeon.intermediate.floor10.hint": "可以在 WHERE 中嵌入另一个 SELECT（子查询），逐步缩小条件。",
+    "dungeon.intermediate.floor11.title": "筛选销售多的员工",
+    "dungeon.intermediate.floor11.story": "从 employees 表中显示那些在 sales 表中曾经有 quantity > 5 销售记录的 emp_id 对应的 emp_name。",
+    "dungeon.intermediate.floor11.hint": "使用 IN 与子查询来提取相关的行。",
+    "dungeon.intermediate.floor12.title": "按部门计算销售总额",
+    "dungeon.intermediate.floor12.story": "将 sales、employees、departments 三表 JOIN，然后按 dept_name 对 quantity 求和显示。",
+    "dungeon.intermediate.floor12.hint": "结合 JOIN 和 GROUP BY 可以按部门做汇总。",
+    "dungeon.intermediate.floor13.title": "按日期筛选再汇总",
+    "dungeon.intermediate.floor13.story": "对 sale_date < '2025-02-01' 的销售数据，按 dept_name 显示 SUM(quantity)。",
+    "dungeon.intermediate.floor13.hint": "日期比较有时可以当作字符串比较，要注意格式。",
+    "dungeon.intermediate.floor14.title": "用 HAVING 进一步筛选",
+    "dungeon.intermediate.floor14.story": "针对 2025‑02‑01 以后（含当日）的销售，按部门汇总，然后只显示 SUM(quantity) > 5 的部门。",
+    "dungeon.intermediate.floor14.hint": "HAVING 用于对 GROUP BY 的结果再加条件过滤。",
+    "dungeon.intermediate.floor15.title": "终极试炼：按部门销售过滤",
+    "dungeon.intermediate.floor15.story": "把三张表 JOIN 后，针对 2025‑02‑01 以后（含当日）的销售按部门汇总，只显示 SUM(quantity) ≥ 10 的部门。",
+    "dungeon.intermediate.floor15.hint": "要把三表 JOIN，WHERE 过滤日期，GROUP BY 汇总，再用 HAVING 做最终过滤！",
     "sql.keyword.select.desc": "用于从表中选择列的基本SQL子句。",
     "sql.keyword.from.desc": "指定要检索数据的表。",
     "sql.keyword.where.desc": "根据条件筛选行。",
@@ -224,7 +179,6 @@
     "sql.keyword.count.desc": "用于计数的聚合函数。",
     "sql.keyword.having.desc": "分组后的条件筛选。",
     "sql.keyword.in.desc": "判断值是否包含在集合中。",
-
     "ui.back_to_title": "返回标题",
     "ui.prev_floor": "返回上一层",
     "ui.gold_status": "金币: %s",
@@ -237,8 +191,10 @@
     "stage.tutorial.name": "教程",
     "stage.tutorial.desc": "学习 SQL 基础的入门地下城",
     "stage.beginner.name": "初级地下城",
-    "stage.beginner.desc": "挑战 JOIN 与聚合函数",
+    "stage.beginner.desc": "广泛学习 LIKE、JOIN、UNION 等 SQL 基本语法",
     "button.stage_select": "地下城选择",
     "message.update_available": "有可用更新，是否现在更新？",
-    "confirm.unsaved_stage_select": "尚未保存。要前往地下城选择吗？"
+    "confirm.unsaved_stage_select": "尚未保存。要前往地下城选择吗？",
+    "stage.intermediate.name": "中级地下城",
+    "stage.intermediate.desc": "挑战 HAVING、子查询和多表 JOIN 汇总"
 }

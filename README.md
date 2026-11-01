@@ -88,6 +88,7 @@ assets/data/
     manifest.json      # ダンジョンファイル一覧
     tutorial.json      # チュートリアルダンジョン
     beginner.json      # 初級ダンジョン
+    intermediate.json  # 中級ダンジョン
   mock-databases/      # モックデータベース（分割管理）
     manifest.json      # モックDBファイル一覧
     tutorial.json      # チュートリアル用テーブル
