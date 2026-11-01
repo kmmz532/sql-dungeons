@@ -37,13 +37,15 @@ export async function init(manifestUrl, type) {
     }
     try {
         console.debug('[Register] init manifestUrl=', manifestUrl, 'type=', type);
-        const res = await fetch(manifestUrl, { cache: 'no-cache' });
+        // 相対パスでも new URL() の基準にできるよう、ページの URL を基準に絶対化する
+        const manifestHref = new URL(manifestUrl, globalThis.location?.href).href;
+        const res = await fetch(manifestHref, { cache: 'no-cache' });
         if (!res.ok) throw new Error('manifest fetch failed');
         const manifest = await res.json();
         console.debug('[Register] manifest loaded', manifest);
         const imports = Object.keys(manifest).map(async key => {
             const rel = manifest[key];
-            const resolved = new URL(rel, manifestUrl).href;
+            const resolved = new URL(rel, manifestHref).href;
             try {
                 const mod = await import(resolved);
                 const ctor = mod.default || mod[key] || mod[Object.keys(mod)[0]];
@@ -68,7 +70,7 @@ export async function registerFromManifestObject(manifest, basePath, type) {
     if (!manifest || typeof manifest !== 'object') return getAll(type);
     const imports = Object.keys(manifest).map(async key => {
         const rel = manifest[key];
-        const path = basePath ? (new URL(rel, basePath).href) : rel;
+        const path = basePath ? (new URL(rel, new URL(basePath, globalThis.location?.href)).href) : rel;
         try {
             const mod = await import(path);
             const ctor = mod.default || mod[key] || mod[Object.keys(mod)[0]];

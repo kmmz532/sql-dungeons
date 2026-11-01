@@ -92,12 +92,14 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  // chrome-extension:// など http(s) 以外はキャッシュできないため対象外にする
+  if (!event.request.url.startsWith('http')) return;
   // Network-first, fallback to cache
   event.respondWith(
     fetch(event.request).then((res) => {
       try {
         const copy = res.clone();
-        caches.open(CACHE_NAME).then((c) => c.put(event.request, copy));
+        caches.open(CACHE_NAME).then((c) => c.put(event.request, copy)).catch(() => {});
       } catch (e) {}
       return res;
     }).catch(() => caches.match(event.request).then((r) => r || caches.match('./index.html')))
