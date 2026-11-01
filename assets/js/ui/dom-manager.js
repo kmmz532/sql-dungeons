@@ -483,8 +483,7 @@ export class DOMManager {
         const messageEl = document.createElement('p');
         messageEl.className = 'result-message';
         // メッセージにはユーザー入力（テーブル名・列名など）が含まれるため、HTMLとして解釈せず text で追加する
-        String(message).split('
-').forEach((line, i) => {
+        String(message).split('\n').forEach((line, i) => {
             if (i > 0) messageEl.appendChild(document.createElement('br'));
             messageEl.appendChild(document.createTextNode(line));
         });

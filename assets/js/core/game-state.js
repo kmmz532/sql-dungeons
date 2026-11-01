@@ -25,7 +25,8 @@ export class GameState {
         const saveData = {
             ...this.core.player.toJSON(),
             currentFloor: this.core.currentFloor,
-            currentDungeon: this.core.currentDungeon || null
+            currentDungeon: this.core.currentDungeon || null,
+            atStageSelect: !!this.core.atStageSelect
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         this.core.dom.showFeedback(this.core.i18n.t('message.save_success'));
@@ -58,6 +59,14 @@ export class GameState {
         
         // Clean up sandbox mode artifacts before loading
         this.core.sandboxUI.cleanup();
+
+        // ダンジョンクリア直後のセーブ（途中のゲームがない）ならダンジョン選択から始める
+        if (loadedData.atStageSelect) {
+            this.core.lifecycle.showStageSelect();
+            this.core.dom.showFeedback(this.core.i18n.t('message.load_success'));
+            return;
+        }
+        this.core.atStageSelect = false;
         
         this.core.dom.showScreen('game');
         

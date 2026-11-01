@@ -109,6 +109,7 @@ export class GameLifecycle {
         if (!key || !this.core.gameData?.dungeons?.[key]) return false;
         this.core.currentDungeon = key;
         this.core.gameData.dungeonData = this.core.gameData.dungeons[key];
+        this.core.atStageSelect = false;
         return true;
     }
 
@@ -129,6 +130,7 @@ export class GameLifecycle {
     showStageSelect(message = '') {
         this.core.sandboxUI.cleanup();
         this.core.isSandbox = false;
+        this.core.atStageSelect = true;
         renderStageSelect(this.core, message);
         this.core.dom.showScreen('stage-select');
     }

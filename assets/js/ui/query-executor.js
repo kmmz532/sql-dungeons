@@ -418,6 +418,8 @@ function markDungeonCleared(game) {
     if (!game.player || !game.currentDungeon) return;
     if (!game.player.clearedDungeons) game.player.clearedDungeons = new Set();
     game.player.clearedDungeons.add(game.currentDungeon);
+    // 途中のゲームがない状態で保存し、コンティニュー時はダンジョン選択から始める
+    game.atStageSelect = true;
     try { game.saveGame(); } catch (e) { console.warn('Auto-save failed after dungeon clear', e); }
 }
 

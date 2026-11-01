@@ -20,6 +20,7 @@ export class GameCore {
         this.isSandbox = false;
         this.sandboxSelectedTables = [];
         this._isDirty = false;
+        this.atStageSelect = false; // ダンジョン選択画面にいるか（セーブに保存し、コンティニュー時の復帰先に使う）
         
         this.state = new GameState(this);
         this.lifecycle = new GameLifecycle(this);

@@ -583,7 +583,8 @@ body.sandbox-mode #inventory-panel,
 body.sandbox-mode #hint-panel,
 body.sandbox-mode #quest-story,
 body.sandbox-mode .panel.mission,
-body.sandbox-mode #save-button {
+body.sandbox-mode #save-button,
+body.sandbox-mode #stage-select-button {
     display: none !important;
 }
 
