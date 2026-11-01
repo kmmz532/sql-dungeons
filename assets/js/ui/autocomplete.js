@@ -7,7 +7,8 @@ export function setupAutocomplete(editor, game) {
     // create autocomplete container
     const ac = document.createElement('div');
     ac.className = 'sql-autocomplete';
-    ac.style.position = 'absolute';
+    // getBoundingClientRect は画面基準の座標なので、スクロールの影響を受けない fixed で配置する
+    ac.style.position = 'fixed';
     ac.style.zIndex = 9999;
     ac.style.display = 'none';
     ac.setAttribute('role', 'listbox');
@@ -26,7 +27,7 @@ export function setupAutocomplete(editor, game) {
             // copy textarea styles that affect layout
             div.style.whiteSpace = 'pre-wrap';
             div.style.wordWrap = 'break-word';
-            div.style.position = 'absolute';
+            div.style.position = 'fixed';
             div.style.visibility = 'hidden';
             div.style.top = rect.top + 'px';
             div.style.left = rect.left + 'px';
@@ -37,6 +38,11 @@ export function setupAutocomplete(editor, game) {
             div.style.lineHeight = style.lineHeight;
             div.style.padding = style.padding;
             div.style.boxSizing = style.boxSizing;
+            div.style.border = `${style.borderTopWidth} solid transparent`;
+            div.style.letterSpacing = style.letterSpacing;
+            div.style.tabSize = style.tabSize;
+            div.style.wordBreak = style.wordBreak;
+            div.style.overflowWrap = style.overflowWrap;
             div.style.overflow = 'hidden';
 
             // copy value up to caret, escape HTML
@@ -48,10 +54,10 @@ export function setupAutocomplete(editor, game) {
             const span = div.querySelector('#caret-span');
             const spanRect = span.getBoundingClientRect();
             const outRect = { 
-                left: spanRect.left, 
-                top: spanRect.top, 
-                bottom: spanRect.bottom, 
-                right: spanRect.right, 
+                left: spanRect.left - textarea.scrollLeft, 
+                top: spanRect.top - textarea.scrollTop, 
+                bottom: spanRect.bottom - textarea.scrollTop, 
+                right: spanRect.right - textarea.scrollLeft, 
                 height: spanRect.height 
             };
             document.body.removeChild(div);
@@ -201,6 +207,7 @@ export function setupAutocomplete(editor, game) {
             const top = (anchorRect.bottom || (anchorRect.top + (anchorRect.height || 16))) || (editor.getBoundingClientRect().bottom + 4);
             ac.style.left = (left) + 'px';
             ac.style.top = (top + 6) + 'px';
+            fitToViewport(anchorRect);
         } else {
             const r = editor.getBoundingClientRect();
             ac.style.left = r.left + 'px';
@@ -208,8 +215,26 @@ export function setupAutocomplete(editor, game) {
         }
         
         ac.style.display = 'block';
+        if (!anchorRect) fitToViewport(editor.getBoundingClientRect());
         activeIndex = -1;
         suggestions = list;
+    };
+
+    // 表示後に実寸を測り、右端・下端からはみ出す場合は左へ寄せる／キャレットの上に出す
+    const fitToViewport = (anchor) => {
+        ac.style.display = 'block';
+        const w = ac.offsetWidth;
+        const h = ac.offsetHeight;
+        const margin = 8;
+        let left = parseFloat(ac.style.left) || 0;
+        let top = parseFloat(ac.style.top) || 0;
+        if (left + w > window.innerWidth - margin) left = Math.max(margin, window.innerWidth - w - margin);
+        if (top + h > window.innerHeight - margin) {
+            const caretTop = (anchor && (anchor.top || anchor.y)) || top;
+            top = Math.max(margin, caretTop - h - 6);
+        }
+        ac.style.left = left + 'px';
+        ac.style.top = top + 'px';
     };
 
     const hideAutocomplete = () => { 
@@ -381,4 +406,6 @@ export function setupAutocomplete(editor, game) {
     });
     
     window.addEventListener('resize', () => hideAutocomplete());
+    // fixed 配置のため、スクロールしたら位置がずれる前に閉じる（補完リスト自身のスクロールは除く）
+    window.addEventListener('scroll', (e) => { if (e.target !== ac) hideAutocomplete(); }, true);
 }
