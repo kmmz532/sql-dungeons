@@ -239,5 +239,6 @@
     "stage.beginner.name": "初级地下城",
     "stage.beginner.desc": "挑战 JOIN 与聚合函数",
     "button.stage_select": "地下城选择",
-    "message.update_available": "有可用更新，是否现在更新？"
+    "message.update_available": "有可用更新，是否现在更新？",
+    "confirm.unsaved_stage_select": "尚未保存。要前往地下城选择吗？"
 }

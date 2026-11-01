@@ -278,5 +278,6 @@
     "stage.beginner.name": "초급 던전",
     "stage.beginner.desc": "JOIN과 집계 함수에 도전",
     "button.stage_select": "던전 선택",
-    "message.update_available": "업데이트가 있습니다. 지금 새로고침할까요?"
+    "message.update_available": "업데이트가 있습니다. 지금 새로고침할까요?",
+    "confirm.unsaved_stage_select": "저장하지 않았습니다. 던전 선택으로 이동할까요?"
 }

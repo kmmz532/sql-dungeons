@@ -275,5 +275,6 @@
     "stage.beginner.name": "Beginner Dungeon",
     "stage.beginner.desc": "Try JOINs and aggregate functions",
     "button.stage_select": "Dungeon Select",
-    "message.update_available": "An update is available. Reload now?"
+    "message.update_available": "An update is available. Reload now?",
+    "confirm.unsaved_stage_select": "You have unsaved progress. Go to dungeon select anyway?"
 }

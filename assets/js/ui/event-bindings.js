@@ -31,7 +31,14 @@ export function setupUIHandlers(game) {
     });
     // ステージ選択（タイトル画面から開く）
     if (dom.elements['stage-select-button']) {
-        dom.elements['stage-select-button'].addEventListener('click', () => game.showStageSelect());
+        dom.elements['stage-select-button'].addEventListener('click', () => {
+            // 未保存の変更がある場合、タイトルに戻るときと同様に一度だけ確認する
+            if (game.isDirty() && !game.isSandbox && !dom.__unsavedWarningShown) {
+                if (!confirm(game.i18n.t('confirm.unsaved_stage_select'))) return;
+                dom.__unsavedWarningShown = true;
+            }
+            game.showStageSelect();
+        });
     }
     if (dom.elements['stage-back-button']) {
         dom.elements['stage-back-button'].addEventListener('click', () => dom.showScreen('start'));

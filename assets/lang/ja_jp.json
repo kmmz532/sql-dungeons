@@ -282,5 +282,6 @@
     "stage.beginner.name": "初級ダンジョン",
     "stage.beginner.desc": "JOINや集約関数に挑戦する",
     "button.stage_select": "ダンジョン選択",
-    "message.update_available": "アップデートが利用可能です。更新しますか？"
+    "message.update_available": "アップデートが利用可能です。更新しますか？",
+    "confirm.unsaved_stage_select": "セーブしていません。ダンジョン選択に移りますか？"
 }
