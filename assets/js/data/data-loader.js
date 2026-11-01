@@ -26,7 +26,6 @@ export async function loadGameData() {
     const shopRes = await fetch('./assets/data/shop-items.json');
 
     let mockDatabases = {};
-    let mockDatabaseKey = null;
     try {
         const manifestRes = await fetch('./assets/data/mock-databases/manifest.json');
         if (manifestRes && manifestRes.ok) {
@@ -40,7 +39,6 @@ export async function loadGameData() {
                         const json = await res.json();
                         const key = String(fname).replace(/\.json$/i, '');
                         mockDatabases[key] = convertNullStrings(json);
-                        if (!mockDatabaseKey) mockDatabaseKey = key;
                     }
                 } catch (e) {
                     console.warn('Failed to load mock-database entry', fname, e);
@@ -60,18 +58,6 @@ export async function loadGameData() {
     }
 
     const shopItems = await shopRes.json();
-    if (!mockDatabaseKey) {
-        try {
-            const mockDbRes = await fetch('./assets/data/mock-database.json');
-            if (mockDbRes && mockDbRes.ok) {
-                const md = await mockDbRes.json();
-                mockDatabases.default = convertNullStrings(md);
-                mockDatabaseKey = 'default';
-            }
-        } catch (e) {
-            console.warn('Failed to load fallback mock-database.json', e);
-        }
-    }
     const dungeons = {};
 
     if (manifest && Object.keys(manifest).length > 0) {
@@ -116,9 +102,7 @@ export async function loadGameData() {
         dungeonData,
         dungeons,
         shopItems,
-        mockDatabases,
-        mockDatabaseKey,
-        mockDatabase: mockDatabases && mockDatabaseKey ? mockDatabases[mockDatabaseKey] : null
+        mockDatabases
     };
 }
 

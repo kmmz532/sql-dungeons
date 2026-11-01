@@ -1,6 +1,7 @@
 // ゲーム状態管理（セーブ/ロード、dirty フラグ等）
 import { Player } from '../models/player.js';
 import { SAVE_KEY } from '../constants.js';
+import { DEFAULT_DUNGEON, migrateFloorKeys } from './floor-key.js';
 
 export class GameState {
     constructor(gameCore) {
@@ -41,15 +42,11 @@ export class GameState {
         this.core.player = Player.fromJSON(loadedData);
         this.core.isSandbox = false;
         
-        // If any clearedFloors used legacy 'floor:N' format, ensure save is normalized by re-saving
-        try {
-            const orig = Array.isArray(loadedData.clearedFloors) ? loadedData.clearedFloors : [];
-            const hasLegacy = orig.some(x => typeof x === 'string' && x.startsWith('floor:'));
-            if (hasLegacy) {
-                try { this.saveGame(); } catch(e) { /* ignore */ }
-            }
-        } catch(e) {}
-        
+        // 旧形式のクリア/ヒント記録（数値・"floor:N"）をダンジョン単位のキーに変換する
+        const saveDungeon = loadedData.currentDungeon || DEFAULT_DUNGEON;
+        this.core.player.clearedFloors = migrateFloorKeys(loadedData.clearedFloors, saveDungeon);
+        this.core.player.purchasedHints = migrateFloorKeys(loadedData.purchasedHints, saveDungeon);
+
         this.core.currentFloor = loadedData.currentFloor;
         
         try {

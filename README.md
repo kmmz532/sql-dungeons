@@ -92,8 +92,7 @@ assets/data/
     manifest.json      # モックDBファイル一覧
     tutorial.json      # チュートリアル用テーブル
     fruit.json         # フルーツ、カラー、宝石、花
-    user.json          # ユーザー（NULL対応版）
-    users.json         # ユーザー（通常版）
+    user.json          # ユーザー、ユーザータイプ（users / types）
     game.json          # プレイヤー、商品、モンスター
     company.json       # 従業員、部署、販売データ
   shop-items.json      # ショップアイテム定義
@@ -108,7 +107,8 @@ assets/data/
 
 ### テーブル名の重複処理
 - テーブル名が重複する場合、`データベース名-テーブル名` の形式に自動リネーム
-- 例: `user.json` の `users` と `users.json` の `users` → `user-users`, `users-users`
+- 例: 2つのデータベースが同じテーブル名 `users` を持つ場合 → `user-users`, `user2-users`
+- 現在のモックDBは重複がないため、通常はリネームされない
 - スキーマ情報（`__schema`）も適切にマージされる
 
 ### サンドボックスモード

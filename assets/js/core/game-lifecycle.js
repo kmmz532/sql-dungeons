@@ -4,6 +4,8 @@ import { Player } from '../models/player.js';
 import { loadGameData, filterSelectedTables } from '../data/data-loader.js';
 import { Floor } from '../models/floor.js';
 import { renderSchemaHTML } from '../ui/render-util.js';
+import { renderStageSelect } from '../ui/stage-select.js';
+import { getCurrentFloorKey } from './floor-key.js';
 
 export class GameLifecycle {
     constructor(gameCore) {
@@ -36,16 +38,8 @@ export class GameLifecycle {
                 }
             } catch(e) {}
             
-            // set current dungeon if missing
-            try {
-                if (!this.core.currentDungeon && this.core.gameData && this.core.gameData.dungeons) {
-                    const keys = Object.keys(this.core.gameData.dungeons || {});
-                    if (keys.length) {
-                        this.core.currentDungeon = keys[0];
-                        this.core.gameData.dungeonData = this.core.gameData.dungeons[this.core.currentDungeon];
-                    }
-                }
-            } catch (e) {}
+            // 新規開始は先頭のダンジョン（チュートリアル）から
+            this.selectDungeon(this.getDungeonKeys()[0]);
 
             // Clean up sandbox artifacts
             this.core.sandboxUI.cleanup();
@@ -103,6 +97,40 @@ export class GameLifecycle {
         } catch (e) {
             console.error('startSandbox failed', e);
         }
+    }
+
+    // ダンジョン（ステージ）キーの一覧（dungeons/manifest.json の順序）
+    getDungeonKeys() {
+        return Object.keys(this.core.gameData?.dungeons || {});
+    }
+
+    // 指定ダンジョンを現在のダンジョンに設定する
+    selectDungeon(key) {
+        if (!key || !this.core.gameData?.dungeons?.[key]) return false;
+        this.core.currentDungeon = key;
+        this.core.gameData.dungeonData = this.core.gameData.dungeons[key];
+        return true;
+    }
+
+    // ステージ（ダンジョン）を先頭フロアから開始する。プレイヤーの進行データは引き継ぐ
+    enterStage(key) {
+        if (!this.selectDungeon(key)) return;
+        if (!this.core.player) this.core.player = new Player();
+        this.core.isSandbox = false;
+        this.core.currentFloor = 0;
+        try { this.core.dom.elements['load-button'].classList.add('hidden'); } catch (e) {}
+        this.core.sandboxUI.cleanup();
+        this.core.dom.showScreen('game');
+        this.loadFloor(0);
+        this.updateUI();
+    }
+
+    // ステージ選択画面を表示する（message があれば上部に表示）
+    showStageSelect(message = '') {
+        this.core.sandboxUI.cleanup();
+        this.core.isSandbox = false;
+        renderStageSelect(this.core, message);
+        this.core.dom.showScreen('stage-select');
     }
 
     loadFloor(floorIndex) {
@@ -297,10 +325,7 @@ export class GameLifecycle {
         try {
             if (!this.core.isSandbox && this.core.dom.elements['next-floor-btn']) {
                 const nextExists = Array.isArray(floors) && (this.core.currentFloor + 1) < floors.length && !!floors[this.core.currentFloor + 1];
-                const fd = floors[this.core.currentFloor] || {};
-                const canonicalFloorNum = fd && (fd.floor || fd.id) ? Number(fd.floor || fd.id) : (Number(this.core.currentFloor) + 1);
-                const floorKey = Number(canonicalFloorNum);
-                const isCleared = this.core.player && this.core.player.clearedFloors && this.core.player.clearedFloors.has(floorKey);
+                const isCleared = this.core.player && this.core.player.clearedFloors && this.core.player.clearedFloors.has(getCurrentFloorKey(this.core));
                 
                 if (nextExists && isCleared) {
                     const el = this.core.dom.elements['next-floor-btn'];
@@ -324,56 +349,6 @@ export class GameLifecycle {
         }
     }
 
-    // Advance to the next dungeon set if available
-    advanceToNextDungeon() {
-        try {
-            if (!this.core.gameData || !this.core.gameData.dungeons) return false;
-            
-            const order = ['tutorial', 'beginner'];
-            let currentSet = null;
-            
-            for (const key of order) {
-                const set = this.core.gameData.dungeons[key];
-                if (!set || !Array.isArray(set.floors)) continue;
-                
-                if (set.floors.some(f => String(f.floor) === String(this.core.gameData.dungeonData.floors[this.core.currentFloor]?.floor))) {
-                    currentSet = key;
-                    break;
-                }
-            }
-            
-            const idx = currentSet ? order.indexOf(currentSet) : 0;
-            const next = order[idx + 1];
-            if (!next) return false;
-
-            this.core.gameData.dungeonData = this.core.gameData.dungeons[next];
-            this.core.currentDungeon = next;
-            this.core.currentFloor = 0;
-
-            try {
-                const prevDungeon = currentSet || this.core.currentDungeon;
-                if (this.core.player && prevDungeon) {
-                    if (!this.core.player.clearedDungeons) this.core.player.clearedDungeons = new Set();
-                    this.core.player.clearedDungeons.add(prevDungeon);
-                }
-            } catch (e) { 
-                console.warn('Failed to mark prev dungeon cleared', e); 
-            }
-
-            if (this.core.player && this.core.player.clearedFloors) {
-                this.core.player.clearedFloors = new Set();
-            }
-            
-            try { this.core.state.saveGame(); } catch (e) { /* non-fatal */ }
-
-            this.loadFloor(this.core.currentFloor);
-            return true;
-        } catch (e) {
-            console.error('Failed to advance to next dungeon', e);
-            return false;
-        }
-    }
-
     updateUI() {
         if (!this.core.player) return;
         
@@ -382,10 +357,10 @@ export class GameLifecycle {
         this.core.dom.elements['ku-next-btn'].classList.toggle('hidden', this.core.player.specialItems.kuNext <= 0);
         
         if (this.core.player.specialItems.kuNext > 0) {
-            this.core.dom.elements['ku-next-btn'].textContent = `句ネクスト (x${this.core.player.specialItems.kuNext})`;
+            this.core.dom.elements['ku-next-btn'].textContent = `${this.core.i18n.t('button.ku_next')} (x${this.core.player.specialItems.kuNext})`;
         }
         
-        this.core.dom.elements['hint-btn'].classList.toggle('purchased', this.core.player.purchasedHints.has(this.core.currentFloor));
+        this.core.dom.elements['hint-btn'].classList.toggle('purchased', this.core.player.purchasedHints.has(getCurrentFloorKey(this.core)));
     }
 
     showEndScreen(title, message) {

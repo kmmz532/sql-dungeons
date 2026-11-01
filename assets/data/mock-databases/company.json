@@ -22,7 +22,11 @@
             "columns": {
                 "emp_id": { "type": "integer", "pk": true, "notNull": true },
                 "emp_name": { "type": "text", "notNull": true },
-                "dept_id": { "type": "integer", "notNull": true, "fk": { "table": "departments", "column": "dept_id" } }
+                "dept_id": {
+                    "type": "integer",
+                    "notNull": true,
+                    "fk": { "table": "departments", "column": "dept_id" }
+                }
             },
             "candidateKeys": [["emp_id"]]
         },
@@ -36,7 +40,11 @@
         "sales": {
             "columns": {
                 "sale_id": { "type": "integer", "pk": true, "notNull": true },
-                "emp_id": { "type": "integer", "notNull": true, "fk": { "table": "employees", "column": "emp_id" } },
+                "emp_id": {
+                    "type": "integer",
+                    "notNull": true,
+                    "fk": { "table": "employees", "column": "emp_id" }
+                },
                 "quantity": { "type": "integer", "notNull": true },
                 "sale_date": { "type": "date", "notNull": true }
             },

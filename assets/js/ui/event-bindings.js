@@ -29,6 +29,13 @@ export function setupUIHandlers(game) {
         dom.__unsavedWarningShown = false;
         game.loadGame();
     });
+    // ステージ選択（タイトル画面から開く）
+    if (dom.elements['stage-select-button']) {
+        dom.elements['stage-select-button'].addEventListener('click', () => game.showStageSelect());
+    }
+    if (dom.elements['stage-back-button']) {
+        dom.elements['stage-back-button'].addEventListener('click', () => dom.showScreen('start'));
+    }
     dom.elements['sandbox-button'].addEventListener('click', () => {
         // サンドボックスモードを開始するときも、未保存警告フラグをリセット
         dom.__unsavedWarningShown = false;

@@ -62,7 +62,7 @@ export function setupAutocomplete(editor, game) {
     };
 
     const getCandidates = () => {
-        const db = game.getCurrentMockDatabase ? game.getCurrentMockDatabase() : (game.gameData?.mockDatabase || {});
+        const db = game.getCurrentMockDatabase ? game.getCurrentMockDatabase() : ({});
         const isSandbox = !game.player;
         
         // テーブル候補を決定：サンドボックスではselectedTables、通常モードではフロアのtables

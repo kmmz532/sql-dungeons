@@ -230,5 +230,14 @@
     "ui.gold_status": "金币: %s",
     "ui.energy_status": "能量: %s",
     "ui.schema_table": "表: %s",
-    "ui.schema_column": "列: %s"
+    "ui.schema_column": "列: %s",
+    "stage.select.title": "地下城选择",
+    "stage.floors": "%s 层",
+    "stage.cleared": "已通关",
+    "stage.tutorial.name": "教程",
+    "stage.tutorial.desc": "学习 SQL 基础的入门地下城",
+    "stage.beginner.name": "初级地下城",
+    "stage.beginner.desc": "挑战 JOIN 与聚合函数",
+    "button.stage_select": "地下城选择",
+    "message.update_available": "有可用更新，是否现在更新？"
 }

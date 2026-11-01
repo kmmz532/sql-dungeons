@@ -2,6 +2,7 @@ import { DOMManager } from './ui/dom-manager.js';
 import { GameCore } from './core/game-core.js';
 import { applyI18n } from './lang/i18n.js';
 import { initI18n } from './lang/i18n-init.js';
+import { VERSION_SEEN_KEY } from './constants.js';
 
 /**
  * 全体の初期化
@@ -85,35 +86,31 @@ export async function startApp(i18n) {
                     (async () => {
                         try {
                             const remote = await fetch('./version.json', { cache: 'no-store' });
-                            if (remote && remote.ok) {
-                                const remoteJson = await remote.json();
+                            if (!remote || !remote.ok) return;
+                            const remoteJson = await remote.json();
+                            const remoteAt = remoteJson && remoteJson.updateAt ? new Date(remoteJson.updateAt).getTime() : 0;
 
-                                let localJson = null;
-                                try {
-                                    const resp = await fetch('./version.json');
-                                    if (resp && resp.ok) localJson = await resp.json();
-                                } catch (e) { localJson = null; }
+                            // 前回確認したデプロイ時刻と比べ、新しいデプロイがあったときだけ確認する
+                            let seenAt = 0;
+                            try { seenAt = Number(localStorage.getItem(VERSION_SEEN_KEY)) || 0; } catch (e) {}
+                            const markSeen = () => { try { localStorage.setItem(VERSION_SEEN_KEY, String(remoteAt)); } catch (e) {} };
 
-                                const remoteAt = remoteJson && remoteJson.updateAt ? new Date(remoteJson.updateAt).getTime() : 0;
-                                const localAt = localJson && localJson.updateAt ? new Date(localJson.updateAt).getTime() : 0;
-                                if (remoteAt > localAt && navigator.onLine) {
-                                    const proceed = confirm('アップデートが利用可能です。更新しますか？');
-                                    if (proceed) {
-                                        try {
-                                            if ('caches' in window) {
-                                                const keys = await caches.keys();
-                                                await Promise.all(keys.map(k => caches.delete(k)));
-                                            }
+                            if (!seenAt) { markSeen(); return; }
+                            if (remoteAt <= seenAt || !navigator.onLine) return;
 
-                                            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
-                                                const regs = await navigator.serviceWorker.getRegistrations();
-                                                await Promise.all(regs.map(r => r.unregister()));
-                                            }
-                                            location.reload(true);
-                                        } catch (e) { console.warn('Update flow failed', e); }
-                                    }
+                            markSeen();
+                            if (!confirm(i18n.t('message.update_available'))) return;
+                            try {
+                                if ('caches' in window) {
+                                    const keys = await caches.keys();
+                                    await Promise.all(keys.map(k => caches.delete(k)));
                                 }
-                            }
+                                if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                                    const regs = await navigator.serviceWorker.getRegistrations();
+                                    await Promise.all(regs.map(r => r.unregister()));
+                                }
+                                location.reload();
+                            } catch (e) { console.warn('Update flow failed', e); }
                         } catch (e) { /* ignore */ }
                     })();
                 } catch (e) {}

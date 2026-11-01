@@ -12,7 +12,7 @@
         { "id": 10, "name": "Lemon", "color": "Yellow", "price": 120 }
     ],
     "colors": [
-        { "id": 1, "name": "Red" , "hex": "#FF0000", "translation": "赤" },
+        { "id": 1, "name": "Red", "hex": "#FF0000", "translation": "赤" },
         { "id": 2, "name": "Green", "hex": "#00FF00", "translation": "緑" },
         { "id": 3, "name": "Blue", "hex": "#0000FF", "translation": "青" },
         { "id": 4, "name": "Yellow", "hex": "#FFFF00", "translation": "黄" },
@@ -87,7 +87,11 @@
             "columns": {
                 "id": { "type": "integer", "pk": true, "notNull": true },
                 "name": { "type": "text", "notNull": true },
-                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "color_id": {
+                    "type": "integer",
+                    "notNull": true,
+                    "fk": { "table": "colors", "column": "id" }
+                },
                 "price": { "type": "integer", "notNull": true }
             },
             "candidateKeys": [["id"]]
@@ -96,7 +100,11 @@
             "columns": {
                 "id": { "type": "integer", "pk": true, "notNull": true },
                 "name": { "type": "text", "notNull": true },
-                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "color_id": {
+                    "type": "integer",
+                    "notNull": true,
+                    "fk": { "table": "colors", "column": "id" }
+                },
                 "price": { "type": "integer", "notNull": true },
                 "translation": { "type": "text", "notNull": true }
             },
@@ -106,7 +114,11 @@
             "columns": {
                 "id": { "type": "integer", "pk": true, "notNull": true },
                 "name": { "type": "text", "notNull": true },
-                "color_id": { "type": "integer", "notNull": true, "fk": { "table": "colors", "column": "id" } },
+                "color_id": {
+                    "type": "integer",
+                    "notNull": true,
+                    "fk": { "table": "colors", "column": "id" }
+                },
                 "price": { "type": "integer", "notNull": true },
                 "translation": { "type": "text", "notNull": true }
             },

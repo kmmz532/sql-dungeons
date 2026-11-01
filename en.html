@@ -22,7 +22,18 @@
                     <div class="start-buttons">
                         <button type="button" class="start-btn" id="start-button" data-i18n="button.start">Start New Game</button>
                         <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">Load Game</button>
+                        <button type="button" class="sandbox-btn" id="stage-select-button" data-i18n="button.stage_select">Choose a Dungeon</button>
                     </div>
+                </div>
+            </div>
+            <div id="stage-select-screen" class="hidden">
+                <div class="header">
+                    <h1 data-i18n="stage.select.title">Choose a Dungeon</h1>
+                    <button type="button" id="stage-back-button" class="action-btn" data-i18n="button.back_to_title">Dungeon Select</button>
+                </div>
+                <div class="content" role="main">
+                    <p id="stage-message" class="stage-message hidden"></p>
+                    <div id="stage-list" class="stage-list" role="list"></div>
                 </div>
             </div>
             <div id="game-screen" class="hidden" role="region" aria-label="Game Screen">

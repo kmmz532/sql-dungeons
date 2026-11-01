@@ -156,7 +156,7 @@
     "dungeon.tutorial.floor6.hint": "% 를 와일드카드로 사용하세요 (예: '%abc%').",
 
     "dungeon.tutorial.floor7.title": "NULL 처리와 COALESCE",
-    "dungeon.tutorial.floor7.story": "NULL은 데이터가 없음을 의미합니다. `COALESCE(expr, fallback)` 를 사용하면 expr이 NULL일 때 대체값을 반환할 수 있습니다. 예: `SELECT name, COALESCE(type_id, 0) FROM users2`.",
+    "dungeon.tutorial.floor7.story": "NULL은 데이터가 없음을 의미합니다. `COALESCE(expr, fallback)` 를 사용하면 expr이 NULL일 때 대체값을 반환할 수 있습니다. 예: `SELECT name, COALESCE(type_id, 0) FROM users`.",
     "dungeon.tutorial.floor7.hint": "COALESCE는 왼쪽부터 첫 번째 비NULL 값을 반환합니다.",
 
     "dungeon.tutorial.floor8.title": "INNER JOIN으로 결합",
@@ -164,7 +164,7 @@
     "dungeon.tutorial.floor8.hint": "INNER JOIN은 양쪽 테이블에 모두 일치하는 행만 반환합니다.",
 
     "dungeon.tutorial.floor9.title": "LEFT JOIN으로 왼쪽 행 모두 유지",
-    "dungeon.tutorial.floor9.story": "LEFT JOIN은 왼쪽 테이블의 모든 행을 반환하며 오른쪽에 일치하는 행이 없으면 NULL이 들어갑니다. 예: `SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id`.",
+    "dungeon.tutorial.floor9.story": "LEFT JOIN은 왼쪽 테이블의 모든 행을 반환하며 오른쪽에 일치하는 행이 없으면 NULL이 들어갑니다. 예: `SELECT users.name, types.type_name FROM users LEFT JOIN types ON users.type_id = types.type_id`.",
     "dungeon.tutorial.floor9.hint": "왼쪽 테이블의 모든 행을 유지하려면 LEFT JOIN을 사용하세요.",
 
     "dungeon.tutorial.floor10.title": "RIGHT JOIN으로 오른쪽 행 모두 유지",
@@ -180,7 +180,7 @@
     "dungeon.tutorial.floor12.hint": "UNION ALL은 빠르며 중복을 유지합니다.",
 
     "dungeon.tutorial.floor13.title": "조인 후 NULL을 COALESCE로 처리",
-    "dungeon.tutorial.floor13.story": "옵셔널 데이터가 없는 경우 조인된 컬럼은 NULL이 됩니다. COALESCE로 NULL을 읽기 쉬운 값으로 대체하세요 (예: `COALESCE(usertypes.type_name, '(unknown)')`).",
+    "dungeon.tutorial.floor13.story": "옵셔널 데이터가 없는 경우 조인된 컬럼은 NULL이 됩니다. COALESCE로 NULL을 읽기 쉬운 값으로 대체하세요 (예: `COALESCE(types.type_name, '(unknown)')`).",
     "dungeon.tutorial.floor13.hint": "COALESCE는 결합된 데이터가 없을 때 유용합니다.",
 
     "dungeon.tutorial.floor14.title": "LEFT JOIN 후에 집계하기",
@@ -269,5 +269,14 @@
     "sql.keyword.max.desc": "최댓값을 계산하는 집계 함수.",
     "sql.keyword.count.desc": "행의 개수를 세는 집계 함수.",
     "sql.keyword.having.desc": "그룹화 후 조건을 지정.",
-    "sql.keyword.in.desc": "값이 집합에 포함되는지 확인."
+    "sql.keyword.in.desc": "값이 집합에 포함되는지 확인.",
+    "stage.select.title": "던전 선택",
+    "stage.floors": "%s 층",
+    "stage.cleared": "클리어",
+    "stage.tutorial.name": "튜토리얼",
+    "stage.tutorial.desc": "SQL의 기초를 배우는 입문 던전",
+    "stage.beginner.name": "초급 던전",
+    "stage.beginner.desc": "JOIN과 집계 함수에 도전",
+    "button.stage_select": "던전 선택",
+    "message.update_available": "업데이트가 있습니다. 지금 새로고침할까요?"
 }

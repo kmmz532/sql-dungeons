@@ -759,3 +759,56 @@ body.sandbox-mode #inventory-panel {
 .header h1 { 
     margin-right: calc(var(--settings-size) + 12px);
  }
+
+/* ステージ（ダンジョン）選択画面 */
+.stage-message {
+    padding: 10px 14px;
+    margin: 0 0 16px;
+    border: 1px solid #2ecc71;
+    border-radius: 5px;
+    background: rgba(46, 204, 113, 0.15);
+}
+
+.stage-list {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.stage-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    border: 2px solid #5a5a7a;
+    border-radius: 8px;
+    background: #2a2a40;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'DotGothic16', sans-serif;
+}
+
+.stage-btn:hover {
+    border-color: #2980b9;
+    background: #34344f;
+}
+
+.stage-btn.cleared {
+    border-color: #2ecc71;
+}
+
+.stage-name {
+    font-size: 1.2rem;
+}
+
+.stage-desc,
+.stage-meta {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.stage-btn.cleared .stage-meta {
+    color: #2ecc71;
+    opacity: 1;
+}

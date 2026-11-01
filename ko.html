@@ -22,7 +22,18 @@
                 <div class="start-buttons">
                     <button type="button" class="start-btn" id="start-button" data-i18n="button.start">새로 시작하기</button>
                     <button type="button" class="load-btn hidden" id="load-button" data-i18n="button.load">불러오기</button>
+                    <button type="button" class="sandbox-btn" id="stage-select-button" data-i18n="button.stage_select">던전 선택</button>
                 </div>
+            </div>
+        </div>
+        <div id="stage-select-screen" class="hidden">
+            <div class="header">
+                <h1 data-i18n="stage.select.title">던전 선택</h1>
+                <button type="button" id="stage-back-button" class="action-btn" data-i18n="button.back_to_title">던전 선택</button>
+            </div>
+            <div class="content" role="main">
+                <p id="stage-message" class="stage-message hidden"></p>
+                <div id="stage-list" class="stage-list" role="list"></div>
             </div>
         </div>
         <div id="game-screen" class="hidden" role="region" aria-label="게임 화면">

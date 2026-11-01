@@ -160,7 +160,7 @@
     "dungeon.tutorial.floor6.hint": "% をワイルドカードとして使える（例: '%abc%'）。",
 
     "dungeon.tutorial.floor7.title": "NULLを扱う（COALESCE）",
-    "dungeon.tutorial.floor7.story": "NULL は「値が存在しない」ことを表す。`COALESCE(expr, fallback)` を使うと NULL のときに代替値を返せる。例: `SELECT name, COALESCE(type_id, 0) FROM users2`。",
+    "dungeon.tutorial.floor7.story": "NULL は「値が存在しない」ことを表す。`COALESCE(expr, fallback)` を使うと NULL のときに代替値を返せる。例: `SELECT name, COALESCE(type_id, 0) FROM users`。",
     "dungeon.tutorial.floor7.hint": "COALESCE は左から非NULLの値を返す。",
 
     "dungeon.tutorial.floor8.title": "INNER JOIN で結合する",
@@ -168,7 +168,7 @@
     "dungeon.tutorial.floor8.hint": "INNER JOIN は両方のテーブルで条件に一致する行だけを返す。",
 
     "dungeon.tutorial.floor9.title": "LEFT JOIN で左側の全行を保持",
-    "dungeon.tutorial.floor9.story": "LEFT JOIN は左テーブルの全行を返し、右テーブルに一致する行がなければ NULL が入る。例: `SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id`。",
+    "dungeon.tutorial.floor9.story": "LEFT JOIN は左テーブルの全行を返し、右テーブルに一致する行がなければ NULL が入る。例: `SELECT users.name, types.type_name FROM users LEFT JOIN types ON users.type_id = types.type_id`。",
     "dungeon.tutorial.floor9.hint": "左テーブルの全行を保持したいときに LEFT JOIN を使う。",
 
     "dungeon.tutorial.floor10.title": "RIGHT JOIN で右側の全行を保持",
@@ -184,7 +184,7 @@
     "dungeon.tutorial.floor12.hint": "UNION ALL は速く、重複をそのままにする。",
 
     "dungeon.tutorial.floor13.title": "結合後のNULLをCOALESCEで処理",
-    "dungeon.tutorial.floor13.story": "結合でオプショナルなデータが存在しない場合、カラム値は NULL になる。COALESCE を使って見やすい値に置き換えよう（例: `COALESCE(usertypes.type_name, '(unknown)')`）。",
+    "dungeon.tutorial.floor13.story": "結合でオプショナルなデータが存在しない場合、カラム値は NULL になる。COALESCE を使って見やすい値に置き換えよう（例: `COALESCE(types.type_name, '(unknown)')`）。",
     "dungeon.tutorial.floor13.hint": "COALESCE は NULL を読みやすい値に置き換えるのに便利。",
 
     "dungeon.tutorial.floor14.title": "LEFT JOIN の後に集計する",
@@ -273,5 +273,14 @@
     "sql.keyword.max.desc": "最大値を計算する集約関数。",
     "sql.keyword.count.desc": "件数を数える集約関数。",
     "sql.keyword.having.desc": "グループ化後の条件を指定。",
-    "sql.keyword.in.desc": "指定した集合に値が含まれるか判定。"
+    "sql.keyword.in.desc": "指定した集合に値が含まれるか判定。",
+    "stage.select.title": "ダンジョン選択",
+    "stage.floors": "%s フロア",
+    "stage.cleared": "クリア済み",
+    "stage.tutorial.name": "チュートリアル",
+    "stage.tutorial.desc": "SQLの基本を学ぶ入門ダンジョン",
+    "stage.beginner.name": "初級ダンジョン",
+    "stage.beginner.desc": "JOINや集約関数に挑戦する",
+    "button.stage_select": "ダンジョン選択",
+    "message.update_available": "アップデートが利用可能です。更新しますか？"
 }

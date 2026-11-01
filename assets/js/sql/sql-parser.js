@@ -23,7 +23,7 @@ const getRegistryClass = (key, type) => {
 
 export class SQLParser {
     // SQLパース/エミュレーションの詳細デバッグ出力を有効化
-    static DEBUG = true;
+    static DEBUG = false;
     /**
      * クエリが課題の条件を満たすか判定
      * @param {string} query
@@ -49,8 +49,10 @@ export class SQLParser {
                 try { console.debug('[SQLParser] validate answerResult=', answerResult); } catch(e){}
             }
 
+            // 正解側が空のときはデータ不備（テーブル不存在・パース失敗など）。空同士を正解扱いにしない
             if (Array.isArray(answerResult) && answerResult.length === 0) {
-                return Array.isArray(userResult) && userResult.length === 0;
+                console.error('[SQLParser] answer query returned no rows. Check floor data:', floorData.answer);
+                return false;
             }
 
             if (Array.isArray(userResult) && userResult.length > 0 && this._resultsEqual(userResult, answerResult)) {
@@ -546,16 +548,6 @@ export class SQLParser {
                     continue;
                 }
 
-                if (phase === 'IN') {
-                    try {
-                        if (parsed.in && Array.isArray(parsed.in) && typeof Cls.apply === 'function') {
-                            resultTable = Cls.apply(resultTable, parsed.in);
-                            if (SQLParser.DEBUG) console.debug('[SQLParser] after IN, rows=', resultTable.length);
-                        }
-                    } catch (e) { if (SQLParser.DEBUG) console.error('Error applying IN clause', e); }
-                    continue;
-                }
-
                 if (phase === 'ORDER BY') {
                     if (typeof Cls.apply === 'function') {
                         resultTable = Cls.apply(resultTable, parsed.orderBy);
@@ -591,7 +583,7 @@ export class SQLParser {
                         if (SQLParser.DEBUG) {
                             try { console.debug('[SQLParser] SELECT result rows=', finalRes.length, 'sample=', finalRes.slice(0,3)); } catch(e){console.error(e);} 
                         }
-                        return finalRes;
+                        return parsed.limit !== null ? finalRes.slice(0, parsed.limit) : finalRes;
                     }
                     // フォールバック: Clsが見つからない場合、基本的なSELECT処理を実行
                     if (SQLParser.DEBUG) console.debug('[SQLParser] SELECT class not found, using fallback');
@@ -788,9 +780,10 @@ export class SQLParser {
             fromMatch = [seg, table, alias];
         }
     }
-    const whereMatch = query.match(/where\s+(.+?)(group by|having|order by|$)/i);
+    const whereMatch = query.match(/where\s+(.+?)(group by|having|order by|limit\s+\d+|$)/i);
+    const limitMatch = query.match(/limit\s+(\d+)\s*;?\s*$/i);
     const groupByMatch = query.match(/group by\s+([\w\., ]+)/i);
-    const orderByMatch = query.match(/order by\s+([\w\.\s,]+)(asc|desc)?/i);
+    const orderByMatch = query.match(/order\s+by\s+([^;]+?)(?:\s+limit\s+\d+)?\s*;?\s*$/i);
 
     // JOIN セグメントを反復で取得（left/right/inner をキャプチャ）
     const joinSegmentRegex = /\b((?:inner|left|right)?)\s*join\s+(\w+)(?:\s+(?:as\s+)?(\w+))?\s+on\s+(.+?)(?=\s+(?:inner|left|right)?\s*join\b|\s+where\b|\s+group by\b|\s+order by\b|$)/ig;
@@ -799,12 +792,13 @@ export class SQLParser {
         if (orderByMatch) {
             // 例: order by price desc, name asc
             orderBy = orderByMatch[1].split(',').map(s => {
-                const m = s.trim().match(/(\w+)(\s+(asc|desc))?/i);
+                const m = s.trim().match(/^([\w\.]+)(?:\s+(asc|desc))?$/i);
+                if (!m) return null;
                 return {
                     column: m[1],
-                    direction: (m[3] || 'ASC').toUpperCase()
+                    direction: (m[2] || 'ASC').toUpperCase()
                 };
-            });
+            }).filter(Boolean);
         }
 
         if (!selectMatch || !fromMatch) return null;
@@ -849,33 +843,13 @@ export class SQLParser {
             distinct: !!(selectMatch[1] && /distinct/i.test(selectMatch[1])),
             from: { table: fromMatch ? fromMatch[1] : null, alias: fromMatch ? (fromMatch[2] || null) : null },
             where: whereMatch ? whereMatch[1].trim() : null,
-            in: null, // will hold parsed IN specs: [{col, items}] or [{col, subquery}]
             groupBy: groupByMatch ? groupByMatch[1].split(',').map(s => s.trim()) : null,
             orderBy,
             joins: [],
             aggregateFns: [],
-            having: null
+            having: null,
+            limit: limitMatch ? Number(limitMatch[1]) : null
         };
-
-        // parse literal IN(...) in where into parsed.in if present
-        try {
-            if (parsed.where) {
-                const inLitMatch = parsed.where.match(/(\w+(?:\.\w+)?)\s+in\s*\(([^)]+)\)/i);
-                if (inLitMatch) {
-                    const col = inLitMatch[1];
-                    const inner = inLitMatch[2].trim();
-                    // split into values (simple)
-                    const parts = inner.match(/('.*?'|[^,\s][^,]*[^,\s]?)/g) || [];
-                    const items = parts.map(p => {
-                        p = p.trim();
-                        if (p.startsWith("'") && p.endsWith("'")) return p.slice(1, -1);
-                        if (/^\d+$/.test(p)) return Number(p);
-                        return p;
-                    });
-                    parsed.in = [{ col, items }];
-                }
-            }
-        } catch (e) {}
 
         // Normalize aggregate function tokens in select list to uppercase function name
         try {

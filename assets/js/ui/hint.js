@@ -1,11 +1,21 @@
 // ヒント機能
 import { HINT_COST } from '../constants.js';
+import { Floor } from '../models/floor.js';
+import { getCurrentFloorKey } from '../core/floor-key.js';
+
+/**
+ * 現在フロアのヒント本文を i18n から取得する（未設定の場合は空文字）
+ */
+const getHintText = (game) => {
+    const floorData = game.gameData.dungeonData.floors[game.currentFloor];
+    const text = new Floor(floorData, game.i18n).getHint({ i18n: game.i18n, currentDungeon: game.currentDungeon });
+    return typeof text === 'string' ? text : '';
+};
 
 export function handleHint(game) {
-    const floorData = game.gameData.dungeonData.floors[game.currentFloor];
     const i18n = game.i18n;
-    if (game.player.purchasedHints.has(game.currentFloor)) {
-        showHintModal(game, i18n.t('shop.hint.sage'), floorData.hint);
+    if (game.player.purchasedHints.has(getCurrentFloorKey(game))) {
+        showHintModal(game, i18n.t('shop.hint.sage'), getHintText(game));
     } else {
         showPurchaseHintModal(game);
     }
@@ -34,7 +44,7 @@ export function showPurchaseHintModal(game) {
 export function purchaseHint(game) {
     const i18n = game.i18n;
     if (game.player.spendGold(HINT_COST)) {
-        game.player.purchasedHints.add(game.currentFloor);
+        game.player.purchasedHints.add(getCurrentFloorKey(game));
         game.updateUI();
         handleHint(game);
     } else {

@@ -41,7 +41,8 @@ export class DOMManager {
 
     initializeElements() {
         const ids = [
-            'start-screen', 'game-screen', 'end-screen', 'game-grid',
+            'start-screen', 'game-screen', 'end-screen', 'game-grid', 'stage-select-screen',
+            'stage-list', 'stage-message', 'stage-select-button', 'stage-back-button',
             'start-button', 'load-button', 'sandbox-button', 'retry-button', 'save-button',
             'next-floor-btn', 'next-dungeon-btn', 'prev-floor-btn', 'floor-title', 'gold-status', 'energy-status',
             'inventory-list', 'quest-story', 'quest-schema', 'sql-editor',
@@ -385,7 +386,7 @@ export class DOMManager {
     }
 
     showScreen(screenName) {
-        ['start-screen', 'game-screen', 'end-screen'].forEach(id => {
+        ['start-screen', 'game-screen', 'end-screen', 'stage-select-screen'].forEach(id => {
             this.elements[id].classList.add('hidden');
         });
         this.elements[`${screenName}-screen`].classList.remove('hidden');
@@ -481,7 +482,12 @@ export class DOMManager {
         
         const messageEl = document.createElement('p');
         messageEl.className = 'result-message';
-        messageEl.innerHTML = message.replace(/\n/g, '<br>');
+        // メッセージにはユーザー入力（テーブル名・列名など）が含まれるため、HTMLとして解釈せず text で追加する
+        String(message).split('
+').forEach((line, i) => {
+            if (i > 0) messageEl.appendChild(document.createElement('br'));
+            messageEl.appendChild(document.createTextNode(line));
+        });
         
         if (keepTable) {
             // テーブルを保持する場合

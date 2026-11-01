@@ -23,7 +23,10 @@
                 "age": { "type": "integer", "notNull": true },
                 "hashed_password": { "type": "text", "notNull": true },
                 "created_at": { "type": "timestamp", "notNull": true },
-                "type_id": { "type": "integer", "fk": { "table": "types", "column": "type_id" } }
+                "type_id": {
+                    "type": "integer",
+                    "fk": { "table": "types", "column": "type_id" }
+                }
             },
             "candidateKeys": [["id"], ["email"]]
         },

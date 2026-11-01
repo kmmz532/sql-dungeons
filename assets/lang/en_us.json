@@ -156,7 +156,7 @@
     "dungeon.tutorial.floor6.hint": "Use % as a wildcard, e.g. '%abc%'.",
 
     "dungeon.tutorial.floor7.title": "Handle NULL with COALESCE",
-    "dungeon.tutorial.floor7.story": "NULL represents missing data. Use `COALESCE(expr, fallback)` to substitute a fallback value when expr is NULL. Example: `SELECT name, COALESCE(type_id, 0) FROM users2`.",
+    "dungeon.tutorial.floor7.story": "NULL represents missing data. Use `COALESCE(expr, fallback)` to substitute a fallback value when expr is NULL. Example: `SELECT name, COALESCE(type_id, 0) FROM users`.",
     "dungeon.tutorial.floor7.hint": "COALESCE returns the first non-NULL argument.",
 
     "dungeon.tutorial.floor8.title": "INNER JOIN to combine tables",
@@ -164,7 +164,7 @@
     "dungeon.tutorial.floor8.hint": "INNER JOIN returns rows that match in both tables.",
 
     "dungeon.tutorial.floor9.title": "LEFT JOIN keeps all left rows",
-    "dungeon.tutorial.floor9.story": "LEFT JOIN returns all rows from the left table and matching rows from the right; non-matching right rows are NULL. Example: `SELECT users2.name, usertypes.type_name FROM users2 LEFT JOIN usertypes ON users2.type_id = usertypes.type_id`.",
+    "dungeon.tutorial.floor9.story": "LEFT JOIN returns all rows from the left table and matching rows from the right; non-matching right rows are NULL. Example: `SELECT users.name, types.type_name FROM users LEFT JOIN types ON users.type_id = types.type_id`.",
     "dungeon.tutorial.floor9.hint": "Use LEFT JOIN when you want to keep every row from the left table.",
 
     "dungeon.tutorial.floor10.title": "RIGHT JOIN keeps all right rows",
@@ -180,7 +180,7 @@
     "dungeon.tutorial.floor12.hint": "UNION ALL is faster and preserves duplicates.",
 
     "dungeon.tutorial.floor13.title": "COALESCE with joins",
-    "dungeon.tutorial.floor13.story": "When joining optional data, some columns may be NULL. Use COALESCE to replace NULLs with a friendly value, e.g. `COALESCE(usertypes.type_name, '(unknown)')`.",
+    "dungeon.tutorial.floor13.story": "When joining optional data, some columns may be NULL. Use COALESCE to replace NULLs with a friendly value, e.g. `COALESCE(types.type_name, '(unknown)')`.",
     "dungeon.tutorial.floor13.hint": "COALESCE helps show readable values even when joined data is missing.",
 
     "dungeon.tutorial.floor14.title": "Aggregate after a LEFT JOIN",
@@ -266,5 +266,14 @@
     "sql.keyword.max.desc": "An aggregate function that returns the maximum value.",
     "sql.keyword.count.desc": "An aggregate function that counts rows.",
     "sql.keyword.having.desc": "Specifies conditions after grouping.",
-    "sql.keyword.in.desc": "Checks if a value is in a given set."
+    "sql.keyword.in.desc": "Checks if a value is in a given set.",
+    "stage.select.title": "Dungeon Select",
+    "stage.floors": "%s floors",
+    "stage.cleared": "Cleared",
+    "stage.tutorial.name": "Tutorial",
+    "stage.tutorial.desc": "Learn the basics of SQL",
+    "stage.beginner.name": "Beginner Dungeon",
+    "stage.beginner.desc": "Try JOINs and aggregate functions",
+    "button.stage_select": "Dungeon Select",
+    "message.update_available": "An update is available. Reload now?"
 }

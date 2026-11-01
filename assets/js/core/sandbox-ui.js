@@ -22,7 +22,7 @@ export class SandboxUI {
             if (!schemaContainer) return;
 
             // サンドボックスモードでは統合された全データベースを使用
-            const mockDb = this.core.gameData?.mergedMockDatabase || this.core.gameData?.mockDatabase || {};
+            const mockDb = this.core.gameData?.mergedMockDatabase || {};
             const tables = Object.keys(mockDb).filter(k => !k.startsWith('__'));
             if (!tables || tables.length === 0) return;
 

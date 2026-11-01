@@ -123,8 +123,16 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
             if (tk.type === 'NOT') { consume('NOT'); const v = parsePrimary(); return !v; }
             if (tk.type === '(') { consume('('); const v = parseExpr(); consume(')'); return v; }
             // カラム名 BETWEEN a AND b
+            // TRUE / FALSE リテラル（非相関 EXISTS の置換結果などで使用）
+            if (tk.type === 'IDENT' && /^(true|false)$/i.test(tk.value)) {
+                consume('IDENT');
+                return /^true$/i.test(tk.value);
+            }
             if (tk.type === 'IDENT') {
                 const leftIdent = consume('IDENT').value;
+                // 後置 NOT（NOT IN / NOT LIKE / NOT BETWEEN）
+                let neg = false;
+                if (peek() && peek().type === 'NOT') { consume('NOT'); neg = true; }
                 const next = peek();
                 if (next && next.type === 'BETWEEN') {
                     consume('BETWEEN');
@@ -137,7 +145,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
                     let a = lhs, b = low, c = high;
                     if (typeof a === 'number' || (typeof b === 'number' && typeof c === 'number')) { a = Number(a); b = Number(b); c = Number(c); } else { a = String(a); b = String(b); c = String(c); }
                     if (b > c) { const tmp = b; b = c; c = tmp; }
-                    return (a >= b && a <= c);
+                    return neg !== (a >= b && a <= c);
                 }
                 // IN
                 if (peek() && peek().type === 'IN') {
@@ -150,7 +158,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
                     const lhs = resolveRowValue(row, leftIdent);
                     const set = new Set(items.map(v => (v === null || v === undefined) ? v : String(v)));
                     const key = lhs === null || lhs === undefined ? lhs : String(lhs);
-                    return set.has(key);
+                    return neg !== set.has(key);
                 }
                 // LIKE
                 if (peek() && peek().type === 'LIKE') {
@@ -159,7 +167,7 @@ export const evaluateCondition = (row, condStr, opts = { permissive: true }) => 
                     const v = resolveRowValue(row, leftIdent);
                     if (v === null || v === undefined) return false;
                     const re = likePatternToRegex(pat);
-                    return re.test(String(v));
+                    return neg !== re.test(String(v));
                 }
                 // IS NULL / IS NOT NULL
                 if (peek() && peek().type === 'IS') {

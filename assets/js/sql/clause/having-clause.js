@@ -17,8 +17,11 @@ export class HavingClause extends AbstractClause {
         if (!havingStr || !table || table.length === 0) return table;
         // eg: SUM(col) >= 10, COUNT(*) > 2, AVG(col) < 5 など
     // Support qualified column names inside aggregate, e.g. SUM(s.quantity)
-    const m = havingStr.match(/(SUM|COUNT|AVG)\s*\(\s*(\*|(?:\w+(?:\.\w+)?))\s*\)\s*(=|>=|<=|>|<)\s*('?\d+'?)/i);
-        if (!m) return table;
+    const m = havingStr.match(/(SUM|COUNT|AVG|MAX|MIN)\s*\(\s*(\*|(?:\w+(?:\.\w+)?))\s*\)\s*(!=|<>|=|>=|<=|>|<)\s*('?\d+'?)/i);
+        if (!m) {
+            console.warn('[HavingClause] unsupported HAVING condition:', havingStr);
+            return table;
+        }
         const fn = m[1].toUpperCase();
         const col = m[2];
         const op = m[3];
@@ -36,6 +39,7 @@ export class HavingClause extends AbstractClause {
             if (v === undefined) return false;
             switch (op) {
                 case '=': return v == rhs;
+                case '!=': case '<>': return v != rhs;
                 case '>=': return v >= rhs;
                 case '<=': return v <= rhs;
                 case '>': return v > rhs;
@@ -47,4 +51,4 @@ export class HavingClause extends AbstractClause {
 }
 
 export { HavingClause as HAVING };
-export default { HavingClause };
+export default HavingClause;

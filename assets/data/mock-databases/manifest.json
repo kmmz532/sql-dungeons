@@ -1,8 +1,1 @@
-[
-    "tutorial.json",
-    "fruit.json",
-    "user.json",
-    "user2.json",
-    "game.json",
-    "company.json"
-]
+["tutorial.json", "fruit.json", "user.json", "game.json", "company.json"]

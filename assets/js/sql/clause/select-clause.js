@@ -24,8 +24,8 @@ export class SelectClause extends AbstractClause {
             for (let i = 0; i < selectCols.length; i++) {
                 let part = String(selectCols[i] || '').trim();
                 // If parentheses unbalanced or ends with '(' or starts with ')' or contains unmatched quotes, merge subsequent parts
-                const countOpen = (part.match(/\(/g) || []).length;
-                const countClose = (part.match(/\)/g) || []).length;
+                let countOpen = (part.match(/\(/g) || []).length;
+                let countClose = (part.match(/\)/g) || []).length;
                 let inSingle = (part.match(/'/g) || []).length % 2 === 1;
                 let inDouble = (part.match(/"/g) || []).length % 2 === 1;
                 while ((countOpen > countClose || inSingle || inDouble) && i + 1 < selectCols.length) {

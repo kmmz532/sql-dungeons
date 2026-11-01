@@ -1,22 +1,23 @@
-const CACHE_NAME = 'sql-dungeons-v1';
+const CACHE_NAME = 'sql-dungeons-v2';
 const ASSETS = [
   './',
   './index.html',
   './assets/css/styles.css',
   './assets/data/dungeons/beginner.json',
   './assets/data/dungeons/tutorial.json',
-  './assets/data/mock-database.json',
+  './assets/data/dungeons/manifest.json',
   './assets/data/mock-databases/company.json',
-  './assets/data/mock-databases/fruits.json',
+  './assets/data/mock-databases/fruit.json',
   './assets/data/mock-databases/game.json',
-  './assets/data/mock-databases/tutorial.json', 
+  './assets/data/mock-databases/tutorial.json',
   './assets/data/mock-databases/user.json',
-  './assets/data/mock-databases/user2.json',
+  './assets/data/mock-databases/manifest.json',
   './assets/data/shop-items.json',
   './assets/lang/en_us.json',
   './assets/lang/ja_jp.json',
   './assets/lang/ko_kr.json',
   './assets/lang/zh_cn.json',
+  './assets/lang/manifest.json',
   './assets/js/main.js',
   './assets/js/constants.js',
   './assets/js/register.js',
@@ -24,6 +25,7 @@ const ASSETS = [
   './assets/js/core/game-lifecycle.js',
   './assets/js/core/game-state.js',
   './assets/js/core/sandbox-ui.js',
+  './assets/js/core/floor-key.js',
   './assets/js/data/data-loader.js',
   './assets/js/lang/i18n.js',
   './assets/js/lang/i18n-init.js',
@@ -32,15 +34,14 @@ const ASSETS = [
   './assets/js/models/player.js',
   './assets/js/sql/sql-parser.js',
   './assets/js/sql/clause/abstract-clause.js',
+  './assets/js/sql/clause/exists-clause.js',
   './assets/js/sql/clause/groupby-clause.js',
   './assets/js/sql/clause/having-clause.js',
   './assets/js/sql/clause/inner-join-clause.js',
   './assets/js/sql/clause/outer-join-clause.js',
   './assets/js/sql/clause/in-clause.js',
   './assets/js/sql/clause/where-clause.js',
-  './assets/js/sql/clause/exists-clause.js',
   './assets/js/sql/clause/orderby-clause.js',
-  './assets/js/sql/clause/groupby-clause.js',
   './assets/js/sql/clause/insert-clause.js',
   './assets/js/sql/clause/select-clause.js',
   './assets/js/sql/clause/union-clause.js',
@@ -58,6 +59,7 @@ const ASSETS = [
   './assets/js/ui/hint.js',
   './assets/js/ui/render-util.js',
   './assets/js/ui/shop.js',
+  './assets/js/ui/stage-select.js',
   './assets/js/ui/ui-handlers.js',
   './assets/js/ui/query-executor.js',
   './assets/js/ui/autocomplete.js',
@@ -72,21 +74,32 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS).catch(() => {}))
+    caches.open(CACHE_NAME).then((cache) =>
+      // 1件ずつ取得する。存在しないファイルがあっても全体のキャッシュを失敗させない
+      Promise.all(ASSETS.map((url) => cache.add(url).catch(() => {})))
+    )
   );
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    // 古いバージョンのキャッシュを削除する
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
   // Network-first, fallback to cache
   event.respondWith(
     fetch(event.request).then((res) => {
-      // put a clone in cache for future
-      try { const copy = res.clone(); caches.open(CACHE_NAME).then(c => c.put(event.request, copy)); } catch(e) {}
+      try {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((c) => c.put(event.request, copy));
+      } catch (e) {}
       return res;
-    }).catch(() => caches.match(event.request).then((r) => r || caches.match('/index.html')))
+    }).catch(() => caches.match(event.request).then((r) => r || caches.match('./index.html')))
   );
 });

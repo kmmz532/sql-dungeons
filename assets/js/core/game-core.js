@@ -61,7 +61,7 @@ export class GameCore {
         }
 
         try {
-            const mockDb = this.gameData?.mergedMockDatabase || this.gameData?.mockDatabase || {};
+            const mockDb = this.gameData?.mergedMockDatabase || {};
             const tables = Object.keys(mockDb).filter(k => !k.startsWith('__'));
             if (!Array.isArray(this.sandboxSelectedTables) || this.sandboxSelectedTables.length === 0) {
                 if (tables.includes('table001')) this.sandboxSelectedTables = ['table001'];
@@ -89,7 +89,7 @@ export class GameCore {
         try {
             // サンドボックスモードでは統合されたデータベース
             if (this.isSandbox) {
-                return this.gameData?.mergedMockDatabase || this.gameData?.mockDatabase || {};
+                return this.gameData?.mergedMockDatabase || {};
             }
 
             // 通常モードでは現在のフロアのdatabases
@@ -99,11 +99,11 @@ export class GameCore {
                 return mergeDatabases(this.gameData.mockDatabases, floorData.databases);
             }
 
-            // デフォルトのmockDatabase
-            return this.gameData?.mockDatabase || {};
+            // 指定がなければ全データベースを統合したものを使う
+            return this.gameData?.mergedMockDatabase || {};
         } catch (e) {
             console.error('Failed to get current mock database', e);
-            return this.gameData?.mockDatabase || {};
+            return this.gameData?.mergedMockDatabase || {};
         }
     }
 
@@ -123,8 +123,12 @@ export class GameCore {
         return this.lifecycle.updateUI();
     }
 
-    advanceToNextDungeon() {
-        return this.lifecycle.advanceToNextDungeon();
+    enterStage(key) {
+        return this.lifecycle.enterStage(key);
+    }
+
+    showStageSelect(message) {
+        return this.lifecycle.showStageSelect(message);
     }
 
     showEndScreen(title, message) {

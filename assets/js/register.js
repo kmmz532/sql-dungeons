@@ -47,8 +47,8 @@ export async function init(manifestUrl, type) {
             try {
                 const mod = await import(resolved);
                 const ctor = mod.default || mod[key] || mod[Object.keys(mod)[0]];
-                if (ctor) register(key, ctor, type);
-                else console.warn('No export found in module for', key, 'at', resolved);
+                if (typeof ctor === 'function') register(key, ctor, type);
+                else console.warn('No class export found in module for', key, 'at', resolved);
             } catch (e) {
                 console.warn('Failed to import', resolved, e);
             }
@@ -72,8 +72,8 @@ export async function registerFromManifestObject(manifest, basePath, type) {
         try {
             const mod = await import(path);
             const ctor = mod.default || mod[key] || mod[Object.keys(mod)[0]];
-            if (ctor) register(key, ctor, type);
-            else console.warn('No export found in module for', key, 'at', path);
+            if (typeof ctor === 'function') register(key, ctor, type);
+            else console.warn('No class export found in module for', key, 'at', path);
         } catch (e) {
             console.warn('Failed to import', path, e);
         }

@@ -3,6 +3,7 @@ import { SQLParser } from '../sql/sql-parser.js';
 import { EXECUTE_COST } from '../constants.js';
 import Register from '../register.js';
 import { filterSelectedTables } from '../data/data-loader.js';
+import { getCurrentFloorKey } from '../core/floor-key.js';
 
 const sqlParser = new SQLParser();
 const EMULATE_AUTO_ACCEPT = false;
@@ -22,32 +23,16 @@ export function executeQuery(game) {
     }
 
     if (!isSandbox) {
-        try {
-            const floorDataTmp = game.gameData?.dungeonData?.floors?.[game.currentFloor] || {};
-            const canonicalFloorNumTmp = (floorDataTmp && (floorDataTmp.floor || floorDataTmp.id)) 
-                ? Number(floorDataTmp.floor || floorDataTmp.id) 
-                : (Number(game.currentFloor) + 1);
-            const floorKey = Number(canonicalFloorNumTmp);
-            
-            if (!game.player.clearedFloors || !game.player.clearedFloors.has(floorKey)) {
-                if (!game.player.spendEnergy(EXECUTE_COST)) {
-                    dom.showResult(game.i18n.t('message.no_energy'), 'error');
-                    return;
-                }
-            }
-        } catch (e) {
-            if (!game.player.spendEnergy(EXECUTE_COST)) {
-                dom.showResult(game.i18n.t('message.no_energy'), 'error');
-                return;
-            }
+        // 未習得の呪文によるエラーでエネルギーが減らないよう、先に検証する
+        if (!validateQuery(game, query, false)) return;
+
+        // クリア済みフロアの再挑戦は無料
+        const alreadyCleared = game.player.clearedFloors && game.player.clearedFloors.has(getCurrentFloorKey(game));
+        if (!alreadyCleared && !game.player.spendEnergy(EXECUTE_COST)) {
+            dom.showResult(game.i18n.t('message.no_energy'), 'error');
+            return;
         }
     }
-
-    try {
-        console.log('[debug] executeQuery - currentFloor:', game.currentFloor);
-        console.log('[debug] executeQuery - player.clearedFloors:', 
-            game.player && game.player.clearedFloors ? Array.from(game.player.clearedFloors) : null);
-    } catch (e) {}
 
     const floorData = game.gameData?.dungeonData?.floors?.[game.currentFloor] || {};
     
@@ -109,7 +94,6 @@ export function executeQuery(game) {
         return;
     }
 
-    if (!validateQuery(game, query, false)) return;
 
     const validationDb = game.getCurrentMockDatabase();
 
@@ -155,7 +139,7 @@ function diagnoseEmptyResult(parsed, results, mockDatabase, i18n) {
         if (parsed.from && parsed.from.table) {
             const tableKey = String(parsed.from.table).toLowerCase();
             if (!(tableKey in mockDatabase)) {
-                return `このテーブルは存在しません: ${parsed.from.table}`;
+                return game.i18n.t('message.error_table_not_found', parsed.from.table);
             }
         }
     } catch (e) {}
@@ -315,56 +299,30 @@ export function handleCorrectAnswer(game, floorData, query) {
     } catch(e){}
     
     try {
-        const canonicalFloorNum = (floorData && (floorData.floor || floorData.id)) 
-            ? Number(floorData.floor || floorData.id) 
-            : (Number(game.currentFloor) + 1);
-        const floorKeyCheck = Number(canonicalFloorNum);
-        
+        const floorKey = getCurrentFloorKey(game);
         if (!game.player.clearedFloors) game.player.clearedFloors = new Set();
-        
-        console.log('[debug] handleCorrectAnswer - canonicalFloorNum:', canonicalFloorNum, 'floorKeyCheck:', floorKeyCheck);
-        console.log('[debug] handleCorrectAnswer - clearedFloors before:', Array.from(game.player.clearedFloors));
-        
-        if (!game.player.clearedFloors.has(floorKeyCheck)) {
+
+        if (!game.player.clearedFloors.has(floorKey)) {
             if (floorData.reward) {
                 game.player.addGold(floorData.reward.gold || 0);
                 game.player.addEnergy(floorData.reward.energy || 0);
                 (floorData.reward.items || []).forEach(item => game.player.addItem(item));
             }
-            
-            const keyNumeric = Number(canonicalFloorNum);
-            if (!game.player.clearedFloors) game.player.clearedFloors = new Set();
-            
-            console.debug('[handleCorrectAnswer] marking floor cleared', { 
-                currentFloorIndex: game.currentFloor, 
-                floorDataFloor: floorData && (floorData.floor || floorData.id), 
-                keysToAdd: [keyNumeric], 
-                before: Array.from(game.player.clearedFloors) 
-            });
-            
-            game.player.clearedFloors.add(keyNumeric);
-            console.debug('[handleCorrectAnswer] clearedFloors after add', Array.from(game.player.clearedFloors));
-            
-            try { 
-                if (game && typeof game.updateUI === 'function') game.updateUI(); 
-            } catch (e) { 
-                console.error('Failed to update UI after reward', e); 
-            }
+            consumeUsedItems(game, query);
+
+            game.player.clearedFloors.add(floorKey);
+            try { game.updateUI(); } catch (e) { console.error('Failed to update UI after reward', e); }
         }
-    } catch (e) { 
-        console.error('Failed to apply/mark floor reward', e); 
+    } catch (e) {
+        console.error('Failed to apply/mark floor reward', e);
     }
     
     // まず結果テーブルを表示してから、成功メッセージを表示（テーブルを保持）
     dom.displayTable(sqlParser.emulate(query, game.currentFloor, game.getCurrentMockDatabase()));
     dom.showResult(game.i18n.t('message.correct_result'), 'success', true);
     dom.elements['floor-actions-container'].classList.remove('hidden');
-    
+
     if (game.currentFloor < game.gameData.dungeonData.floors.length - 1) {
-        console.debug('[handleCorrectAnswer] showing next-floor; currentFloor:', game.currentFloor, 
-            'floorsLen:', game.gameData.dungeonData.floors.length, 
-            'clearedFloors:', Array.from(game.player.clearedFloors || []));
-        
         if (dom.elements['next-floor-btn']) {
             dom.elements['next-floor-btn'].classList.remove('hidden');
             try { dom.elements['next-floor-btn'].style.display = ''; } catch(e) {}
@@ -374,80 +332,15 @@ export function handleCorrectAnswer(game, floorData, query) {
             };
         }
     } else {
+        // ダンジョンの最終フロア: クリアを記録し、ステージ選択画面へ遷移する
         dom.elements['next-floor-btn'].classList.add('hidden');
         dom.elements['next-floor-btn'].onclick = null;
-
-        try {
-            const isCleared = (() => {
-                try {
-                    const fd = game.gameData.dungeonData.floors[game.currentFloor];
-                    const canonicalFloorNum = fd && (fd.floor || fd.id) 
-                        ? Number(fd.floor || fd.id) 
-                        : (Number(game.currentFloor) + 1);
-                    const candidates = [`floor:${canonicalFloorNum}`];
-                    
-                    console.debug('[handleCorrectAnswer] isCleared candidates', candidates, 
-                        'player.clearedFloors', Array.from(game.player.clearedFloors || []));
-                    
-                    return game.player && game.player.clearedFloors && 
-                           candidates.some(c => game.player.clearedFloors.has(c));
-                } catch (e) { 
-                    return false; 
-                }
-            })();
-
-            const hasNextDungeon = !!(game.gameData && game.gameData.dungeons && 
-                                     Object.keys(game.gameData.dungeons).length > 1);
-            
-            if (isCleared && hasNextDungeon && dom.elements['next-dungeon-btn']) {
-                dom.elements['next-dungeon-btn'].classList.remove('hidden');
-                try { dom.elements['next-dungeon-btn'].style.display = ''; } catch(e) {}
-                try { 
-                    dom.elements['floor-actions-container'] && 
-                    dom.elements['floor-actions-container'].classList.remove('hidden'); 
-                } catch(e) {}
-                
-                dom.elements['next-dungeon-btn'].onclick = async () => {
-                    const ok = game.advanceToNextDungeon ? game.advanceToNextDungeon() : false;
-                    if (!ok) {
-                        setTimeout(() => game.showEndScreen(
-                            game.i18n.t('message.clear'), 
-                            game.i18n.t('message.clear_all')
-                        ), 1200);
-                    }
-                };
-            } else {
-                if (dom.elements['next-dungeon-btn']) {
-                    dom.elements['next-dungeon-btn'].classList.add('hidden');
-                    dom.elements['next-dungeon-btn'].onclick = null;
-                }
-                
-                try {
-                    const dungeonKey = game.currentDungeon || null;
-                    if (dungeonKey && game.player) {
-                        if (!game.player.clearedDungeons) game.player.clearedDungeons = new Set();
-                        game.player.clearedDungeons.add(dungeonKey);
-                        try { 
-                            if (typeof game.saveGame === 'function') game.saveGame(); 
-                        } catch (e) { 
-                            console.warn('Auto-save failed after dungeon clear', e); 
-                        }
-                    }
-                } catch (e) { 
-                    console.error('Failed to mark dungeon cleared', e); 
-                }
-
-                setTimeout(() => game.showEndScreen(
-                    game.i18n.t('message.clear'), 
-                    game.i18n.t('message.clear_all')
-                ), 1200);
-            }
-        } catch (e) {
-            setTimeout(() => game.showEndScreen(
-                game.i18n.t('message.clear'), 
-                game.i18n.t('message.clear_all')
-            ), 1200);
+        if (dom.elements['next-dungeon-btn']) {
+            dom.elements['next-dungeon-btn'].classList.add('hidden');
+            dom.elements['next-dungeon-btn'].onclick = null;
         }
+        markDungeonCleared(game);
+        setTimeout(() => game.showStageSelect(game.i18n.t('message.clear_all')), 1200);
     }
     
     if (floorData.opensShop) {
@@ -516,4 +409,27 @@ function determineNextClause(game, query, lastWord) {
     if (lastWord === 'JOIN') return 'ON';
     
     return '不明';
+}
+
+/**
+ * ダンジョンの最終フロアをクリアしたことを記録し、セーブする
+ */
+function markDungeonCleared(game) {
+    if (!game.player || !game.currentDungeon) return;
+    if (!game.player.clearedDungeons) game.player.clearedDungeons = new Set();
+    game.player.clearedDungeons.add(game.currentDungeon);
+    try { game.saveGame(); } catch (e) { console.warn('Auto-save failed after dungeon clear', e); }
+}
+
+/**
+ * 正解したクエリで使われた消費アイテムを1つ消費する（習得済み・借用中のものは対象外）
+ */
+function consumeUsedItems(game, query) {
+    const upper = query.toUpperCase();
+    const consumables = game.player.consumableItems || {};
+    for (const item of Object.keys(consumables)) {
+        if (consumables[item] <= 0) continue;
+        if (game.player.inventory.has(item) || game.player.borrowedItems.has(item)) continue;
+        if (new RegExp(`\b${item}\b`).test(upper)) game.player.useConsumableItem(item);
+    }
 }

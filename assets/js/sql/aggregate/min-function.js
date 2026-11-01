@@ -1,20 +1,17 @@
 import { AggregateFunction } from './aggregate-function.js';
+import { resolveAggregateValue } from '../util/column-resolver.js';
 
 export class MinFunction extends AggregateFunction {
     apply(rows) {
-        if (!rows || rows.length === 0) return null;
-        const col = this.column;
-        const keyPart = col ? (String(col).includes('.') ? String(col).split('.').pop() : String(col)) : undefined;
-        let min = null;
+        if (!rows || rows.length === 0 || !this.column) return null;
+        let acc = null;
         for (const r of rows) {
-            if (!keyPart) continue;
-            const foundKey = Object.keys(r).find(k => k.toLowerCase().endsWith('.' + keyPart.toLowerCase()) || k.toLowerCase() === keyPart.toLowerCase());
-            const val = foundKey ? r[foundKey] : (r[col] !== undefined ? r[col] : undefined);
+            const val = resolveAggregateValue(r, this.column);
             const n = (val === null || val === undefined) ? null : parseFloat(val);
             if (n === null || Number.isNaN(n)) continue;
-            if (min === null || n < min) min = n;
+            if (acc === null || n < acc) acc = n;
         }
-        return min;
+        return acc;
     }
     getResultKey() {
         return `MIN(${this.column})`;
